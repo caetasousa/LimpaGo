@@ -3,8 +3,8 @@ package testutil
 import (
 	"context"
 
-	"phresh-go/domain/entity"
-	errosdominio "phresh-go/domain/errors"
+	"limpaGo/domain/entity"
+	errosdominio "limpaGo/domain/errors"
 )
 
 type RepositorioLimpezaMock struct {

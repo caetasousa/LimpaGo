@@ -1,4 +1,4 @@
-module phresh-go
+module limpaGo
 
 go 1.22.2
 

@@ -1,6 +1,6 @@
 package dto
 
-import "phresh-go/domain/entity"
+import "limpaGo/domain/entity"
 
 // RequisicaoCriarAvaliacao representa o corpo para criar uma avaliação.
 type RequisicaoCriarAvaliacao struct {

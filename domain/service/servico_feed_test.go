@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"phresh-go/domain/entity"
-	"phresh-go/domain/service"
-	"phresh-go/domain/testutil"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	"limpaGo/domain/service"
+	"limpaGo/domain/testutil"
+	"limpaGo/domain/valueobject"
 )
 
 func setupServicoFeed(t *testing.T) (*service.ServicoFeed, *testutil.RepositorioFeedMock) {

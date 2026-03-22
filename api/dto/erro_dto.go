@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"phresh-go/domain/entity"
-	errosdominio "phresh-go/domain/errors"
+	"limpaGo/domain/entity"
+	errosdominio "limpaGo/domain/errors"
 )
 
 // RespostaErro é a estrutura padrão de resposta de erro da API.

@@ -3,8 +3,8 @@ package entity
 import (
 	"time"
 
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/valueobject"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/valueobject"
 )
 
 // LimiteMultaCancelamento é o prazo mínimo antes do serviço para cancelar sem multa.

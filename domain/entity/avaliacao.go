@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/valueobject"
 )
 
 type Avaliacao struct {

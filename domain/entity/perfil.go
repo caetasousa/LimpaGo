@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/valueobject"
 )
 
 // Perfil contém os dados pessoais compartilhados de qualquer usuário.

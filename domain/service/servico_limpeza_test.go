@@ -5,11 +5,11 @@ import (
 	"errors"
 	"testing"
 
-	"phresh-go/domain/entity"
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/service"
-	"phresh-go/domain/testutil"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/service"
+	"limpaGo/domain/testutil"
+	"limpaGo/domain/valueobject"
 )
 
 func setupServicoLimpeza(t *testing.T) *service.ServicoLimpeza {

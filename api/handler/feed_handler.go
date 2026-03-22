@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"phresh-go/api/dto"
-	"phresh-go/domain/service"
+	"limpaGo/api/dto"
+	"limpaGo/domain/service"
 )
 
 // HandlerFeed gerencia o endpoint de feed de atividades.

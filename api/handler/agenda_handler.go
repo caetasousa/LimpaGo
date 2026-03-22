@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"phresh-go/api/dto"
-	"phresh-go/api/middleware"
-	"phresh-go/domain/service"
+	"limpaGo/api/dto"
+	"limpaGo/api/middleware"
+	"limpaGo/domain/service"
 )
 
 // HandlerAgenda gerencia os endpoints de disponibilidade e bloqueios de agenda.

@@ -18,8 +18,8 @@ import (
 	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	"phresh-go/api/handler"
-	"phresh-go/api/middleware"
+	"limpaGo/api/handler"
+	"limpaGo/api/middleware"
 )
 
 // Dependencias agrupa todos os handlers necessários para construir o router.

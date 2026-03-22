@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/valueobject"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/valueobject"
 )
 
 func limpezaParaTeste(faxineiroID int) *Limpeza {

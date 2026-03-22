@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/valueobject"
 )
 
 // ItemFeed representa um evento de atividade no feed — como serviços publicados ou atualizados por faxineiros.

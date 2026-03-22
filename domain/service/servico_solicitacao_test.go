@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"phresh-go/domain/entity"
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/service"
-	"phresh-go/domain/testutil"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/service"
+	"limpaGo/domain/testutil"
+	"limpaGo/domain/valueobject"
 )
 
 // setupSolicitacao cria cenario completo: faxineiroID=1, limpeza 3h, disponibilidade segunda 8-17h.

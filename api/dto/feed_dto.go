@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"phresh-go/domain/entity"
+	"limpaGo/domain/entity"
 )
 
 // RespostaItemFeed representa um item do feed na resposta da API.

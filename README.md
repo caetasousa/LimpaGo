@@ -322,8 +322,8 @@ Criado manualmente quando o usuário quer **contratar serviços**:
 ## Estrutura do projeto
 
 ```
-phresh-go/
-├── go.mod                                Módulo Go (phresh-go, Go 1.22)
+limpaGo/
+├── go.mod                                Módulo Go (limpaGo, Go 1.22)
 ├── EXPLICACAO.md                         Esta documentação
 │
 └── domain/                               Camada de domínio (única camada implementada)

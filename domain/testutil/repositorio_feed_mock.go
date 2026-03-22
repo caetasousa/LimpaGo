@@ -3,7 +3,7 @@ package testutil
 import (
 	"context"
 
-	"phresh-go/domain/entity"
+	"limpaGo/domain/entity"
 )
 
 type RepositorioFeedMock struct {

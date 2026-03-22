@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"phresh-go/domain/entity"
+	"limpaGo/domain/entity"
 )
 
 // RequisicaoCriarSolicitacao representa o corpo para criar uma solicitação.

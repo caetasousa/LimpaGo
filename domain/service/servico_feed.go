@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"phresh-go/domain/entity"
-	"phresh-go/domain/repository"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	"limpaGo/domain/repository"
+	"limpaGo/domain/valueobject"
 )
 
 type ServicoFeed struct {

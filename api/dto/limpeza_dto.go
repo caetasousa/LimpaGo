@@ -1,6 +1,6 @@
 package dto
 
-import "phresh-go/domain/entity"
+import "limpaGo/domain/entity"
 
 // RequisicaoCriarLimpeza representa o corpo para criar um serviço de limpeza.
 type RequisicaoCriarLimpeza struct {

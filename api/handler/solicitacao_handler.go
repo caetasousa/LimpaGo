@@ -3,9 +3,9 @@ package handler
 import (
 	"net/http"
 
-	"phresh-go/api/dto"
-	"phresh-go/api/middleware"
-	"phresh-go/domain/service"
+	"limpaGo/api/dto"
+	"limpaGo/api/middleware"
+	"limpaGo/domain/service"
 )
 
 // HandlerSolicitacao gerencia os endpoints de solicitações de limpeza.

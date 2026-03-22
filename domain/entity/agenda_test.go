@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	errosdominio "phresh-go/domain/errors"
+	errosdominio "limpaGo/domain/errors"
 )
 
 func TestNovaDisponibilidade(t *testing.T) {

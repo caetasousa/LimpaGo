@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/service"
-	"phresh-go/domain/testutil"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/service"
+	"limpaGo/domain/testutil"
 )
 
 func setupServicoAgenda(t *testing.T) *service.ServicoAgenda {

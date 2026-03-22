@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"phresh-go/domain/entity"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	"limpaGo/domain/valueobject"
 )
 
 // RequisicaoRegistro representa o corpo da requisição de registro de usuário.

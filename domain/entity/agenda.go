@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	errosdominio "phresh-go/domain/errors"
+	errosdominio "limpaGo/domain/errors"
 )
 
 // Disponibilidade representa um bloco de horário disponível na agenda do faxineiro.

@@ -17,13 +17,13 @@ import (
 	"syscall"
 	"time"
 
-	_ "phresh-go/docs"
+	_ "limpaGo/docs"
 
-	"phresh-go/api/handler"
-	"phresh-go/api/router"
-	"phresh-go/api/server"
-	"phresh-go/domain/service"
-	"phresh-go/domain/testutil"
+	"limpaGo/api/handler"
+	"limpaGo/api/router"
+	"limpaGo/api/server"
+	"limpaGo/domain/service"
+	"limpaGo/domain/testutil"
 )
 
 func main() {

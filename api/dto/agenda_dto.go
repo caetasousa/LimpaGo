@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"phresh-go/domain/entity"
+	"limpaGo/domain/entity"
 )
 
 // RequisicaoDisponibilidade representa o corpo para adicionar disponibilidade.

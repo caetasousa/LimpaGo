@@ -3,7 +3,7 @@ package entity
 import (
 	"testing"
 
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/valueobject"
 )
 
 func TestNovaAvaliacao(t *testing.T) {

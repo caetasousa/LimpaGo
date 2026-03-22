@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"phresh-go/domain/entity"
+	"limpaGo/domain/entity"
 )
 
 type RepositorioFeed interface {

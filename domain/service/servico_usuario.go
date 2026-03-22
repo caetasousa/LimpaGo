@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"phresh-go/domain/entity"
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/repository"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/repository"
+	"limpaGo/domain/valueobject"
 )
 
 type ServicoUsuario struct {

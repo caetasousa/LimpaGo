@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"phresh-go/domain/entity"
+	"limpaGo/domain/entity"
 )
 
 type RepositorioAgendaMock struct {

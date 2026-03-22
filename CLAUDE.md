@@ -3,7 +3,7 @@
 ## Identidade do projeto
 
 **Phresh-Go** é a camada de domínio de uma plataforma de intermediação de serviços de limpeza.
-- Linguagem: **Go 1.22**, módulo `phresh-go`
+- Linguagem: **Go 1.22**, módulo `limpaGo`
 - Arquitetura: **DDD (Domain-Driven Design) + Clean Architecture**
 - Dependências externas: **nenhuma** — apenas a biblioteca padrão do Go (`stdlib`)
 - Idioma do código: **português** (nomes de tipos, funções, variáveis, erros)
@@ -13,7 +13,7 @@
 ## Estrutura do projeto
 
 ```
-phresh-go/
+limpaGo/
 ├── domain/
 │   ├── entity/          Entidades com identidade (Usuario, Limpeza, Solicitacao, Agenda...)
 │   ├── valueobject/     Objetos de valor imutáveis (TipoLimpeza, Nota, Endereco, Paginacao...)

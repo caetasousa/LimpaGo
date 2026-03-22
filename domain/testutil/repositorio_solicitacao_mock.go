@@ -3,8 +3,8 @@ package testutil
 import (
 	"context"
 
-	"phresh-go/domain/entity"
-	"phresh-go/domain/valueobject"
+	"limpaGo/domain/entity"
+	"limpaGo/domain/valueobject"
 )
 
 type chaveClienteLimpeza struct {

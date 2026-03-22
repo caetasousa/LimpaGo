@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"phresh-go/domain/entity"
-	errosdominio "phresh-go/domain/errors"
-	"phresh-go/domain/repository"
+	"limpaGo/domain/entity"
+	errosdominio "limpaGo/domain/errors"
+	"limpaGo/domain/repository"
 )
 
 // ServicoAgenda gerencia a disponibilidade e os bloqueios de horário dos faxineiros.

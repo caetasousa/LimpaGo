@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"phresh-go/api/dto"
+	"limpaGo/api/dto"
 )
 
 // escreverJSON serializa dados como JSON e escreve na resposta.
