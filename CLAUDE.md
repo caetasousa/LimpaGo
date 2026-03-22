@@ -165,3 +165,18 @@ aceita   → cancelada (cliente, possível multa 20%)
 
 - `.agents/skills/golang-testing/SKILL.md` — padrões de teste Go (table-driven, benchmarks, fuzzing)
 - `.agents/skills/golang-pro/SKILL.md` — boas práticas Go (concorrência, interfaces, generics, estrutura de projeto)
+
+---
+
+## Fluxo de trabalho ao terminar alterações
+
+Ao concluir qualquer tarefa que envolva mudanças no código, **sempre perguntar ao usuário**:
+
+> "Deseja que eu faça `git push` para o GitHub agora?"
+
+Se a resposta for sim, executar:
+```bash
+git push origin master
+```
+
+Remote configurado: `https://github.com/caetasousa/LimpaGo.git`
