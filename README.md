@@ -1,10 +1,10 @@
-# Phresh-Go — Plataforma de Serviços de Limpeza
+# LimpaGo — Plataforma de Serviços de Limpeza
 
 ## O que é este projeto?
 
-O **Phresh-Go** é a camada de domínio de uma plataforma de intermediação de serviços de limpeza, escrito em Go. Ele modela toda a lógica de negócio para conectar **faxineiros** (profissionais de limpeza) que publicam seus serviços com **clientes** que os contratam.
+O **LimpaGo** é uma plataforma de intermediação de serviços de limpeza, escrito em Go. Ele modela toda a lógica de negócio para conectar **faxineiros** (profissionais de limpeza) que publicam seus serviços com **clientes** que os contratam, expondo uma **API REST** documentada com Swagger.
 
-O projeto segue os princípios de **Domain-Driven Design (DDD)** e **Arquitetura Limpa**, implementando exclusivamente a camada de domínio — sem banco de dados, sem HTTP, sem frameworks. Toda a persistência é abstraída por interfaces de repositório, e toda a comunicação externa é responsabilidade de camadas superiores. Isso torna o código independente de infraestrutura, altamente testável e portátil.
+O projeto segue os princípios de **Domain-Driven Design (DDD)** e **Arquitetura Limpa**, com separação clara entre domínio e infraestrutura. Toda a persistência é abstraída por interfaces de repositório. A camada HTTP usa o framework **Chi** e a documentação é gerada automaticamente pelo **swaggo**.
 
 ---
 
@@ -319,14 +319,11 @@ Criado manualmente quando o usuário quer **contratar serviços**:
 
 ---
 
-## Estrutura do projeto
+## Detalhamento do domínio
 
 ```
 limpaGo/
-├── go.mod                                Módulo Go (limpaGo, Go 1.22)
-├── EXPLICACAO.md                         Esta documentação
-│
-└── domain/                               Camada de domínio (única camada implementada)
+└── domain/                               Camada de domínio
     │
     ├── entity/                           Entidades — objetos com identidade própria
     │   ├── usuario.go                      Usuario (ID, Email, NomeUsuario, EFaxineiro(), ECliente())
@@ -481,9 +478,58 @@ Além dos erros sentinela, existe `ErroValidacao` — um tipo de erro estruturad
 
 ---
 
+## API REST
+
+A API é servida em `/api/v1` com **31 endpoints** organizados por recurso:
+
+| Grupo | Endpoints | Auth |
+|---|---|---|
+| Usuários e perfis | 9 | Maioria autenticada |
+| Limpezas (catálogo) | 6 | Público para leitura |
+| Solicitações | 6 | Autenticado |
+| Agenda | 6 | Autenticado (faxineiro) |
+| Avaliações | 3 | Público para leitura |
+| Feed | 1 | Público |
+
+A autenticação é feita via header `X-User-ID` (placeholder — preparado para JWT).
+
+O **Swagger UI** fica disponível em `http://localhost:8080/swagger/index.html`.
+
+---
+
+## Estrutura do projeto
+
+```
+limpaGo/
+├── go.mod                                Módulo Go (limpaGo, Go 1.22)
+├── DOCUMENTACAO.md                       Esta documentação
+│
+├── api/                                  Camada HTTP
+│   ├── dto/                              DTOs de request/response (JSON)
+│   ├── handler/                          Handlers HTTP (1 por serviço de domínio)
+│   ├── middleware/                       Auth, logger, CORS, recovery
+│   ├── router/                           Registro de rotas com Chi
+│   └── server/                           http.Server com timeouts
+│
+├── cmd/api/                              Entrypoint — composição e inicialização
+│
+├── docs/                                 Swagger gerado automaticamente (swag init)
+│
+└── domain/                               Camada de domínio
+    ├── entity/                           Entidades com identidade
+    ├── valueobject/                      Objetos de valor imutáveis
+    ├── service/                          Serviços de domínio
+    ├── repository/                       Interfaces de repositório
+    ├── errors/                           Erros sentinela
+    └── testutil/                         Mocks in-memory para testes
+```
+
+---
+
 ## Tecnologias
 
 - **Linguagem:** Go 1.22
 - **Arquitetura:** Domain-Driven Design (DDD) + Arquitetura Limpa
-- **Dependências externas:** Nenhuma (apenas a biblioteca padrão do Go)
+- **HTTP:** Chi router + go-chi/cors
+- **Documentação:** swaggo/swag (OpenAPI 2.0 / Swagger UI)
 - **Padrões utilizados:** Repository Pattern, Service Layer, Value Objects, Entity, Dependency Injection

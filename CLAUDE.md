@@ -1,11 +1,11 @@
-# CLAUDE.md — Phresh-Go
+# CLAUDE.md — LimpaGo
 
 ## Identidade do projeto
 
-**Phresh-Go** é a camada de domínio de uma plataforma de intermediação de serviços de limpeza.
+**LimpaGo** é uma plataforma de intermediação de serviços de limpeza.
 - Linguagem: **Go 1.22**, módulo `limpaGo`
 - Arquitetura: **DDD (Domain-Driven Design) + Clean Architecture**
-- Dependências externas: **nenhuma** — apenas a biblioteca padrão do Go (`stdlib`)
+- Camada HTTP: **Chi** com **Swagger** (swaggo)
 - Idioma do código: **português** (nomes de tipos, funções, variáveis, erros)
 
 ---
@@ -170,6 +170,18 @@ aceita   → cancelada (cliente, possível multa 20%)
 
 ## Fluxo de trabalho ao terminar alterações
 
+### 1. Atualizar a documentação
+Sempre que houver alterações no código, **atualizar obrigatoriamente**:
+
+- **`DOCUMENTACAO.md`** — documento principal do projeto. Descreve o que é o projeto, a filosofia, os fluxos de negócio, as entidades, os serviços e as regras. Atualizar sempre que:
+  - Novas entidades, serviços ou regras de negócio forem adicionadas
+  - Endpoints da API forem criados, alterados ou removidos
+  - Fluxos ou comportamentos existentes forem modificados
+  - O nome ou propósito do projeto mudar
+
+- **`README.md`** — espelho da `DOCUMENTACAO.md`. Após atualizar a documentação, copiar o conteúdo para o README também.
+
+### 2. Perguntar sobre git push
 Ao concluir qualquer tarefa que envolva mudanças no código, **sempre perguntar ao usuário**:
 
 > "Deseja que eu faça `git push` para o GitHub agora?"
