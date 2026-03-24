@@ -66,7 +66,7 @@ func (h *HandlerLimpeza) BuscarLimpeza(w http.ResponseWriter, r *http.Request) {
 // @Tags limpezas
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoCriarLimpeza true "Dados da limpeza"
 // @Success 201 {object} dto.RespostaLimpeza
 // @Failure 401 {object} dto.RespostaErro
@@ -96,7 +96,7 @@ func (h *HandlerLimpeza) CriarLimpeza(w http.ResponseWriter, r *http.Request) {
 // @Tags limpezas
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param id path int true "ID da limpeza"
 // @Param body body dto.RequisicaoAtualizarLimpeza true "Dados da limpeza"
 // @Success 200 {object} dto.RespostaLimpeza
@@ -132,7 +132,7 @@ func (h *HandlerLimpeza) AtualizarLimpeza(w http.ResponseWriter, r *http.Request
 // @Summary Deletar serviço de limpeza
 // @Tags limpezas
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param id path int true "ID da limpeza"
 // @Success 204
 // @Failure 401 {object} dto.RespostaErro
@@ -161,7 +161,7 @@ func (h *HandlerLimpeza) DeletarLimpeza(w http.ResponseWriter, r *http.Request) 
 // @Summary Listar limpezas do faxineiro autenticado
 // @Tags limpezas
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {array} dto.RespostaLimpeza
 // @Failure 401 {object} dto.RespostaErro
 // @Router /usuarios/eu/limpezas [get]

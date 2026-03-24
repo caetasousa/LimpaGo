@@ -19,7 +19,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -50,7 +50,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -100,7 +100,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -148,7 +148,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -179,7 +179,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -229,7 +229,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -267,11 +267,143 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/login": {
+            "post": {
+                "description": "Autentica o usuário com email e senha e retorna tokens JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "Credenciais de login",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaAutenticacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/registrar": {
+            "post": {
+                "description": "Cria uma nova conta com email, nome de usuário e senha",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Registrar novo usuário",
+                "parameters": [
+                    {
+                        "description": "Dados de registro",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoRegistroComSenha"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaAutenticacao"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/renovar": {
+            "post": {
+                "description": "Usa o token de renovação para obter um novo par de tokens JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Renovar token",
+                "parameters": [
+                    {
+                        "description": "Token de renovação",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoRenovarToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ParTokensDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
         "/avaliacoes": {
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -469,7 +601,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -551,7 +683,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -612,7 +744,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -660,7 +792,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -708,7 +840,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -764,7 +896,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -822,7 +954,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -880,7 +1012,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -931,7 +1063,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -964,7 +1096,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -998,7 +1130,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -1042,7 +1174,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -1070,7 +1202,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -1106,7 +1238,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -1136,7 +1268,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -1164,7 +1296,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "consumes": [
@@ -1200,7 +1332,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -1230,7 +1362,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "BearerAuth": []
                     }
                 ],
                 "produces": [
@@ -1252,51 +1384,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/dto.RespostaErro"
-                        }
-                    }
-                }
-            }
-        },
-        "/usuarios/registrar": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "usuarios"
-                ],
-                "summary": "Registrar novo usuário",
-                "parameters": [
-                    {
-                        "description": "Dados de registro",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RequisicaoRegistro"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/dto.RespostaUsuario"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/dto.RespostaErro"
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/dto.RespostaErro"
                         }
@@ -1325,6 +1412,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rua": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ParTokensDTO": {
+            "type": "object",
+            "properties": {
+                "expira_em": {
+                    "type": "integer"
+                },
+                "tipo_token": {
+                    "type": "string"
+                },
+                "token_acesso": {
+                    "type": "string"
+                },
+                "token_renovacao": {
                     "type": "string"
                 }
             }
@@ -1482,7 +1586,18 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RequisicaoRegistro": {
+        "dto.RequisicaoLogin": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "senha": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoRegistroComSenha": {
             "type": "object",
             "properties": {
                 "email": {
@@ -1490,6 +1605,28 @@ const docTemplate = `{
                 },
                 "nome_usuario": {
                     "type": "string"
+                },
+                "senha": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoRenovarToken": {
+            "type": "object",
+            "properties": {
+                "token_renovacao": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RespostaAutenticacao": {
+            "type": "object",
+            "properties": {
+                "tokens": {
+                    "$ref": "#/definitions/dto.ParTokensDTO"
+                },
+                "usuario": {
+                    "$ref": "#/definitions/dto.RespostaUsuario"
                 }
             }
         },
@@ -1788,9 +1925,10 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "BearerAuth": {
+            "description": "Use o formato \"Bearer {token}\"",
             "type": "apiKey",
-            "name": "X-User-ID",
+            "name": "Authorization",
             "in": "header"
         }
     }
@@ -1802,7 +1940,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Phresh-Go API",
+	Title:            "LimpaGo API",
 	Description:      "API REST para plataforma de serviços de limpeza.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

@@ -19,36 +19,11 @@ func NovoHandlerUsuario(servico *service.ServicoUsuario) *HandlerUsuario {
 	return &HandlerUsuario{servico: servico}
 }
 
-// Registrar godoc
-// @Summary Registrar novo usuário
-// @Tags usuarios
-// @Accept json
-// @Produce json
-// @Param body body dto.RequisicaoRegistro true "Dados de registro"
-// @Success 201 {object} dto.RespostaUsuario
-// @Failure 409 {object} dto.RespostaErro
-// @Failure 422 {object} dto.RespostaErro
-// @Router /usuarios/registrar [post]
-func (h *HandlerUsuario) Registrar(w http.ResponseWriter, r *http.Request) {
-	var req dto.RequisicaoRegistro
-	if err := lerJSON(r, &req); err != nil {
-		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "corpo inválido"))
-		return
-	}
-
-	usuario, err := h.servico.Registrar(r.Context(), req.Email, req.NomeUsuario)
-	if err != nil {
-		escreverErro(w, err)
-		return
-	}
-	escreverJSON(w, http.StatusCreated, dto.DeUsuario(usuario))
-}
-
 // BuscarMeuPerfil godoc
 // @Summary Buscar perfil do usuário autenticado
 // @Tags usuarios
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {object} dto.RespostaPerfil
 // @Failure 401 {object} dto.RespostaErro
 // @Failure 404 {object} dto.RespostaErro
@@ -72,7 +47,7 @@ func (h *HandlerUsuario) BuscarMeuPerfil(w http.ResponseWriter, r *http.Request)
 // @Tags usuarios
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoAtualizarPerfil true "Dados do perfil"
 // @Success 200 {object} dto.RespostaPerfil
 // @Failure 401 {object} dto.RespostaErro
@@ -100,7 +75,7 @@ func (h *HandlerUsuario) AtualizarMeuPerfil(w http.ResponseWriter, r *http.Reque
 // @Summary Criar perfil de faxineiro para o usuário autenticado
 // @Tags usuarios
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 201 {object} dto.RespostaPerfilFaxineiro
 // @Failure 409 {object} dto.RespostaErro
 // @Router /usuarios/eu/perfil-faxineiro [post]
@@ -122,7 +97,7 @@ func (h *HandlerUsuario) CriarPerfilFaxineiro(w http.ResponseWriter, r *http.Req
 // @Summary Buscar perfil de faxineiro do usuário autenticado
 // @Tags usuarios
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {object} dto.RespostaPerfilFaxineiro
 // @Failure 404 {object} dto.RespostaErro
 // @Router /usuarios/eu/perfil-faxineiro [get]
@@ -145,7 +120,7 @@ func (h *HandlerUsuario) BuscarPerfilFaxineiro(w http.ResponseWriter, r *http.Re
 // @Tags usuarios
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoAtualizarPerfilFaxineiro true "Dados do perfil"
 // @Success 200 {object} dto.RespostaPerfilFaxineiro
 // @Router /usuarios/eu/perfil-faxineiro [put]
@@ -172,7 +147,7 @@ func (h *HandlerUsuario) AtualizarPerfilFaxineiro(w http.ResponseWriter, r *http
 // @Summary Criar perfil de cliente para o usuário autenticado
 // @Tags usuarios
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 201 {object} dto.RespostaPerfilCliente
 // @Failure 409 {object} dto.RespostaErro
 // @Router /usuarios/eu/perfil-cliente [post]
@@ -194,7 +169,7 @@ func (h *HandlerUsuario) CriarPerfilCliente(w http.ResponseWriter, r *http.Reque
 // @Summary Buscar perfil de cliente do usuário autenticado
 // @Tags usuarios
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {object} dto.RespostaPerfilCliente
 // @Failure 404 {object} dto.RespostaErro
 // @Router /usuarios/eu/perfil-cliente [get]
@@ -217,7 +192,7 @@ func (h *HandlerUsuario) BuscarPerfilCliente(w http.ResponseWriter, r *http.Requ
 // @Tags usuarios
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoAtualizarPerfilCliente true "Dados do perfil"
 // @Success 200 {object} dto.RespostaPerfilCliente
 // @Router /usuarios/eu/perfil-cliente [put]

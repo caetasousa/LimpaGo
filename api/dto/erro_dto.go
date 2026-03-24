@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"limpaGo/api/auth"
 	"limpaGo/domain/entity"
 	errosdominio "limpaGo/domain/errors"
 )
@@ -76,6 +77,20 @@ func MapearErroDominio(err error) (int, RespostaErro) {
 		errors.Is(err, errosdominio.ErrConflitoAgenda),
 		errors.Is(err, errosdominio.ErrBloqueioPessoalApenas),
 		errors.Is(err, errosdominio.ErrSolicitacaoNaoAceita):
+		return http.StatusUnprocessableEntity, NovaRespostaErro(http.StatusUnprocessableEntity, err.Error())
+
+	// 401 — erros de autenticação
+	case errors.Is(err, auth.ErrCredenciaisInvalidas),
+		errors.Is(err, auth.ErrTokenInvalido),
+		errors.Is(err, auth.ErrTokenRenovacaoInvalido):
+		return http.StatusUnauthorized, NovaRespostaErro(http.StatusUnauthorized, err.Error())
+
+	// 403 — conta inativa
+	case errors.Is(err, auth.ErrUsuarioInativo):
+		return http.StatusForbidden, NovaRespostaErro(http.StatusForbidden, err.Error())
+
+	// 422 — senha fraca
+	case errors.Is(err, auth.ErrSenhaFraca):
 		return http.StatusUnprocessableEntity, NovaRespostaErro(http.StatusUnprocessableEntity, err.Error())
 	}
 

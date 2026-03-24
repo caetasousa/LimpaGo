@@ -23,7 +23,7 @@ func NovoHandlerSolicitacao(servico *service.ServicoSolicitacao) *HandlerSolicit
 // @Tags solicitacoes
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoCriarSolicitacao true "Dados da solicitação"
 // @Success 201 {object} dto.RespostaSolicitacao
 // @Failure 401 {object} dto.RespostaErro
@@ -53,7 +53,7 @@ func (h *HandlerSolicitacao) CriarSolicitacao(w http.ResponseWriter, r *http.Req
 // @Summary Aceitar solicitação de limpeza
 // @Tags solicitacoes
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param cliente_id path int true "ID do cliente"
 // @Param limpeza_id path int true "ID da limpeza"
 // @Success 200 {object} dto.RespostaSolicitacao
@@ -89,7 +89,7 @@ func (h *HandlerSolicitacao) AceitarSolicitacao(w http.ResponseWriter, r *http.R
 // @Summary Rejeitar solicitação de limpeza
 // @Tags solicitacoes
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param cliente_id path int true "ID do cliente"
 // @Param limpeza_id path int true "ID da limpeza"
 // @Success 200 {object} dto.RespostaSolicitacao
@@ -125,7 +125,7 @@ func (h *HandlerSolicitacao) RejeitarSolicitacao(w http.ResponseWriter, r *http.
 // @Summary Cancelar solicitação de limpeza
 // @Tags solicitacoes
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param limpeza_id path int true "ID da limpeza"
 // @Success 200 {object} dto.RespostaSolicitacao
 // @Failure 401 {object} dto.RespostaErro
@@ -155,7 +155,7 @@ func (h *HandlerSolicitacao) CancelarSolicitacao(w http.ResponseWriter, r *http.
 // @Summary Listar solicitações de uma limpeza (faxineiro)
 // @Tags solicitacoes
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param limpeza_id path int true "ID da limpeza"
 // @Success 200 {array} dto.RespostaSolicitacao
 // @Failure 401 {object} dto.RespostaErro
@@ -184,7 +184,7 @@ func (h *HandlerSolicitacao) ListarPorLimpeza(w http.ResponseWriter, r *http.Req
 // @Summary Listar solicitações do cliente autenticado
 // @Tags solicitacoes
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {array} dto.RespostaSolicitacao
 // @Failure 401 {object} dto.RespostaErro
 // @Router /usuarios/eu/solicitacoes [get]

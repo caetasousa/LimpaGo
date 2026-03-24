@@ -23,7 +23,7 @@ func NovoHandlerAvaliacao(servico *service.ServicoAvaliacao) *HandlerAvaliacao {
 // @Tags avaliacoes
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoCriarAvaliacao true "Dados da avaliação"
 // @Success 201 {object} dto.RespostaAvaliacao
 // @Failure 401 {object} dto.RespostaErro

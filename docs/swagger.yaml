@@ -15,6 +15,17 @@ definitions:
       rua:
         type: string
     type: object
+  dto.ParTokensDTO:
+    properties:
+      expira_em:
+        type: integer
+      tipo_token:
+        type: string
+      token_acesso:
+        type: string
+      token_renovacao:
+        type: string
+    type: object
   dto.RequisicaoAtualizarLimpeza:
     properties:
       descricao:
@@ -115,12 +126,33 @@ definitions:
         description: 0-23
         type: integer
     type: object
-  dto.RequisicaoRegistro:
+  dto.RequisicaoLogin:
+    properties:
+      email:
+        type: string
+      senha:
+        type: string
+    type: object
+  dto.RequisicaoRegistroComSenha:
     properties:
       email:
         type: string
       nome_usuario:
         type: string
+      senha:
+        type: string
+    type: object
+  dto.RequisicaoRenovarToken:
+    properties:
+      token_renovacao:
+        type: string
+    type: object
+  dto.RespostaAutenticacao:
+    properties:
+      tokens:
+        $ref: '#/definitions/dto.ParTokensDTO'
+      usuario:
+        $ref: '#/definitions/dto.RespostaUsuario'
     type: object
   dto.RespostaAvaliacao:
     properties:
@@ -317,7 +349,7 @@ host: localhost:8080
 info:
   contact: {}
   description: API REST para plataforma de serviços de limpeza.
-  title: Phresh-Go API
+  title: LimpaGo API
   version: "1.0"
 paths:
   /agenda/bloqueios:
@@ -336,7 +368,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Listar bloqueios do faxineiro autenticado
       tags:
       - agenda
@@ -366,7 +398,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Criar bloqueio pessoal de agenda
       tags:
       - agenda
@@ -396,7 +428,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Remover bloqueio pessoal de agenda
       tags:
       - agenda
@@ -416,7 +448,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Listar disponibilidades do faxineiro autenticado
       tags:
       - agenda
@@ -446,7 +478,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Adicionar bloco de disponibilidade
       tags:
       - agenda
@@ -472,10 +504,96 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Remover bloco de disponibilidade
       tags:
       - agenda
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentica o usuário com email e senha e retorna tokens JWT
+      parameters:
+      - description: Credenciais de login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequisicaoLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RespostaAutenticacao'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.RespostaErro'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dto.RespostaErro'
+      summary: Login
+      tags:
+      - auth
+  /auth/registrar:
+    post:
+      consumes:
+      - application/json
+      description: Cria uma nova conta com email, nome de usuário e senha
+      parameters:
+      - description: Dados de registro
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequisicaoRegistroComSenha'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.RespostaAutenticacao'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.RespostaErro'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.RespostaErro'
+      summary: Registrar novo usuário
+      tags:
+      - auth
+  /auth/renovar:
+    post:
+      consumes:
+      - application/json
+      description: Usa o token de renovação para obter um novo par de tokens JWT
+      parameters:
+      - description: Token de renovação
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequisicaoRenovarToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ParTokensDTO'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.RespostaErro'
+      summary: Renovar token
+      tags:
+      - auth
   /avaliacoes:
     post:
       consumes:
@@ -507,7 +625,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Criar avaliação de um serviço concluído
       tags:
       - avaliacoes
@@ -631,7 +749,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Criar novo serviço de limpeza
       tags:
       - limpezas
@@ -661,7 +779,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Deletar serviço de limpeza
       tags:
       - limpezas
@@ -721,7 +839,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Atualizar serviço de limpeza
       tags:
       - limpezas
@@ -751,7 +869,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Listar solicitações de uma limpeza (faxineiro)
       tags:
       - solicitacoes
@@ -786,7 +904,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Criar solicitação de limpeza
       tags:
       - solicitacoes
@@ -823,7 +941,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Aceitar solicitação de limpeza
       tags:
       - solicitacoes
@@ -860,7 +978,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Rejeitar solicitação de limpeza
       tags:
       - solicitacoes
@@ -892,7 +1010,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Cancelar solicitação de limpeza
       tags:
       - solicitacoes
@@ -912,7 +1030,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Listar limpezas do faxineiro autenticado
       tags:
       - limpezas
@@ -934,7 +1052,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Buscar perfil do usuário autenticado
       tags:
       - usuarios
@@ -960,7 +1078,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Atualizar perfil base do usuário autenticado
       tags:
       - usuarios
@@ -978,7 +1096,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Buscar perfil de cliente do usuário autenticado
       tags:
       - usuarios
@@ -995,7 +1113,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Criar perfil de cliente para o usuário autenticado
       tags:
       - usuarios
@@ -1017,7 +1135,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaPerfilCliente'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Atualizar perfil de cliente do usuário autenticado
       tags:
       - usuarios
@@ -1035,7 +1153,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Buscar perfil de faxineiro do usuário autenticado
       tags:
       - usuarios
@@ -1052,7 +1170,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Criar perfil de faxineiro para o usuário autenticado
       tags:
       - usuarios
@@ -1074,7 +1192,7 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaPerfilFaxineiro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Atualizar perfil de faxineiro do usuário autenticado
       tags:
       - usuarios
@@ -1094,42 +1212,14 @@ paths:
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: Listar solicitações do cliente autenticado
       tags:
       - solicitacoes
-  /usuarios/registrar:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: Dados de registro
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.RequisicaoRegistro'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.RespostaUsuario'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/dto.RespostaErro'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/dto.RespostaErro'
-      summary: Registrar novo usuário
-      tags:
-      - usuarios
 securityDefinitions:
-  ApiKeyAuth:
+  BearerAuth:
+    description: Use o formato "Bearer {token}"
     in: header
-    name: X-User-ID
+    name: Authorization
     type: apiKey
 swagger: "2.0"

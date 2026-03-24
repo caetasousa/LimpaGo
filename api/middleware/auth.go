@@ -1,10 +1,11 @@
-// Package middleware contém os middlewares HTTP da API Phresh.
 package middleware
 
 import (
 	"context"
 	"net/http"
-	"strconv"
+	"strings"
+
+	"limpaGo/api/auth"
 )
 
 type chaveContexto string
@@ -12,25 +13,28 @@ type chaveContexto string
 // ChaveUsuarioID é a chave usada para armazenar o ID do usuário no contexto.
 const ChaveUsuarioID chaveContexto = "usuario_id"
 
-// Autenticacao é um middleware placeholder que extrai o ID do usuário do header X-User-ID.
-// TODO: substituir por validação JWT para produção.
-func Autenticacao(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		headerID := r.Header.Get("X-User-ID")
-		if headerID == "" {
-			http.Error(w, `{"codigo":401,"mensagem":"autenticação necessária"}`, http.StatusUnauthorized)
-			return
-		}
+// AutenticacaoJWT é um middleware que valida o token JWT do header Authorization.
+// Extrai o ID do usuário das claims e o armazena no contexto da requisição.
+func AutenticacaoJWT(svcToken *auth.ServicoToken) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			header := r.Header.Get("Authorization")
+			if header == "" || !strings.HasPrefix(header, "Bearer ") {
+				http.Error(w, `{"codigo":401,"mensagem":"autenticação necessária"}`, http.StatusUnauthorized)
+				return
+			}
 
-		usuarioID, err := strconv.Atoi(headerID)
-		if err != nil || usuarioID <= 0 {
-			http.Error(w, `{"codigo":401,"mensagem":"X-User-ID inválido"}`, http.StatusUnauthorized)
-			return
-		}
+			tokenStr := strings.TrimPrefix(header, "Bearer ")
+			claims, err := svcToken.ValidarTokenAcesso(tokenStr)
+			if err != nil {
+				http.Error(w, `{"codigo":401,"mensagem":"token inválido ou expirado"}`, http.StatusUnauthorized)
+				return
+			}
 
-		ctx := context.WithValue(r.Context(), ChaveUsuarioID, usuarioID)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			ctx := context.WithValue(r.Context(), ChaveUsuarioID, claims.UsuarioID)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 // ObterUsuarioID recupera o ID do usuário autenticado do contexto.

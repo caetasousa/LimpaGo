@@ -23,7 +23,7 @@ func NovoHandlerAgenda(servico *service.ServicoAgenda) *HandlerAgenda {
 // @Summary Listar disponibilidades do faxineiro autenticado
 // @Tags agenda
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {array} dto.RespostaDisponibilidade
 // @Failure 401 {object} dto.RespostaErro
 // @Router /agenda/disponibilidades [get]
@@ -46,7 +46,7 @@ func (h *HandlerAgenda) ListarDisponibilidade(w http.ResponseWriter, r *http.Req
 // @Tags agenda
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoDisponibilidade true "Dados da disponibilidade"
 // @Success 201 {object} dto.RespostaDisponibilidade
 // @Failure 401 {object} dto.RespostaErro
@@ -75,7 +75,7 @@ func (h *HandlerAgenda) AdicionarDisponibilidade(w http.ResponseWriter, r *http.
 // @Summary Remover bloco de disponibilidade
 // @Tags agenda
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param id path int true "ID da disponibilidade"
 // @Success 204
 // @Failure 401 {object} dto.RespostaErro
@@ -103,7 +103,7 @@ func (h *HandlerAgenda) RemoverDisponibilidade(w http.ResponseWriter, r *http.Re
 // @Summary Listar bloqueios do faxineiro autenticado
 // @Tags agenda
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Success 200 {array} dto.RespostaBloqueio
 // @Failure 401 {object} dto.RespostaErro
 // @Router /agenda/bloqueios [get]
@@ -126,7 +126,7 @@ func (h *HandlerAgenda) ListarBloqueios(w http.ResponseWriter, r *http.Request) 
 // @Tags agenda
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param body body dto.RequisicaoBloqueio true "Dados do bloqueio"
 // @Success 201 {object} dto.RespostaBloqueio
 // @Failure 401 {object} dto.RespostaErro
@@ -155,7 +155,7 @@ func (h *HandlerAgenda) CriarBloqueioPessoal(w http.ResponseWriter, r *http.Requ
 // @Summary Remover bloqueio pessoal de agenda
 // @Tags agenda
 // @Produce json
-// @Security ApiKeyAuth
+// @Security BearerAuth
 // @Param id path int true "ID do bloqueio"
 // @Success 204
 // @Failure 401 {object} dto.RespostaErro
