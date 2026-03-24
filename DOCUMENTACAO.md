@@ -533,3 +533,52 @@ limpaGo/
 - **HTTP:** Chi router + go-chi/cors
 - **Documentação:** swaggo/swag (OpenAPI 2.0 / Swagger UI)
 - **Padrões utilizados:** Repository Pattern, Service Layer, Value Objects, Entity, Dependency Injection
+- **Banco de dados:** PostgreSQL 16 + Flyway (migrações SQL versionadas)
+- **Driver Go:** jackc/pgx/v5 via database/sql
+
+---
+
+## Banco de Dados
+
+### Setup rápido com Docker
+
+```bash
+docker-compose up -d
+```
+
+Sobe PostgreSQL 16 na porta `5432` e executa as migrações Flyway automaticamente.
+
+### Variáveis de ambiente
+
+| Variável | Descrição | Padrão |
+|----------|-----------|--------|
+| `DATABASE_URL` | URL completa (sobrescreve as demais) | — |
+| `PG_HOST` | Host do banco | `localhost` |
+| `PG_PORT` | Porta | `5432` |
+| `PG_USER` | Usuário | `limpago` |
+| `PG_PASSWORD` | Senha | `limpago_dev` |
+| `PG_DATABASE` | Nome do banco | `limpago` |
+| `PG_SSLMODE` | Modo SSL | `disable` |
+
+Sem `DATABASE_URL`, a API inicia com repositórios **in-memory** (desenvolvimento sem banco).
+
+### Rodar com PostgreSQL
+
+```bash
+DATABASE_URL="postgres://limpago:limpago_dev@localhost:5432/limpago?sslmode=disable" go run ./cmd/api/
+```
+
+### Migrações
+
+Os arquivos SQL estão em `db/migrations/` e são executados pelo Flyway na ordem:
+
+1. `V1__criar_usuarios.sql`
+2. `V2__criar_credenciais.sql`
+3. `V3__criar_perfis.sql`
+4. `V4__criar_perfis_faxineiro.sql`
+5. `V5__criar_perfis_cliente.sql`
+6. `V6__criar_limpezas.sql`
+7. `V7__criar_solicitacoes.sql`
+8. `V8__criar_disponibilidades.sql`
+9. `V9__criar_bloqueios.sql`
+10. `V10__criar_avaliacoes.sql`

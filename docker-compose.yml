@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: limpago_postgres
+    environment:
+      POSTGRES_USER: limpago
+      POSTGRES_PASSWORD: limpago_dev
+      POSTGRES_DB: limpago
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U limpago -d limpago"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  flyway:
+    image: flyway/flyway:latest
+    container_name: limpago_flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: migrate
+    volumes:
+      - ./db/migrations:/flyway/sql
+    environment:
+      FLYWAY_URL: jdbc:postgresql://postgres:5432/limpago
+      FLYWAY_USER: limpago
+      FLYWAY_PASSWORD: limpago_dev
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+
+volumes:
+  pgdata:

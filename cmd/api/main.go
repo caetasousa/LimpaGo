@@ -24,20 +24,54 @@ import (
 	"limpaGo/api/handler"
 	"limpaGo/api/router"
 	"limpaGo/api/server"
+	"limpaGo/domain/repository"
 	"limpaGo/domain/service"
 	"limpaGo/domain/testutil"
+	"limpaGo/infra/postgres"
 )
 
 func main() {
-	// Repositórios em memória (substituir por implementações de banco de dados)
-	repoUsuario := testutil.NovoRepositorioUsuarioMock()
-	repoPerfil := testutil.NovoRepositorioPerfilMock()
-	repoLimpeza := testutil.NovoRepositorioLimpezaMock()
-	repoAgenda := testutil.NovoRepositorioAgendaMock()
-	repoSolicitacao := testutil.NovoRepositorioSolicitacaoMock()
-	repoAvaliacao := testutil.NovoRepositorioAvaliacaoMock()
-	repoFeed := testutil.NovoRepositorioFeedMock()
-	repoCredencial := auth.NovoRepositorioCredencialMock()
+	var (
+		repoUsuario    repository.RepositorioUsuario
+		repoPerfil     repository.RepositorioPerfil
+		repoLimpeza    repository.RepositorioLimpeza
+		repoAgenda     repository.RepositorioAgenda
+		repoSolicitacao repository.RepositorioSolicitacao
+		repoAvaliacao  repository.RepositorioAvaliacao
+		repoFeed       repository.RepositorioFeed
+		repoCredencial auth.RepositorioCredencial
+	)
+
+	if os.Getenv("DATABASE_URL") != "" {
+		// Modo produção: PostgreSQL
+		cfg := postgres.CarregarConfiguracaoBanco()
+		db, err := postgres.NovoBanco(cfg)
+		if err != nil {
+			log.Fatalf("erro ao conectar ao banco de dados: %v", err)
+		}
+		defer db.Close()
+		log.Println("conectado ao PostgreSQL")
+
+		repoUsuario = postgres.NovoRepositorioUsuarioPG(db)
+		repoPerfil = postgres.NovoRepositorioPerfilPG(db)
+		repoLimpeza = postgres.NovoRepositorioLimpezaPG(db)
+		repoAgenda = postgres.NovoRepositorioAgendaPG(db)
+		repoSolicitacao = postgres.NovoRepositorioSolicitacaoPG(db)
+		repoAvaliacao = postgres.NovoRepositorioAvaliacaoPG(db)
+		repoFeed = postgres.NovoRepositorioFeedPG(db)
+		repoCredencial = postgres.NovoRepositorioCredencialPG(db)
+	} else {
+		// Modo desenvolvimento: repositórios in-memory
+		log.Println("DATABASE_URL não definida — usando repositórios in-memory")
+		repoUsuario = testutil.NovoRepositorioUsuarioMock()
+		repoPerfil = testutil.NovoRepositorioPerfilMock()
+		repoLimpeza = testutil.NovoRepositorioLimpezaMock()
+		repoAgenda = testutil.NovoRepositorioAgendaMock()
+		repoSolicitacao = testutil.NovoRepositorioSolicitacaoMock()
+		repoAvaliacao = testutil.NovoRepositorioAvaliacaoMock()
+		repoFeed = testutil.NovoRepositorioFeedMock()
+		repoCredencial = auth.NovoRepositorioCredencialMock()
+	}
 
 	// Serviços de domínio
 	svcAgenda := service.NovoServicoAgenda(repoAgenda)
@@ -71,7 +105,6 @@ func main() {
 
 	srv := server.Novo(addr, router.Novo(deps))
 
-	// Iniciar servidor em goroutine
 	go func() {
 		log.Printf("servidor iniciado em http://localhost%s", addr)
 		log.Printf("swagger ui disponível em http://localhost%s/swagger/index.html", addr)
@@ -80,7 +113,6 @@ func main() {
 		}
 	}()
 
-	// Aguardar sinal de encerramento
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
