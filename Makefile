@@ -74,6 +74,17 @@ docker-test-down:
 # Subir Zitadel de produção/dev
 zitadel-up:
 	docker compose up -d zitadel_postgres zitadel
+	@echo "Aguardando Zitadel ficar pronto..."
+	@n=0; until curl -sf http://localhost:8085/debug/healthz > /dev/null 2>&1; do \
+		n=$$((n+1)); \
+		if [ $$n -ge 30 ]; then \
+			echo "ERRO: Zitadel não ficou pronto após 60s. Logs:"; \
+			docker compose logs zitadel | tail -20; \
+			exit 1; \
+		fi; \
+		sleep 2; \
+	done
+	@echo "Zitadel pronto."
 
 # Derrubar Zitadel de produção/dev
 zitadel-down:
@@ -83,7 +94,15 @@ zitadel-down:
 zitadel-test-up:
 	docker compose --profile test up -d zitadel_teste
 	@echo "Aguardando Zitadel de teste ficar pronto..."
-	@until curl -sf http://localhost:8086/debug/healthz > /dev/null 2>&1; do sleep 2; done
+	@n=0; until curl -sf http://localhost:8086/debug/healthz > /dev/null 2>&1; do \
+		n=$$((n+1)); \
+		if [ $$n -ge 30 ]; then \
+			echo "ERRO: Zitadel de teste não ficou pronto após 60s. Logs:"; \
+			docker compose --profile test logs zitadel_teste | tail -20; \
+			exit 1; \
+		fi; \
+		sleep 2; \
+	done
 	@echo "Zitadel de teste pronto."
 
 # Derrubar Zitadel de teste
