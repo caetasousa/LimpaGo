@@ -543,12 +543,22 @@ limpaGo/
 ### Setup rápido com Docker
 
 ```bash
-docker-compose up -d
+# Subir PostgreSQL + Flyway (migrações automáticas)
+make docker-up
+
+# Ou rodar a stack completa (banco + API containerizada)
+docker compose up
 ```
 
-Sobe PostgreSQL 16 na porta `5432` e executa as migrações Flyway automaticamente.
+Sobe PostgreSQL 16 na porta `5432` e executa as migrações Flyway automaticamente. O serviço `api` sobe após as migrações concluírem.
 
 ### Variáveis de ambiente
+
+Copie `.env.exemplo` para `.env` e ajuste os valores:
+
+```bash
+cp .env.exemplo .env
+```
 
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
@@ -559,13 +569,21 @@ Sobe PostgreSQL 16 na porta `5432` e executa as migrações Flyway automaticamen
 | `PG_PASSWORD` | Senha | `limpago_dev` |
 | `PG_DATABASE` | Nome do banco | `limpago` |
 | `PG_SSLMODE` | Modo SSL | `disable` |
+| `JWT_SEGREDO_ACESSO` | Segredo para tokens de acesso (obrigatório em produção) | valor dev |
+| `JWT_SEGREDO_RENOVACAO` | Segredo para tokens de renovação (obrigatório em produção) | valor dev |
+| `PORT` | Porta do servidor HTTP | `8080` |
 
 Sem `DATABASE_URL`, a API inicia com repositórios **in-memory** (desenvolvimento sem banco).
 
 ### Rodar com PostgreSQL
 
 ```bash
-DATABASE_URL="postgres://limpago:limpago_dev@localhost:5432/limpago?sslmode=disable" go run ./cmd/api/
+# Via Makefile
+make docker-up     # Sobe PostgreSQL + executa migrações
+make run-pg        # Roda API com banco local
+
+# Ou manualmente
+DATABASE_URL="postgres://limpago:limpago_dev@localhost:5434/limpago?sslmode=disable" go run ./cmd/api/
 ```
 
 ### Migrações
@@ -582,3 +600,78 @@ Os arquivos SQL estão em `db/migrations/` e são executados pelo Flyway na orde
 8. `V8__criar_disponibilidades.sql`
 9. `V9__criar_bloqueios.sql`
 10. `V10__criar_avaliacoes.sql`
+
+---
+
+## Testes
+
+### Testes unitários
+
+Testam a lógica de negócio usando repositórios in-memory. Rápidos, sem dependências externas:
+
+```bash
+make test
+# ou
+go test ./... -race -count=1
+```
+
+### Testes de integração
+
+Validam os repositórios PostgreSQL contra um banco real. Requerem Docker:
+
+```bash
+make test-integration
+```
+
+O Makefile sobe automaticamente um PostgreSQL separado (porta `5433`, banco `limpago_teste`), executa as migrações e roda os testes com a build tag `integration`. O banco usa `tmpfs` e é descartado ao final.
+
+Para rodar manualmente:
+
+```bash
+# 1. Subir banco de teste
+docker compose --profile test up -d postgres_teste
+
+# 2. Rodar testes de integração
+DATABASE_URL_TESTE="postgres://limpago:limpago_dev@localhost:5433/limpago_teste?sslmode=disable" \
+  go test ./infra/postgres/... -tags integration -race -count=1 -v
+```
+
+### Makefile — comandos disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `make build` | Compila o binário `limpago` |
+| `make test` | Roda todos os testes unitários |
+| `make test-integration` | Roda testes de integração (requer Docker) |
+| `make lint` | Executa `go vet ./...` |
+| `make swagger` | Regenera a documentação Swagger |
+| `make docker-up` | Sobe PostgreSQL + Flyway |
+| `make docker-down` | Para e remove os containers |
+| `make run` | Roda a API em modo in-memory |
+| `make run-pg` | Roda a API com PostgreSQL local |
+
+---
+
+## Como rodar o projeto
+
+**Pré-requisitos:** Go 1.22+ e Docker.
+
+```bash
+git clone https://github.com/caetasousa/LimpaGo.git
+cd LimpaGo
+make dev
+```
+
+Isso sobe o banco, executa as migrações e inicia a API. Pronto.
+
+- API: `http://localhost:8080/api/v1`
+- Swagger: `http://localhost:8080/swagger/index.html`
+
+### Outros comandos úteis
+
+```bash
+make test              # testes unitários
+make test-integration  # testes contra banco real (requer Docker)
+make docker-down       # derrubar infraestrutura
+make run               # rodar sem banco (modo in-memory)
+```
