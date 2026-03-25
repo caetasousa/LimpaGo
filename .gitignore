@@ -1,0 +1,20 @@
+# Binários Go
+/limpago
+*.exe
+
+# Ambiente
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cobertura de testes
+coverage.out
+coverage.html

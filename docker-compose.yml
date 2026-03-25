@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: limpago_dev
       POSTGRES_DB: limpago
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -30,6 +30,38 @@ services:
       FLYWAY_USER: limpago
       FLYWAY_PASSWORD: limpago_dev
       FLYWAY_LOCATIONS: filesystem:/flyway/sql
+
+  api:
+    build: .
+    container_name: limpago_api
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://limpago:limpago_dev@postgres:5432/limpago?sslmode=disable
+      JWT_SEGREDO_ACESSO: ${JWT_SEGREDO_ACESSO:-limpaGo-dev-segredo-acesso-nao-usar-em-producao}
+      JWT_SEGREDO_RENOVACAO: ${JWT_SEGREDO_RENOVACAO:-limpaGo-dev-segredo-renovacao-nao-usar-em-producao}
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+
+  postgres_teste:
+    image: postgres:16-alpine
+    container_name: limpago_postgres_teste
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: limpago
+      POSTGRES_PASSWORD: limpago_dev
+      POSTGRES_DB: limpago_teste
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U limpago -d limpago_teste"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    tmpfs:
+      - /var/lib/postgresql/data
 
 volumes:
   pgdata:
