@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"strings"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"limpaGo/domain/entity"
 	errosdominio "limpaGo/domain/errors"
 	"limpaGo/domain/valueobject"
@@ -58,13 +58,14 @@ func (r *RepositorioPerfilPG) Atualizar(ctx context.Context, perfil *entity.Perf
 // --- Perfil Faxineiro ---
 
 func (r *RepositorioPerfilPG) BuscarPerfilFaxineiro(ctx context.Context, usuarioID int) (*entity.PerfilFaxineiro, error) {
-	q := `SELECT usuario_id, descricao, anos_experiencia, especialidades, cidades_atendidas,
+	q := `SELECT usuario_id, descricao, anos_experiencia,
+	             array_to_string(especialidades, ','),
+	             array_to_string(cidades_atendidas, ','),
 	             documento_rg, documento_cpf, foto_documento, verificado, criado_em, atualizado_em
 	      FROM perfis_faxineiro WHERE usuario_id = $1`
 
 	p := &entity.PerfilFaxineiro{}
-	var especialidades pgtype.Array[string]
-	var cidades pgtype.Array[string]
+	var especialidades, cidades string
 
 	err := obterExecutor(ctx, r.db).QueryRowContext(ctx, q, usuarioID).Scan(
 		&p.UsuarioID, &p.Descricao, &p.AnosExperiencia, &especialidades, &cidades,
@@ -74,8 +75,8 @@ func (r *RepositorioPerfilPG) BuscarPerfilFaxineiro(ctx context.Context, usuario
 	if err != nil {
 		return nil, mapearErroPG(err, errosdominio.ErrPerfilFaxineiroNaoEncontrado)
 	}
-	p.Especialidades = especialidades.Elements
-	p.CidadesAtendidas = cidades.Elements
+	p.Especialidades = splitArray(especialidades)
+	p.CidadesAtendidas = splitArray(cidades)
 	return p, nil
 }
 
@@ -168,4 +169,13 @@ func (r *RepositorioPerfilPG) AtualizarPerfilCliente(ctx context.Context, perfil
 		perfil.Observacoes, perfil.FaxineiroPreferidoID,
 		perfil.UsuarioID).
 		Scan(&perfil.AtualizadoEm)
+}
+
+// splitArray converte a string "a,b,c" (resultado de array_to_string) em []string.
+// Retorna slice vazio quando a string for vazia.
+func splitArray(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+	return strings.Split(s, ",")
 }
