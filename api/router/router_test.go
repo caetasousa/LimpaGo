@@ -21,33 +21,30 @@ func criarDependencias(t *testing.T) router.Dependencias {
 	repoAgenda := testutil.NovoRepositorioAgendaMock()
 	repoAvaliacoes := testutil.NovoRepositorioAvaliacaoMock()
 	repoFeed := testutil.NovoRepositorioFeedMock()
-	repoCredenciais := auth.NovoRepositorioCredencialMock()
 
-	cfg := auth.ConfiguracaoJWT{
-		SegredoAcesso:    []byte("teste-acesso"),
-		SegredoRenovacao: []byte("teste-renovacao"),
-		DuracaoAcesso:    15 * 60 * 1e9,
-		DuracaoRenovacao: 24 * 60 * 60 * 1e9,
-		Emissor:          "teste",
-	}
-	svcToken := auth.NovoServicoToken(cfg)
 	svcUsuario := service.NovoServicoUsuario(repoUsuarios, repoPerfis)
 	svcLimpeza := service.NovoServicoLimpeza(repoLimpezas)
 	svcAgenda := service.NovoServicoAgenda(repoAgenda)
 	svcSolicitacao := service.NovoServicoSolicitacao(repoSolicitacoes, repoLimpezas, svcAgenda)
 	svcAvaliacao := service.NovoServicoAvaliacao(repoAvaliacoes, repoSolicitacoes, repoLimpezas)
 	svcFeed := service.NovoServicoFeed(repoFeed)
-	svcAuth := auth.NovoServicoAutenticacao(repoUsuarios, repoCredenciais, svcUsuario, svcToken)
+
+	svcTokenOIDC := auth.NovoServicoTokenOIDCMock()
+	sincronizacao := auth.NovoServicoSincronizacao(repoUsuarios, svcUsuario)
+	cfgZitadel := auth.CarregarConfiguracaoZitadel()
+	clienteZitadel := auth.NovoClienteZitadel(cfgZitadel)
+	svcAuth := auth.NovoServicoAutenticacao(clienteZitadel, sincronizacao, svcTokenOIDC)
 
 	return router.Dependencias{
-		Autenticacao: handler.NovoHandlerAutenticacao(svcAuth),
-		ServicoToken: svcToken,
-		Usuario:      handler.NovoHandlerUsuario(svcUsuario),
-		Limpeza:      handler.NovoHandlerLimpeza(svcLimpeza),
-		Solicitacao:  handler.NovoHandlerSolicitacao(svcSolicitacao),
-		Agenda:       handler.NovoHandlerAgenda(svcAgenda),
-		Avaliacao:    handler.NovoHandlerAvaliacao(svcAvaliacao),
-		Feed:         handler.NovoHandlerFeed(svcFeed),
+		Autenticacao:     handler.NovoHandlerAutenticacao(svcAuth, cfgZitadel),
+		ServicoTokenOIDC: svcTokenOIDC,
+		Sincronizacao:    sincronizacao,
+		Usuario:          handler.NovoHandlerUsuario(svcUsuario),
+		Limpeza:          handler.NovoHandlerLimpeza(svcLimpeza),
+		Solicitacao:      handler.NovoHandlerSolicitacao(svcSolicitacao),
+		Agenda:           handler.NovoHandlerAgenda(svcAgenda),
+		Avaliacao:        handler.NovoHandlerAvaliacao(svcAvaliacao),
+		Feed:             handler.NovoHandlerFeed(svcFeed),
 	}
 }
 
@@ -64,6 +61,7 @@ func TestRouter_rotas_publicas_respondem(t *testing.T) {
 	}{
 		{name: "catalogo de limpezas é acessível sem autenticação", method: http.MethodGet, path: "/api/v1/limpezas", want: http.StatusOK},
 		{name: "feed é acessível sem autenticação", method: http.MethodGet, path: "/api/v1/feed", want: http.StatusOK},
+		{name: "config OIDC é acessível sem autenticação", method: http.MethodGet, path: "/api/v1/auth/config", want: http.StatusOK},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

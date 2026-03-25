@@ -26,14 +26,15 @@ import (
 
 // Dependencias agrupa todos os handlers e serviços necessários para construir o router.
 type Dependencias struct {
-	Autenticacao *handler.HandlerAutenticacao
-	ServicoToken *auth.ServicoToken
-	Usuario      *handler.HandlerUsuario
-	Limpeza      *handler.HandlerLimpeza
-	Solicitacao  *handler.HandlerSolicitacao
-	Agenda       *handler.HandlerAgenda
-	Avaliacao    *handler.HandlerAvaliacao
-	Feed         *handler.HandlerFeed
+	Autenticacao    *handler.HandlerAutenticacao
+	ServicoTokenOIDC *auth.ServicoTokenOIDC
+	Sincronizacao   *auth.ServicoSincronizacao
+	Usuario         *handler.HandlerUsuario
+	Limpeza         *handler.HandlerLimpeza
+	Solicitacao     *handler.HandlerSolicitacao
+	Agenda          *handler.HandlerAgenda
+	Avaliacao       *handler.HandlerAvaliacao
+	Feed            *handler.HandlerFeed
 }
 
 // Novo constrói e retorna o router Chi com todas as rotas registradas.
@@ -50,14 +51,18 @@ func Novo(d Dependencias) http.Handler {
 
 	// API v1
 	r.Route("/api/v1", func(r chi.Router) {
-		// Autenticação (público)
+		// Autenticação (público) — proxy para o Zitadel
 		r.Post("/auth/registrar", d.Autenticacao.Registrar)
 		r.Post("/auth/login", d.Autenticacao.Login)
 		r.Post("/auth/renovar", d.Autenticacao.RenovarToken)
+		r.Get("/auth/config", d.Autenticacao.ConfiguracaoOIDC)
+
+		// Middleware OIDC aplicado a todos os grupos protegidos
+		autenticado := middleware.AutenticacaoOIDC(d.ServicoTokenOIDC, d.Sincronizacao)
 
 		// Usuários (autenticado)
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.AutenticacaoJWT(d.ServicoToken))
+			r.Use(autenticado)
 
 			r.Get("/usuarios/eu/perfil", d.Usuario.BuscarMeuPerfil)
 			r.Put("/usuarios/eu/perfil", d.Usuario.AtualizarMeuPerfil)
@@ -77,7 +82,7 @@ func Novo(d Dependencias) http.Handler {
 
 		// Limpezas (autenticado)
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.AutenticacaoJWT(d.ServicoToken))
+			r.Use(autenticado)
 
 			r.Post("/limpezas", d.Limpeza.CriarLimpeza)
 			r.Put("/limpezas/{id}", d.Limpeza.AtualizarLimpeza)
@@ -87,7 +92,7 @@ func Novo(d Dependencias) http.Handler {
 
 		// Solicitações (autenticado)
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.AutenticacaoJWT(d.ServicoToken))
+			r.Use(autenticado)
 
 			r.Post("/solicitacoes", d.Solicitacao.CriarSolicitacao)
 			r.Post("/solicitacoes/{cliente_id}/{limpeza_id}/aceitar", d.Solicitacao.AceitarSolicitacao)
@@ -97,7 +102,7 @@ func Novo(d Dependencias) http.Handler {
 
 		// Agenda (autenticado)
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.AutenticacaoJWT(d.ServicoToken))
+			r.Use(autenticado)
 
 			r.Get("/agenda/disponibilidades", d.Agenda.ListarDisponibilidade)
 			r.Post("/agenda/disponibilidades", d.Agenda.AdicionarDisponibilidade)
@@ -113,7 +118,7 @@ func Novo(d Dependencias) http.Handler {
 
 		// Avaliações (autenticado)
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.AutenticacaoJWT(d.ServicoToken))
+			r.Use(autenticado)
 
 			r.Post("/avaliacoes", d.Avaliacao.CriarAvaliacao)
 		})

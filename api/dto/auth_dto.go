@@ -34,6 +34,13 @@ type RespostaAutenticacao struct {
 	Tokens  ParTokensDTO    `json:"tokens"`
 }
 
+// RespostaConfiguracaoOIDC contém os dados de configuração do provedor OIDC para o frontend.
+type RespostaConfiguracaoOIDC struct {
+	URL      string `json:"url"`
+	ClientID string `json:"client_id"`
+	Emissor  string `json:"emissor"`
+}
+
 // DeParTokens converte um ParTokens do domínio auth em ParTokensDTO.
 func DeParTokens(p *auth.ParTokens) ParTokensDTO {
 	return ParTokensDTO{

@@ -24,16 +24,6 @@ import (
 
 // --- helpers de teste ---
 
-func configJWTTeste() auth.ConfiguracaoJWT {
-	return auth.ConfiguracaoJWT{
-		SegredoAcesso:    []byte("teste-acesso"),
-		SegredoRenovacao: []byte("teste-renovacao"),
-		DuracaoAcesso:    15 * time.Minute,
-		DuracaoRenovacao: 24 * time.Hour,
-		Emissor:          "teste",
-	}
-}
-
 type ambienteTeste struct {
 	repoUsuarios     *testutil.RepositorioUsuarioMock
 	repoPerfis       *testutil.RepositorioPerfilMock
@@ -42,16 +32,15 @@ type ambienteTeste struct {
 	repoAgenda       *testutil.RepositorioAgendaMock
 	repoAvaliacoes   *testutil.RepositorioAvaliacaoMock
 	repoFeed         *testutil.RepositorioFeedMock
-	repoCredenciais  *auth.RepositorioCredencialMock
 
-	svcToken      *auth.ServicoToken
-	svcUsuario    *service.ServicoUsuario
-	svcLimpeza    *service.ServicoLimpeza
-	svcAgenda     *service.ServicoAgenda
+	svcUsuario     *service.ServicoUsuario
+	svcLimpeza     *service.ServicoLimpeza
+	svcAgenda      *service.ServicoAgenda
 	svcSolicitacao *service.ServicoSolicitacao
-	svcAvaliacao  *service.ServicoAvaliacao
-	svcFeed       *service.ServicoFeed
-	svcAuth       *auth.ServicoAutenticacao
+	svcAvaliacao   *service.ServicoAvaliacao
+	svcFeed        *service.ServicoFeed
+	svcAuth        *auth.ServicoAutenticacao
+	sincronizacao  *auth.ServicoSincronizacao
 
 	handlerAuth        *handler.HandlerAutenticacao
 	handlerUsuario     *handler.HandlerUsuario
@@ -72,16 +61,19 @@ func novoAmbienteTeste(t *testing.T) *ambienteTeste {
 	repoAgenda := testutil.NovoRepositorioAgendaMock()
 	repoAvaliacoes := testutil.NovoRepositorioAvaliacaoMock()
 	repoFeed := testutil.NovoRepositorioFeedMock()
-	repoCredenciais := auth.NovoRepositorioCredencialMock()
 
-	svcToken := auth.NovoServicoToken(configJWTTeste())
 	svcUsuario := service.NovoServicoUsuario(repoUsuarios, repoPerfis)
 	svcLimpeza := service.NovoServicoLimpeza(repoLimpezas)
 	svcAgenda := service.NovoServicoAgenda(repoAgenda)
 	svcSolicitacao := service.NovoServicoSolicitacao(repoSolicitacoes, repoLimpezas, svcAgenda)
 	svcAvaliacao := service.NovoServicoAvaliacao(repoAvaliacoes, repoSolicitacoes, repoLimpezas)
 	svcFeed := service.NovoServicoFeed(repoFeed)
-	svcAuth := auth.NovoServicoAutenticacao(repoUsuarios, repoCredenciais, svcUsuario, svcToken)
+
+	svcTokenOIDC := auth.NovoServicoTokenOIDCMock()
+	sincronizacao := auth.NovoServicoSincronizacao(repoUsuarios, svcUsuario)
+	cfgZitadel := auth.CarregarConfiguracaoZitadel()
+	clienteZitadel := auth.NovoClienteZitadel(cfgZitadel)
+	svcAuth := auth.NovoServicoAutenticacao(clienteZitadel, sincronizacao, svcTokenOIDC)
 
 	return &ambienteTeste{
 		repoUsuarios:     repoUsuarios,
@@ -91,9 +83,7 @@ func novoAmbienteTeste(t *testing.T) *ambienteTeste {
 		repoAgenda:       repoAgenda,
 		repoAvaliacoes:   repoAvaliacoes,
 		repoFeed:         repoFeed,
-		repoCredenciais:  repoCredenciais,
 
-		svcToken:       svcToken,
 		svcUsuario:     svcUsuario,
 		svcLimpeza:     svcLimpeza,
 		svcAgenda:      svcAgenda,
@@ -101,8 +91,9 @@ func novoAmbienteTeste(t *testing.T) *ambienteTeste {
 		svcAvaliacao:   svcAvaliacao,
 		svcFeed:        svcFeed,
 		svcAuth:        svcAuth,
+		sincronizacao:  sincronizacao,
 
-		handlerAuth:        handler.NovoHandlerAutenticacao(svcAuth),
+		handlerAuth:        handler.NovoHandlerAutenticacao(svcAuth, cfgZitadel),
 		handlerUsuario:     handler.NovoHandlerUsuario(svcUsuario),
 		handlerLimpeza:     handler.NovoHandlerLimpeza(svcLimpeza),
 		handlerSolicitacao: handler.NovoHandlerSolicitacao(svcSolicitacao),
@@ -112,13 +103,15 @@ func novoAmbienteTeste(t *testing.T) *ambienteTeste {
 	}
 }
 
-func (a *ambienteTeste) registrarUsuario(t *testing.T, email, nome, senha string) (*entity.Usuario, string) {
+func (a *ambienteTeste) registrarUsuario(t *testing.T, email, nome string) (*entity.Usuario, string) {
 	t.Helper()
-	usuario, tokens, err := a.svcAuth.Registrar(context.Background(), email, nome, senha)
+	// No ambiente de teste, registra diretamente via ServicoUsuario (sem Zitadel)
+	usuario, err := a.svcUsuario.Registrar(context.Background(), email, nome)
 	if err != nil {
 		t.Fatalf("erro ao registrar usuario: %v", err)
 	}
-	return usuario, tokens.TokenAcesso
+	// Injeta um token fictício (os testes de handler usam contexto direto)
+	return usuario, "token-teste-mock"
 }
 
 func reqComToken(method, url string, body interface{}, token string) *http.Request {
@@ -148,8 +141,11 @@ func reqComChiParams(req *http.Request, params map[string]string) *http.Request 
 }
 
 // --- Testes de Autenticação ---
+// Nota: os endpoints /auth/registrar, /auth/login e /auth/renovar delegam ao Zitadel via HTTP.
+// Os testes unitários verificam o comportamento do handler quando o Zitadel não está disponível
+// (retorna erro de rede). Os fluxos completos são validados nos testes de integração em infra/zitadel/.
 
-func TestRegistro_usuario_novo_retorna_201_com_tokens(t *testing.T) {
+func TestRegistro_sem_zitadel_retorna_erro(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	body := dto.RequisicaoRegistroComSenha{
@@ -160,88 +156,42 @@ func TestRegistro_usuario_novo_retorna_201_com_tokens(t *testing.T) {
 
 	amb.handlerAuth.Registrar(rec, req)
 
-	if rec.Code != http.StatusCreated {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusCreated)
-	}
-	var resp dto.RespostaAutenticacao
-	if err := json.NewDecoder(rec.Body).Decode(&resp); err != nil {
-		t.Fatalf("erro ao decodificar: %v", err)
-	}
-	if resp.Usuario.Email != "novo@email.com" {
-		t.Errorf("got email %q; want %q", resp.Usuario.Email, "novo@email.com")
-	}
-	if resp.Tokens.TokenAcesso == "" {
-		t.Error("expected token_acesso; got empty")
+	// Sem Zitadel disponível, o handler deve retornar erro (não 2xx)
+	if rec.Code == http.StatusCreated {
+		t.Error("expected error without Zitadel; got 201")
 	}
 }
 
-func TestRegistro_email_duplicado_retorna_409(t *testing.T) {
+func TestLogin_sem_zitadel_retorna_erro(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	amb.registrarUsuario(t, "dup@email.com", "user1", "Senha123forte")
-
-	body := dto.RequisicaoRegistroComSenha{
-		Email: "dup@email.com", NomeUsuario: "user2", Senha: "Senha123forte",
-	}
-	req := reqComToken(http.MethodPost, "/auth/registrar", body, "")
-	rec := httptest.NewRecorder()
-
-	amb.handlerAuth.Registrar(rec, req)
-
-	if rec.Code != http.StatusConflict {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusConflict)
-	}
-}
-
-func TestRegistro_senha_fraca_retorna_422(t *testing.T) {
-	t.Parallel()
-	amb := novoAmbienteTeste(t)
-	body := dto.RequisicaoRegistroComSenha{
-		Email: "a@b.com", NomeUsuario: "user", Senha: "fraca",
-	}
-	req := reqComToken(http.MethodPost, "/auth/registrar", body, "")
-	rec := httptest.NewRecorder()
-
-	amb.handlerAuth.Registrar(rec, req)
-
-	if rec.Code != http.StatusUnprocessableEntity {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusUnprocessableEntity)
-	}
-}
-
-func TestLogin_credenciais_corretas_retorna_200_com_tokens(t *testing.T) {
-	t.Parallel()
-	amb := novoAmbienteTeste(t)
-	amb.registrarUsuario(t, "login@email.com", "loginuser", "Senha123forte")
-
 	body := dto.RequisicaoLogin{Email: "login@email.com", Senha: "Senha123forte"}
 	req := reqComToken(http.MethodPost, "/auth/login", body, "")
 	rec := httptest.NewRecorder()
 
 	amb.handlerAuth.Login(rec, req)
 
+	// Sem Zitadel disponível, o handler deve retornar erro (não 2xx)
+	if rec.Code == http.StatusOK {
+		t.Error("expected error without Zitadel; got 200")
+	}
+}
+
+func TestConfiguracaoOIDC_retorna_200(t *testing.T) {
+	t.Parallel()
+	amb := novoAmbienteTeste(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/config", nil)
+	rec := httptest.NewRecorder()
+
+	amb.handlerAuth.ConfiguracaoOIDC(rec, req)
+
 	if rec.Code != http.StatusOK {
 		t.Errorf("got %d; want %d", rec.Code, http.StatusOK)
 	}
 }
 
-func TestLogin_senha_errada_retorna_401(t *testing.T) {
-	t.Parallel()
-	amb := novoAmbienteTeste(t)
-	amb.registrarUsuario(t, "err@email.com", "erruser", "Senha123forte")
-
-	body := dto.RequisicaoLogin{Email: "err@email.com", Senha: "SenhaErrada1"}
-	req := reqComToken(http.MethodPost, "/auth/login", body, "")
-	rec := httptest.NewRecorder()
-
-	amb.handlerAuth.Login(rec, req)
-
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusUnauthorized)
-	}
-}
-
-func TestLogin_email_inexistente_retorna_401(t *testing.T) {
+func TestLogin_email_inexistente_retorna_erro(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 
@@ -251,24 +201,25 @@ func TestLogin_email_inexistente_retorna_401(t *testing.T) {
 
 	amb.handlerAuth.Login(rec, req)
 
-	if rec.Code != http.StatusUnauthorized {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusUnauthorized)
+	// Sem Zitadel disponível, espera-se qualquer erro (não 2xx)
+	if rec.Code >= 200 && rec.Code < 300 {
+		t.Errorf("expected error status; got %d", rec.Code)
 	}
 }
 
-func TestRenovarToken_token_valido_retorna_novo_par(t *testing.T) {
+func TestRenovarToken_token_invalido_por_falta_de_zitadel_retorna_401(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	_, tokens, _ := amb.svcAuth.Registrar(context.Background(), "renov@email.com", "renovuser", "Senha123forte")
 
-	body := dto.RequisicaoRenovarToken{TokenRenovacao: tokens.TokenRenovacao}
+	// No modo de teste (sem Zitadel), um refresh token qualquer deve retornar 401
+	body := dto.RequisicaoRenovarToken{TokenRenovacao: "refresh-token-ficticio"}
 	req := reqComToken(http.MethodPost, "/auth/renovar", body, "")
 	rec := httptest.NewRecorder()
 
 	amb.handlerAuth.RenovarToken(rec, req)
 
-	if rec.Code != http.StatusOK {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusOK)
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("got %d; want %d", rec.Code, http.StatusUnauthorized)
 	}
 }
 
@@ -292,7 +243,7 @@ func TestRenovarToken_token_invalido_retorna_401(t *testing.T) {
 func TestCriarLimpeza_faxineiro_publica_servico_retorna_201(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "fax@email.com", "faxineiro1", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "fax@email.com", "faxineiro1")
 
 	body := dto.RequisicaoCriarLimpeza{
 		Nome: "Limpeza Residencial", Descricao: "Limpeza completa",
@@ -385,7 +336,7 @@ func TestBuscarLimpeza_inexistente_retorna_404(t *testing.T) {
 func TestDeletarLimpeza_faxineiro_remove_seu_servico(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "del@email.com", "deletar", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "del@email.com", "deletar")
 	limpeza, _ := amb.svcLimpeza.Criar(context.Background(), usuario.ID, "Temp", "desc", 25.0, 1.0, valueobject.TipoLimpezaPadrao)
 
 	req := httptest.NewRequest(http.MethodDelete, "/limpezas/1", nil)
@@ -403,7 +354,7 @@ func TestDeletarLimpeza_faxineiro_remove_seu_servico(t *testing.T) {
 func TestListarMinhasLimpezas_faxineiro_ve_seus_servicos(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "fax2@email.com", "faxineiro2", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "fax2@email.com", "faxineiro2")
 	_, _ = amb.svcLimpeza.Criar(context.Background(), usuario.ID, "Minha Limpeza", "desc", 30.0, 2.0, valueobject.TipoLimpezaPadrao)
 
 	req := httptest.NewRequest(http.MethodGet, "/usuarios/eu/limpezas", nil)
@@ -422,7 +373,7 @@ func TestListarMinhasLimpezas_faxineiro_ve_seus_servicos(t *testing.T) {
 func TestBuscarPerfil_usuario_autenticado_ve_seu_perfil(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "perfil@email.com", "perfiluser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "perfil@email.com", "perfiluser")
 
 	req := httptest.NewRequest(http.MethodGet, "/usuarios/eu/perfil", nil)
 	req = reqComContextoUsuario(req, usuario.ID)
@@ -452,7 +403,7 @@ func TestBuscarPerfil_sem_autenticacao_retorna_401(t *testing.T) {
 func TestAtualizarPerfil_usuario_atualiza_nome_e_telefone(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "att@email.com", "attuser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "att@email.com", "attuser")
 
 	body := dto.RequisicaoAtualizarPerfil{
 		NomeCompleto: "Nome Completo", Telefone: "11999999999", Imagem: "foto.jpg",
@@ -476,7 +427,7 @@ func TestAtualizarPerfil_usuario_atualiza_nome_e_telefone(t *testing.T) {
 func TestCriarPerfilFaxineiro_usuario_se_torna_faxineiro(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "faxp@email.com", "faxprof", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "faxp@email.com", "faxprof")
 
 	req := httptest.NewRequest(http.MethodPost, "/usuarios/eu/perfil-faxineiro", nil)
 	req = reqComContextoUsuario(req, usuario.ID)
@@ -492,7 +443,7 @@ func TestCriarPerfilFaxineiro_usuario_se_torna_faxineiro(t *testing.T) {
 func TestCriarPerfilCliente_usuario_se_torna_cliente(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "clip@email.com", "cliprof", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "clip@email.com", "cliprof")
 
 	req := httptest.NewRequest(http.MethodPost, "/usuarios/eu/perfil-cliente", nil)
 	req = reqComContextoUsuario(req, usuario.ID)
@@ -510,7 +461,7 @@ func TestCriarPerfilCliente_usuario_se_torna_cliente(t *testing.T) {
 func TestAdicionarDisponibilidade_faxineiro_define_horario(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "ag@email.com", "aguser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "ag@email.com", "aguser")
 
 	body := dto.RequisicaoDisponibilidade{DiaSemana: 1, HoraInicio: 8, HoraFim: 17}
 	req := reqComToken(http.MethodPost, "/agenda/disponibilidades", body, "")
@@ -527,7 +478,7 @@ func TestAdicionarDisponibilidade_faxineiro_define_horario(t *testing.T) {
 func TestListarDisponibilidade_faxineiro_ve_seus_horarios(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "ld@email.com", "lduser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "ld@email.com", "lduser")
 	_, _ = amb.svcAgenda.AdicionarDisponibilidade(context.Background(), usuario.ID, time.Monday, 8, 12)
 
 	req := httptest.NewRequest(http.MethodGet, "/agenda/disponibilidades", nil)
@@ -544,7 +495,7 @@ func TestListarDisponibilidade_faxineiro_ve_seus_horarios(t *testing.T) {
 func TestCriarBloqueioPessoal_faxineiro_bloqueia_horario(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "bl@email.com", "bluser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "bl@email.com", "bluser")
 
 	body := dto.RequisicaoBloqueio{
 		DataInicio: time.Now().Add(24 * time.Hour),
@@ -564,7 +515,7 @@ func TestCriarBloqueioPessoal_faxineiro_bloqueia_horario(t *testing.T) {
 func TestListarBloqueios_faxineiro_ve_seus_bloqueios(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "lb@email.com", "lbuser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "lb@email.com", "lbuser")
 	_, _ = amb.svcAgenda.CriarBloqueioPessoal(context.Background(), usuario.ID, time.Now().Add(24*time.Hour), time.Now().Add(26*time.Hour))
 
 	req := httptest.NewRequest(http.MethodGet, "/agenda/bloqueios", nil)
@@ -661,7 +612,7 @@ func TestCriarSolicitacao_sem_autenticacao_retorna_401(t *testing.T) {
 func TestListarMinhasSolicitacoes_cliente_ve_suas_solicitacoes(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "solic@email.com", "solicuser", "Senha123forte")
+	usuario, _ := amb.registrarUsuario(t, "solic@email.com", "solicuser")
 
 	req := httptest.NewRequest(http.MethodGet, "/usuarios/eu/solicitacoes", nil)
 	req = reqComContextoUsuario(req, usuario.ID)

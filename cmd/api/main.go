@@ -32,14 +32,13 @@ import (
 
 func main() {
 	var (
-		repoUsuario    repository.RepositorioUsuario
-		repoPerfil     repository.RepositorioPerfil
-		repoLimpeza    repository.RepositorioLimpeza
-		repoAgenda     repository.RepositorioAgenda
+		repoUsuario     repository.RepositorioUsuario
+		repoPerfil      repository.RepositorioPerfil
+		repoLimpeza     repository.RepositorioLimpeza
+		repoAgenda      repository.RepositorioAgenda
 		repoSolicitacao repository.RepositorioSolicitacao
-		repoAvaliacao  repository.RepositorioAvaliacao
-		repoFeed       repository.RepositorioFeed
-		repoCredencial auth.RepositorioCredencial
+		repoAvaliacao   repository.RepositorioAvaliacao
+		repoFeed        repository.RepositorioFeed
 	)
 
 	if os.Getenv("DATABASE_URL") != "" {
@@ -59,7 +58,6 @@ func main() {
 		repoSolicitacao = postgres.NovoRepositorioSolicitacaoPG(db)
 		repoAvaliacao = postgres.NovoRepositorioAvaliacaoPG(db)
 		repoFeed = postgres.NovoRepositorioFeedPG(db)
-		repoCredencial = postgres.NovoRepositorioCredencialPG(db)
 	} else {
 		// Modo desenvolvimento: repositórios in-memory
 		log.Println("DATABASE_URL não definida — usando repositórios in-memory")
@@ -70,7 +68,6 @@ func main() {
 		repoSolicitacao = testutil.NovoRepositorioSolicitacaoMock()
 		repoAvaliacao = testutil.NovoRepositorioAvaliacaoMock()
 		repoFeed = testutil.NovoRepositorioFeedMock()
-		repoCredencial = auth.NovoRepositorioCredencialMock()
 	}
 
 	// Serviços de domínio
@@ -81,21 +78,39 @@ func main() {
 	svcAvaliacao := service.NovoServicoAvaliacao(repoAvaliacao, repoSolicitacao, repoLimpeza)
 	svcFeed := service.NovoServicoFeed(repoFeed)
 
-	// Serviços de autenticação
-	configJWT := auth.ConfiguracaoPadrao()
-	svcToken := auth.NovoServicoToken(configJWT)
-	svcAuth := auth.NovoServicoAutenticacao(repoUsuario, repoCredencial, svcUsuario, svcToken)
+	// Serviços de autenticação Zitadel
+	cfgZitadel := auth.CarregarConfiguracaoZitadel()
+
+	var svcTokenOIDC *auth.ServicoTokenOIDC
+	if cfgZitadel.URL != "" && cfgZitadel.URL != "http://localhost:8085" || os.Getenv("ZITADEL_URL") != "" {
+		var err error
+		svcTokenOIDC, err = auth.NovoServicoTokenOIDC(cfgZitadel)
+		if err != nil {
+			log.Printf("aviso: não foi possível inicializar JWKS do Zitadel: %v — usando mock", err)
+			svcTokenOIDC = auth.NovoServicoTokenOIDCMock()
+		} else {
+			log.Printf("conectado ao Zitadel JWKS em %s", cfgZitadel.URL)
+		}
+	} else {
+		log.Println("ZITADEL_URL não definida — usando ServicoTokenOIDC mock")
+		svcTokenOIDC = auth.NovoServicoTokenOIDCMock()
+	}
+
+	sincronizacao := auth.NovoServicoSincronizacao(repoUsuario, svcUsuario)
+	clienteZitadel := auth.NovoClienteZitadel(cfgZitadel)
+	svcAuth := auth.NovoServicoAutenticacao(clienteZitadel, sincronizacao, svcTokenOIDC)
 
 	// Handlers HTTP
 	deps := router.Dependencias{
-		Autenticacao: handler.NovoHandlerAutenticacao(svcAuth),
-		ServicoToken: svcToken,
-		Usuario:      handler.NovoHandlerUsuario(svcUsuario),
-		Limpeza:      handler.NovoHandlerLimpeza(svcLimpeza),
-		Solicitacao:  handler.NovoHandlerSolicitacao(svcSolicitacao),
-		Agenda:       handler.NovoHandlerAgenda(svcAgenda),
-		Avaliacao:    handler.NovoHandlerAvaliacao(svcAvaliacao),
-		Feed:         handler.NovoHandlerFeed(svcFeed),
+		Autenticacao:     handler.NovoHandlerAutenticacao(svcAuth, cfgZitadel),
+		ServicoTokenOIDC: svcTokenOIDC,
+		Sincronizacao:    sincronizacao,
+		Usuario:          handler.NovoHandlerUsuario(svcUsuario),
+		Limpeza:          handler.NovoHandlerLimpeza(svcLimpeza),
+		Solicitacao:      handler.NovoHandlerSolicitacao(svcSolicitacao),
+		Agenda:           handler.NovoHandlerAgenda(svcAgenda),
+		Avaliacao:        handler.NovoHandlerAvaliacao(svcAvaliacao),
+		Feed:             handler.NovoHandlerFeed(svcFeed),
 	}
 
 	addr := ":8080"

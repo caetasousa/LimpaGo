@@ -13,9 +13,10 @@ type chaveContexto string
 // ChaveUsuarioID é a chave usada para armazenar o ID do usuário no contexto.
 const ChaveUsuarioID chaveContexto = "usuario_id"
 
-// AutenticacaoJWT é um middleware que valida o token JWT do header Authorization.
-// Extrai o ID do usuário das claims e o armazena no contexto da requisição.
-func AutenticacaoJWT(svcToken *auth.ServicoToken) func(http.Handler) http.Handler {
+// AutenticacaoOIDC é um middleware que valida o token JWT do Zitadel (via JWKS)
+// e provisiona o usuário local caso seja o primeiro acesso.
+// Injeta o ID interno do usuário no contexto da requisição.
+func AutenticacaoOIDC(svcToken *auth.ServicoTokenOIDC, sincronizacao *auth.ServicoSincronizacao) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			header := r.Header.Get("Authorization")
@@ -31,7 +32,13 @@ func AutenticacaoJWT(svcToken *auth.ServicoToken) func(http.Handler) http.Handle
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), ChaveUsuarioID, claims.UsuarioID)
+			usuario, err := sincronizacao.SincronizarOuBuscar(r.Context(), claims.Email, claims.NomeUsuario)
+			if err != nil {
+				http.Error(w, `{"codigo":500,"mensagem":"erro ao sincronizar usuário"}`, http.StatusInternalServerError)
+				return
+			}
+
+			ctx := context.WithValue(r.Context(), ChaveUsuarioID, usuario.ID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

@@ -491,7 +491,16 @@ A API é servida em `/api/v1` com **31 endpoints** organizados por recurso:
 | Avaliações | 3 | Público para leitura |
 | Feed | 1 | Público |
 
-A autenticação é feita via header `X-User-ID` (placeholder — preparado para JWT).
+A autenticação é feita via **Bearer token JWT** emitido pelo **Zitadel** (RS256). O middleware valida o token via JWKS e injeta o `usuario_id` interno no contexto de cada requisição.
+
+Endpoints adicionais de autenticação:
+
+| Método | Endpoint | Descrição | Auth |
+|--------|----------|-----------|------|
+| `POST` | `/api/v1/auth/registrar` | Registra usuário no Zitadel + sincroniza no banco local | Público |
+| `POST` | `/api/v1/auth/login` | Autentica e retorna `access_token` + `refresh_token` | Público |
+| `POST` | `/api/v1/auth/renovar` | Renova tokens com `refresh_token` | Público |
+| `GET`  | `/api/v1/auth/config` | Retorna URL do Zitadel e `client_id` | Público |
 
 O **Swagger UI** fica disponível em `http://localhost:8080/swagger/index.html`.
 
@@ -505,15 +514,27 @@ limpaGo/
 ├── DOCUMENTACAO.md                       Esta documentação
 │
 ├── api/                                  Camada HTTP
+│   ├── auth/                             Autenticação via Zitadel (OIDC)
+│   │   ├── config_zitadel.go               ConfiguracaoZitadel + CarregarConfiguracaoZitadel()
+│   │   ├── cliente_zitadel.go              HTTP client para Zitadel API (registro, login, refresh)
+│   │   ├── servico_token_oidc.go           Validação JWT via JWKS (RS256)
+│   │   ├── sincronizacao_usuario.go        Provisionamento just-in-time de usuários
+│   │   └── servico_autenticacao.go         Proxy: delega registro/login ao Zitadel
 │   ├── dto/                              DTOs de request/response (JSON)
 │   ├── handler/                          Handlers HTTP (1 por serviço de domínio)
-│   ├── middleware/                       Auth, logger, CORS, recovery
+│   ├── middleware/                       Auth OIDC, logger, CORS, recovery
 │   ├── router/                           Registro de rotas com Chi
 │   └── server/                           http.Server com timeouts
 │
 ├── cmd/api/                              Entrypoint — composição e inicialização
 │
+├── db/migrations/                        Migrations SQL versionadas (Flyway)
+│
 ├── docs/                                 Swagger gerado automaticamente (swag init)
+│
+├── infra/
+│   ├── postgres/                         Repositórios PostgreSQL + testes de integração
+│   └── zitadel/                          Testes de integração com Zitadel
 │
 └── domain/                               Camada de domínio
     ├── entity/                           Entidades com identidade
@@ -535,6 +556,8 @@ limpaGo/
 - **Padrões utilizados:** Repository Pattern, Service Layer, Value Objects, Entity, Dependency Injection
 - **Banco de dados:** PostgreSQL 16 + Flyway (migrações SQL versionadas)
 - **Driver Go:** jackc/pgx/v5 via database/sql
+- **Autenticação:** Zitadel self-hosted (OAuth2/OIDC, JWT RS256, JWKS)
+- **Validação de token:** MicahParks/keyfunc/v3 (cache de chaves públicas JWKS)
 
 ---
 
@@ -543,14 +566,26 @@ limpaGo/
 ### Setup rápido com Docker
 
 ```bash
-# Subir PostgreSQL + Flyway (migrações automáticas)
+# Subir PostgreSQL + Flyway + Zitadel (migrações automáticas)
 make docker-up
 
-# Ou rodar a stack completa (banco + API containerizada)
+# Ou rodar a stack completa (banco + Zitadel + API containerizada)
 docker compose up
 ```
 
-Sobe PostgreSQL 16 na porta `5432` e executa as migrações Flyway automaticamente. O serviço `api` sobe após as migrações concluírem.
+Sobe os seguintes serviços:
+- **PostgreSQL** (porta `5432`) — banco da aplicação LimpaGo
+- **Flyway** — executa migrações automaticamente
+- **zitadel_postgres** (porta `5435`) — banco dedicado para o Zitadel
+- **Zitadel** (porta `8085`) — provedor de identidade
+
+O console admin do Zitadel fica disponível em `http://localhost:8085` (usuário: `admin@limpago.local`, senha: `Admin123!`).
+
+Após subir o Zitadel pela primeira vez, acesse o console e:
+1. Crie um projeto e uma aplicação do tipo "API"
+2. Anote o `client_id` e o `client_secret`
+3. Crie um service user com PAT (Personal Access Token) para a Management API
+4. Configure as variáveis em `.env`
 
 ### Variáveis de ambiente
 
@@ -562,28 +597,34 @@ cp .env.exemplo .env
 
 | Variável | Descrição | Padrão |
 |----------|-----------|--------|
-| `DATABASE_URL` | URL completa (sobrescreve as demais) | — |
+| `DATABASE_URL` | URL completa do banco (sobrescreve as demais) | — |
 | `PG_HOST` | Host do banco | `localhost` |
 | `PG_PORT` | Porta | `5432` |
 | `PG_USER` | Usuário | `limpago` |
 | `PG_PASSWORD` | Senha | `limpago_dev` |
 | `PG_DATABASE` | Nome do banco | `limpago` |
 | `PG_SSLMODE` | Modo SSL | `disable` |
-| `JWT_SEGREDO_ACESSO` | Segredo para tokens de acesso (obrigatório em produção) | valor dev |
-| `JWT_SEGREDO_RENOVACAO` | Segredo para tokens de renovação (obrigatório em produção) | valor dev |
 | `PORT` | Porta do servidor HTTP | `8080` |
+| `ZITADEL_URL` | URL base do Zitadel (ex: `http://localhost:8085`) | — |
+| `ZITADEL_EMISSOR` | Emissor esperado nos tokens JWT | mesmo que `ZITADEL_URL` |
+| `ZITADEL_CLIENT_ID` | ID da aplicação no Zitadel | — |
+| `ZITADEL_CLIENT_SECRET` | Secret da aplicação (para fluxo OAuth2) | — |
+| `ZITADEL_SERVICE_USER_TOKEN` | PAT do service user para Management API | — |
 
 Sem `DATABASE_URL`, a API inicia com repositórios **in-memory** (desenvolvimento sem banco).
+
+Sem `ZITADEL_URL`, a API inicia em modo de desenvolvimento usando um validador de token fictício (aceita qualquer token para facilitar desenvolvimento local sem Zitadel).
 
 ### Rodar com PostgreSQL
 
 ```bash
 # Via Makefile
-make docker-up     # Sobe PostgreSQL + executa migrações
-make run-pg        # Roda API com banco local
+make docker-up     # Sobe PostgreSQL + Zitadel + executa migrações
+make run-pg        # Roda API com banco local (sem Zitadel)
+make run-pg-zitadel  # Roda API com banco local + Zitadel
 
 # Ou manualmente
-DATABASE_URL="postgres://limpago:limpago_dev@localhost:5434/limpago?sslmode=disable" go run ./cmd/api/
+DATABASE_URL="postgres://limpago:limpago_dev@localhost:5432/limpago?sslmode=disable" go run ./cmd/api/
 ```
 
 ### Migrações
@@ -600,6 +641,7 @@ Os arquivos SQL estão em `db/migrations/` e são executados pelo Flyway na orde
 8. `V8__criar_disponibilidades.sql`
 9. `V9__criar_bloqueios.sql`
 10. `V10__criar_avaliacoes.sql`
+11. `V11__adicionar_id_externo_usuarios.sql` — coluna `id_externo` para mapear `sub` do Zitadel ao usuário interno
 
 ---
 
@@ -616,6 +658,8 @@ go test ./... -race -count=1
 ```
 
 ### Testes de integração
+
+#### PostgreSQL
 
 Validam os repositórios PostgreSQL contra um banco real. Requerem Docker:
 
@@ -636,42 +680,106 @@ DATABASE_URL_TESTE="postgres://limpago:limpago_dev@localhost:5433/limpago_teste?
   go test ./infra/postgres/... -tags integration -race -count=1 -v
 ```
 
+#### Zitadel
+
+Validam o cliente Zitadel e os fluxos de autenticação contra um Zitadel real:
+
+```bash
+make test-integration-zitadel
+```
+
+Requer Zitadel rodando (porta `8086`, perfil `test`) e as variáveis de ambiente configuradas:
+
+```bash
+ZITADEL_URL_TESTE=http://localhost:8086
+ZITADEL_CLIENT_ID_TESTE=<client-id-do-app-de-teste>
+ZITADEL_CLIENT_SECRET_TESTE=<client-secret>
+ZITADEL_SERVICE_USER_TOKEN_TESTE=<pat-do-service-user>
+DATABASE_URL_TESTE=postgres://limpago:limpago_dev@localhost:5433/limpago_teste?sslmode=disable
+```
+
+Para rodar todos os testes de integração (PostgreSQL + Zitadel):
+
+```bash
+make test-integration-all
+```
+
 ### Makefile — comandos disponíveis
 
 | Comando | Descrição |
 |---------|-----------|
 | `make build` | Compila o binário `limpago` |
 | `make test` | Roda todos os testes unitários |
-| `make test-integration` | Roda testes de integração (requer Docker) |
+| `make test-integration` | Testes de integração PostgreSQL (requer Docker) |
+| `make test-integration-zitadel` | Testes de integração Zitadel (requer Docker + vars de ambiente) |
+| `make test-integration-all` | Todos os testes de integração |
 | `make lint` | Executa `go vet ./...` |
 | `make swagger` | Regenera a documentação Swagger |
-| `make docker-up` | Sobe PostgreSQL + Flyway |
+| `make docker-up` | Sobe PostgreSQL + Flyway + Zitadel |
 | `make docker-down` | Para e remove os containers |
-| `make run` | Roda a API em modo in-memory |
+| `make run` | Roda a API em modo in-memory (sem banco, sem Zitadel) |
 | `make run-pg` | Roda a API com PostgreSQL local |
+| `make run-pg-zitadel` | Roda a API com PostgreSQL + Zitadel |
+| `make zitadel-up` | Sobe apenas o Zitadel e seu banco |
+| `make zitadel-down` | Para apenas o Zitadel e seu banco |
+| `make zitadel-test-up` | Sobe Zitadel de teste (porta 8086) |
+| `make zitadel-test-down` | Para Zitadel de teste |
 
 ---
 
 ## Como rodar o projeto
 
-**Pré-requisitos:** Go 1.22+ e Docker.
+### Pré-requisitos
+- Go 1.22+
+- Docker e Docker Compose
+
+### 1. Clonar e instalar dependências
 
 ```bash
 git clone https://github.com/caetasousa/LimpaGo.git
 cd LimpaGo
-make dev
+go mod download
 ```
 
-Isso sobe o banco, executa as migrações e inicia a API. Pronto.
+### 2. Configurar variáveis de ambiente
+
+```bash
+cp .env.exemplo .env
+# Edite .env com seus valores
+```
+
+### 3. Subir a infraestrutura
+
+```bash
+make docker-up
+```
+
+Sobe PostgreSQL (porta `5432`), Zitadel (porta `8085`) e executa as migrações automaticamente.
+
+### 4. Configurar o Zitadel (primeira vez)
+
+1. Acesse `http://localhost:8085` e faça login com `admin@limpago.local` / `Admin123!`
+2. Crie um projeto e uma aplicação do tipo "API" (ou "Web" para PKCE)
+3. Configure o `client_id`, `client_secret` e um service user com PAT no `.env`
+
+### 5. Rodar a API
+
+```bash
+make run-pg-zitadel   # com PostgreSQL + Zitadel
+# ou
+make run              # modo in-memory, sem banco, sem Zitadel (desenvolvimento rápido)
+```
 
 - API: `http://localhost:8080/api/v1`
 - Swagger: `http://localhost:8080/swagger/index.html`
+- Zitadel console: `http://localhost:8085`
 
 ### Outros comandos úteis
 
 ```bash
-make test              # testes unitários
-make test-integration  # testes contra banco real (requer Docker)
-make docker-down       # derrubar infraestrutura
-make run               # rodar sem banco (modo in-memory)
+make test                       # testes unitários (sem infraestrutura)
+make test-integration           # testes PostgreSQL (requer Docker)
+make test-integration-zitadel   # testes Zitadel (requer Docker + vars)
+make test-integration-all       # todos os testes de integração
+make docker-down                # derrubar toda a infraestrutura
 ```
