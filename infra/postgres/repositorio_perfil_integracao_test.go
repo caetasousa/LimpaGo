@@ -13,7 +13,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioPerfilPG_PerfilBase(t *testing.T) {
+func TestPerfil_GerenciarPerfilBaseDoUsuario(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioPerfilPG(db)
@@ -21,7 +21,7 @@ func TestRepositorioPerfilPG_PerfilBase(t *testing.T) {
 
 	usuarioID := inserirUsuario(t, db, "perfil@teste.com", "perfilteste")
 
-	t.Run("salvar perfil base", func(t *testing.T) {
+	t.Run("usuario cria perfil com nome e telefone", func(t *testing.T) {
 		p := entity.NovoPerfil(usuarioID, "perfil@teste.com", "perfilteste")
 		p.NomeCompleto = "João da Silva"
 		p.Telefone = "11999999999"
@@ -34,7 +34,7 @@ func TestRepositorioPerfilPG_PerfilBase(t *testing.T) {
 		}
 	})
 
-	t.Run("buscar perfil base", func(t *testing.T) {
+	t.Run("perfil criado e recuperado com dados corretos", func(t *testing.T) {
 		got, err := repo.BuscarPorUsuarioID(ctx, usuarioID)
 		if err != nil {
 			t.Fatalf("BuscarPorUsuarioID() error: %v", err)
@@ -47,7 +47,7 @@ func TestRepositorioPerfilPG_PerfilBase(t *testing.T) {
 		}
 	})
 
-	t.Run("atualizar perfil base", func(t *testing.T) {
+	t.Run("usuario atualiza nome e telefone do perfil", func(t *testing.T) {
 		p := &entity.Perfil{UsuarioID: usuarioID, NomeCompleto: "João Silva Atualizado", Telefone: "11888888888"}
 		if err := repo.Atualizar(ctx, p); err != nil {
 			t.Fatalf("Atualizar() error: %v", err)
@@ -57,7 +57,7 @@ func TestRepositorioPerfilPG_PerfilBase(t *testing.T) {
 		}
 	})
 
-	t.Run("nao encontrado retorna ErrPerfilNaoEncontrado", func(t *testing.T) {
+	t.Run("perfil inexistente retorna erro de nao encontrado", func(t *testing.T) {
 		_, err := repo.BuscarPorUsuarioID(ctx, 999999)
 		if !errors.Is(err, errosdominio.ErrPerfilNaoEncontrado) {
 			t.Errorf("got %v; want %v", err, errosdominio.ErrPerfilNaoEncontrado)
@@ -65,7 +65,7 @@ func TestRepositorioPerfilPG_PerfilBase(t *testing.T) {
 	})
 }
 
-func TestRepositorioPerfilPG_PerfilFaxineiro(t *testing.T) {
+func TestPerfil_FaxineiroCadastraPerfilProfissionalComEspecialidades(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioPerfilPG(db)
@@ -73,7 +73,7 @@ func TestRepositorioPerfilPG_PerfilFaxineiro(t *testing.T) {
 
 	usuarioID := inserirUsuario(t, db, "faxineiro@teste.com", "faxineiroteste")
 
-	t.Run("salvar perfil faxineiro com arrays", func(t *testing.T) {
+	t.Run("faxineiro registra especialidades e cidades atendidas", func(t *testing.T) {
 		p := entity.NovoPerfilFaxineiro(usuarioID)
 		p.Descricao = "Faxineiro experiente"
 		p.AnosExperiencia = 5
@@ -90,7 +90,7 @@ func TestRepositorioPerfilPG_PerfilFaxineiro(t *testing.T) {
 		}
 	})
 
-	t.Run("buscar perfil faxineiro preserva arrays", func(t *testing.T) {
+	t.Run("especialidades e cidades sao preservadas ao consultar perfil", func(t *testing.T) {
 		got, err := repo.BuscarPerfilFaxineiro(ctx, usuarioID)
 		if err != nil {
 			t.Fatalf("BuscarPerfilFaxineiro() error: %v", err)
@@ -109,7 +109,7 @@ func TestRepositorioPerfilPG_PerfilFaxineiro(t *testing.T) {
 		}
 	})
 
-	t.Run("atualizar perfil faxineiro", func(t *testing.T) {
+	t.Run("faxineiro atualiza experiencia e especialidades", func(t *testing.T) {
 		p := &entity.PerfilFaxineiro{
 			UsuarioID:        usuarioID,
 			Descricao:        "Atualizado",
@@ -123,7 +123,7 @@ func TestRepositorioPerfilPG_PerfilFaxineiro(t *testing.T) {
 		}
 	})
 
-	t.Run("nao encontrado retorna ErrPerfilFaxineiroNaoEncontrado", func(t *testing.T) {
+	t.Run("perfil faxineiro inexistente retorna erro de nao encontrado", func(t *testing.T) {
 		_, err := repo.BuscarPerfilFaxineiro(ctx, 999999)
 		if !errors.Is(err, errosdominio.ErrPerfilFaxineiroNaoEncontrado) {
 			t.Errorf("got %v; want %v", err, errosdominio.ErrPerfilFaxineiroNaoEncontrado)
@@ -131,7 +131,7 @@ func TestRepositorioPerfilPG_PerfilFaxineiro(t *testing.T) {
 	})
 }
 
-func TestRepositorioPerfilPG_PerfilCliente(t *testing.T) {
+func TestPerfil_ClienteCadastraEnderecoETipoDeImovel(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioPerfilPG(db)
@@ -139,7 +139,7 @@ func TestRepositorioPerfilPG_PerfilCliente(t *testing.T) {
 
 	usuarioID := inserirUsuario(t, db, "cliente@teste.com", "clienteteste")
 
-	t.Run("salvar perfil cliente com endereco", func(t *testing.T) {
+	t.Run("cliente registra endereco e detalhes do imovel", func(t *testing.T) {
 		p := entity.NovoPerfilCliente(usuarioID)
 		p.Endereco = valueobject.Endereco{
 			Rua:    "Rua das Flores",
@@ -161,7 +161,7 @@ func TestRepositorioPerfilPG_PerfilCliente(t *testing.T) {
 		}
 	})
 
-	t.Run("buscar perfil cliente preserva endereco", func(t *testing.T) {
+	t.Run("endereco e tipo de imovel sao preservados ao consultar", func(t *testing.T) {
 		got, err := repo.BuscarPerfilCliente(ctx, usuarioID)
 		if err != nil {
 			t.Fatalf("BuscarPerfilCliente() error: %v", err)
@@ -180,7 +180,7 @@ func TestRepositorioPerfilPG_PerfilCliente(t *testing.T) {
 		}
 	})
 
-	t.Run("nao encontrado retorna ErrPerfilClienteNaoEncontrado", func(t *testing.T) {
+	t.Run("perfil cliente inexistente retorna erro de nao encontrado", func(t *testing.T) {
 		_, err := repo.BuscarPerfilCliente(ctx, 999999)
 		if !errors.Is(err, errosdominio.ErrPerfilClienteNaoEncontrado) {
 			t.Errorf("got %v; want %v", err, errosdominio.ErrPerfilClienteNaoEncontrado)

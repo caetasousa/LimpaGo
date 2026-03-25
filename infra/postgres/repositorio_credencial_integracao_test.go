@@ -10,7 +10,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioCredencialPG_Salvar(t *testing.T) {
+func TestAutenticacao_SalvarCredencialDeSenhaDoUsuario(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioCredencialPG(db)
@@ -19,18 +19,18 @@ func TestRepositorioCredencialPG_Salvar(t *testing.T) {
 	usuarioID := inserirUsuario(t, db, "cred@teste.com", "credteste")
 
 	tests := []struct {
-		name       string
-		usuarioID  int
-		senhaHash  string
-		wantErr    bool
+		name      string
+		usuarioID int
+		senhaHash string
+		wantErr   bool
 	}{
 		{
-			name:      "salvar credencial nova",
+			name:      "senha do usuario e armazenada com hash na primeira vez",
 			usuarioID: usuarioID,
 			senhaHash: "$2a$10$hashficticiodasenha1234",
 		},
 		{
-			name:      "upsert: atualizar credencial existente",
+			name:      "senha existente e substituida ao alterar senha",
 			usuarioID: usuarioID,
 			senhaHash: "$2a$10$hashficticionovasenha56",
 		},
@@ -59,7 +59,7 @@ func TestRepositorioCredencialPG_Salvar(t *testing.T) {
 	}
 }
 
-func TestRepositorioCredencialPG_BuscarPorUsuarioID(t *testing.T) {
+func TestAutenticacao_RecuperarCredencialParaValidarLogin(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioCredencialPG(db)
@@ -77,8 +77,8 @@ func TestRepositorioCredencialPG_BuscarPorUsuarioID(t *testing.T) {
 		wantHash  string
 		wantNil   bool
 	}{
-		{name: "encontrada", usuarioID: usuarioID, wantHash: "$2a$10$hashsalvo"},
-		{name: "nao encontrada retorna nil nil", usuarioID: 999999, wantNil: true},
+		{name: "credencial existente retorna hash para validacao", usuarioID: usuarioID, wantHash: "$2a$10$hashsalvo"},
+		{name: "usuario sem credencial retorna nulo", usuarioID: 999999, wantNil: true},
 	}
 
 	for _, tt := range tests {

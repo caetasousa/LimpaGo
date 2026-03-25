@@ -13,7 +13,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioLimpezaPG_Salvar(t *testing.T) {
+func TestServico_FaxineiroPublicaNovoServicoDeClimpeza(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
@@ -41,7 +41,7 @@ func TestRepositorioLimpezaPG_Salvar(t *testing.T) {
 	}
 }
 
-func TestRepositorioLimpezaPG_BuscarPorID(t *testing.T) {
+func TestServico_ConsultarDetalhesDeUmServicoPeloID(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
@@ -56,9 +56,9 @@ func TestRepositorioLimpezaPG_BuscarPorID(t *testing.T) {
 		wantErr error
 		wantNil bool
 	}{
-		{name: "encontrada", id: id},
+		{name: "servico existente retorna todos os detalhes", id: id},
 		{
-			name:    "nao encontrada",
+			name:    "servico inexistente retorna erro de nao encontrado",
 			id:      999999,
 			wantErr: errosdominio.ErrLimpezaNaoEncontrada,
 		},
@@ -86,7 +86,7 @@ func TestRepositorioLimpezaPG_BuscarPorID(t *testing.T) {
 	}
 }
 
-func TestRepositorioLimpezaPG_ListarPorFaxineiro(t *testing.T) {
+func TestServico_ListarTodosServicosDeUmFaxineiro(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
@@ -105,7 +105,7 @@ func TestRepositorioLimpezaPG_ListarPorFaxineiro(t *testing.T) {
 	}
 }
 
-func TestRepositorioLimpezaPG_ListarTodas_Paginacao(t *testing.T) {
+func TestServico_ListarTodosServicosComPaginacao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
@@ -122,9 +122,9 @@ func TestRepositorioLimpezaPG_ListarTodas_Paginacao(t *testing.T) {
 		tamanhoPagina int
 		wantLen       int
 	}{
-		{name: "pagina 1 com tamanho 3", pagina: 1, tamanhoPagina: 3, wantLen: 3},
-		{name: "pagina 2 com tamanho 3", pagina: 2, tamanhoPagina: 3, wantLen: 2},
-		{name: "pagina 3 vazia", pagina: 3, tamanhoPagina: 3, wantLen: 0},
+		{name: "primeira pagina retorna 3 de 5 servicos", pagina: 1, tamanhoPagina: 3, wantLen: 3},
+		{name: "segunda pagina retorna os 2 servicos restantes", pagina: 2, tamanhoPagina: 3, wantLen: 2},
+		{name: "terceira pagina retorna vazio quando nao ha mais servicos", pagina: 3, tamanhoPagina: 3, wantLen: 0},
 	}
 
 	for _, tt := range tests {
@@ -140,7 +140,7 @@ func TestRepositorioLimpezaPG_ListarTodas_Paginacao(t *testing.T) {
 	}
 }
 
-func TestRepositorioLimpezaPG_Atualizar(t *testing.T) {
+func TestServico_FaxineiroAtualizaValorEDescricaoDoServico(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
@@ -170,7 +170,7 @@ func TestRepositorioLimpezaPG_Atualizar(t *testing.T) {
 	}
 }
 
-func TestRepositorioLimpezaPG_Deletar(t *testing.T) {
+func TestServico_FaxineiroRemoveServicoDaPlataforma(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)

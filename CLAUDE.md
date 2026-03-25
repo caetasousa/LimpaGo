@@ -294,23 +294,31 @@ make test-integration
 
 ### 4. Fazer commit e perguntar sobre git push
 
-Ao concluir qualquer tarefa, **fazer o commit automaticamente** (sem perguntar) seguindo o padrão de commits deste documento, e então:
+> **⚠️ REGRA CRÍTICA — NUNCA PULAR ESTE PASSO ⚠️**
+> Este passo é **OBRIGATÓRIO** ao final de QUALQUER tarefa, sem exceção.
+> O Claude NÃO pode encerrar a resposta sem ter feito o commit e mostrado a mensagem abaixo.
 
-1. Mostrar os commits que serão enviados:
+**Sequência obrigatória:**
+
+1. **Fazer o commit automaticamente** (sem perguntar ao usuário), seguindo o padrão de commits deste documento.
+
+2. **Executar o comando** para listar todos os commits pendentes:
    ```bash
    git log origin/master..HEAD --pretty=format:"• %h %s (%cr)"
    ```
-   Exibir o resultado diretamente no chat, no formato:
+
+3. **Exibir a mensagem final** no chat, SEMPRE neste formato exato:
    ```
-   Commits que serão enviados:
+   Esses são os commits que serão enviados:
+
    • a1b2c3d feat: adicionar testes de integração (há 2 minutos)
    • d4e5f6g fix: corrigir porta do docker-compose (há 5 minutos)
+
+   Deseja que eu faça `git push` para o GitHub agora?
    ```
 
-2. Perguntar ao usuário:
-   > "Deseja que eu faça `git push` para o GitHub agora?"
-
-> **Importante**: o commit é feito automaticamente — a única pergunta ao usuário é sobre o push.
+> **Importante**: o commit é feito automaticamente — a **única pergunta** ao usuário é sobre o push.
+> **Importante**: a mensagem acima é a **última coisa** que o Claude escreve na resposta. Nada vem depois dela.
 
 Se a resposta for sim, executar:
 ```bash

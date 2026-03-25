@@ -13,7 +13,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
+func TestAgenda_FaxineiroDefineHorariosDisponiveisNaSemana(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAgendaPG(db)
@@ -23,7 +23,7 @@ func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
 
 	var dispID int
 
-	t.Run("salvar disponibilidade", func(t *testing.T) {
+	t.Run("faxineiro cadastra disponibilidade na segunda-feira", func(t *testing.T) {
 		d := &entity.Disponibilidade{
 			FaxineiroID: faxineiroID,
 			DiaSemana:   time.Monday,
@@ -39,7 +39,7 @@ func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
 		dispID = d.ID
 	})
 
-	t.Run("listar por faxineiro", func(t *testing.T) {
+	t.Run("consulta retorna todas as disponibilidades do faxineiro", func(t *testing.T) {
 		got, err := repo.ListarDisponibilidadePorFaxineiro(ctx, faxineiroID)
 		if err != nil {
 			t.Fatalf("ListarDisponibilidadePorFaxineiro() error: %v", err)
@@ -49,7 +49,7 @@ func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
 		}
 	})
 
-	t.Run("listar por dia segunda-feira", func(t *testing.T) {
+	t.Run("filtrar disponibilidade por dia retorna apenas segunda-feira", func(t *testing.T) {
 		got, err := repo.ListarDisponibilidadePorDia(ctx, faxineiroID, time.Monday)
 		if err != nil {
 			t.Fatalf("ListarDisponibilidadePorDia() error: %v", err)
@@ -59,7 +59,7 @@ func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
 		}
 	})
 
-	t.Run("listar por dia sem disponibilidade retorna vazio", func(t *testing.T) {
+	t.Run("dia sem disponibilidade retorna lista vazia", func(t *testing.T) {
 		got, err := repo.ListarDisponibilidadePorDia(ctx, faxineiroID, time.Sunday)
 		if err != nil {
 			t.Fatalf("error: %v", err)
@@ -69,7 +69,7 @@ func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
 		}
 	})
 
-	t.Run("deletar disponibilidade", func(t *testing.T) {
+	t.Run("faxineiro remove disponibilidade da agenda", func(t *testing.T) {
 		if err := repo.DeletarDisponibilidade(ctx, dispID, faxineiroID); err != nil {
 			t.Fatalf("DeletarDisponibilidade() error: %v", err)
 		}
@@ -80,7 +80,7 @@ func TestRepositorioAgendaPG_Disponibilidade(t *testing.T) {
 	})
 }
 
-func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
+func TestAgenda_FaxineiroBloqueiaHorariosParaCompromissosPessoais(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAgendaPG(db)
@@ -94,7 +94,7 @@ func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
 
 	var bloqueioID int
 
-	t.Run("salvar bloqueio pessoal", func(t *testing.T) {
+	t.Run("faxineiro cria bloqueio pessoal na agenda", func(t *testing.T) {
 		b := &entity.Bloqueio{
 			FaxineiroID: faxineiroID,
 			DataInicio:  inicio,
@@ -109,7 +109,7 @@ func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
 		bloqueioID = b.ID
 	})
 
-	t.Run("buscar bloqueio por ID", func(t *testing.T) {
+	t.Run("bloqueio pode ser consultado pelo ID", func(t *testing.T) {
 		got, err := repo.BuscarBloqueioPorID(ctx, bloqueioID)
 		if err != nil {
 			t.Fatalf("BuscarBloqueioPorID() error: %v", err)
@@ -122,7 +122,7 @@ func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
 		}
 	})
 
-	t.Run("listar bloqueios por faxineiro", func(t *testing.T) {
+	t.Run("listar bloqueios retorna todos do faxineiro", func(t *testing.T) {
 		got, err := repo.ListarBloqueiosPorFaxineiro(ctx, faxineiroID)
 		if err != nil {
 			t.Fatalf("error: %v", err)
@@ -132,7 +132,7 @@ func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
 		}
 	})
 
-	t.Run("listar bloqueios por periodo com overlap", func(t *testing.T) {
+	t.Run("sistema detecta conflito quando periodo se sobrepoe ao bloqueio", func(t *testing.T) {
 		// Período que se sobrepõe ao bloqueio
 		got, err := repo.ListarBloqueiosPorPeriodo(ctx, faxineiroID,
 			inicio.Add(-1*time.Hour), fim.Add(1*time.Hour))
@@ -144,7 +144,7 @@ func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
 		}
 	})
 
-	t.Run("listar bloqueios por periodo sem overlap", func(t *testing.T) {
+	t.Run("periodo sem sobreposicao nao retorna bloqueios", func(t *testing.T) {
 		// Período que não se sobrepõe
 		got, err := repo.ListarBloqueiosPorPeriodo(ctx, faxineiroID,
 			fim.Add(2*time.Hour), fim.Add(6*time.Hour))
@@ -156,14 +156,14 @@ func TestRepositorioAgendaPG_Bloqueio(t *testing.T) {
 		}
 	})
 
-	t.Run("buscar bloqueio nao encontrado", func(t *testing.T) {
+	t.Run("bloqueio inexistente retorna erro de nao encontrado", func(t *testing.T) {
 		_, err := repo.BuscarBloqueioPorID(ctx, 999999)
 		if !errors.Is(err, errosdominio.ErrBloqueioNaoEncontrado) {
 			t.Errorf("got %v; want %v", err, errosdominio.ErrBloqueioNaoEncontrado)
 		}
 	})
 
-	t.Run("deletar bloqueio", func(t *testing.T) {
+	t.Run("faxineiro remove bloqueio da agenda", func(t *testing.T) {
 		if err := repo.DeletarBloqueio(ctx, bloqueioID); err != nil {
 			t.Fatalf("DeletarBloqueio() error: %v", err)
 		}

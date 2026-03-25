@@ -9,7 +9,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioFeedPG_BuscarPaginaFeed(t *testing.T) {
+func TestFeed_ClienteNavegaPelosServicosDisponiveisComPaginacao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioFeedPG(db)
@@ -28,14 +28,14 @@ func TestRepositorioFeedPG_BuscarPaginaFeed(t *testing.T) {
 		wantTotal     int
 	}{
 		{
-			name:          "pagina 1 com tamanho 3",
+			name:          "primeira pagina mostra 3 de 5 servicos disponiveis",
 			pagina:        1,
 			tamanhoPagina: 3,
 			wantLen:       3,
 			wantTotal:     5,
 		},
 		{
-			name:          "pagina 2 com tamanho 3",
+			name:          "segunda pagina mostra os 2 servicos restantes",
 			pagina:        2,
 			tamanhoPagina: 3,
 			wantLen:       2,
@@ -61,7 +61,7 @@ func TestRepositorioFeedPG_BuscarPaginaFeed(t *testing.T) {
 		})
 	}
 
-	t.Run("banco vazio retorna pagina com itens vazios", func(t *testing.T) {
+	t.Run("feed sem servicos cadastrados retorna pagina vazia", func(t *testing.T) {
 		limparTabelas(t, db)
 		pagina, err := repo.BuscarPaginaFeed(ctx, 1, 10)
 		if err != nil {

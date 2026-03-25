@@ -11,7 +11,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestComTransacao_Commit(t *testing.T) {
+func TestTransacao_CadastroCompletoComUsuarioEPerfilEmUnicaOperacao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 
@@ -50,7 +50,7 @@ func TestComTransacao_Commit(t *testing.T) {
 	}
 }
 
-func TestComTransacao_Rollback(t *testing.T) {
+func TestTransacao_ErroEmUmaOperacaoDesfazTodasAsAnteriores(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 
@@ -80,7 +80,7 @@ func TestComTransacao_Rollback(t *testing.T) {
 	}
 }
 
-func TestComTransacao_PropagacaoContexto(t *testing.T) {
+func TestTransacao_MultiplasOperacoesCompartilhamMesmaConexao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 

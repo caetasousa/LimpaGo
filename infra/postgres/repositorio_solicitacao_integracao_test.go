@@ -14,7 +14,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioSolicitacaoPG_Salvar(t *testing.T) {
+func TestSolicitacao_ClienteSolicitaServicoComEnderecoEDataAgendada(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
@@ -50,7 +50,7 @@ func TestRepositorioSolicitacaoPG_Salvar(t *testing.T) {
 	}
 }
 
-func TestRepositorioSolicitacaoPG_BuscarPorClienteELimpeza(t *testing.T) {
+func TestSolicitacao_ConsultarSolicitacaoPorClienteEServico(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
@@ -67,8 +67,8 @@ func TestRepositorioSolicitacaoPG_BuscarPorClienteELimpeza(t *testing.T) {
 		limpezaID int
 		wantErr   error
 	}{
-		{name: "encontrada", clienteID: clienteID, limpezaID: limpezaID},
-		{name: "nao encontrada", clienteID: 999999, limpezaID: limpezaID, wantErr: errosdominio.ErrSolicitacaoNaoEncontrada},
+		{name: "solicitacao existente e encontrada", clienteID: clienteID, limpezaID: limpezaID},
+		{name: "solicitacao inexistente retorna erro de nao encontrada", clienteID: 999999, limpezaID: limpezaID, wantErr: errosdominio.ErrSolicitacaoNaoEncontrada},
 	}
 
 	for _, tt := range tests {
@@ -90,7 +90,7 @@ func TestRepositorioSolicitacaoPG_BuscarPorClienteELimpeza(t *testing.T) {
 	}
 }
 
-func TestRepositorioSolicitacaoPG_BuscarAtivaPorClienteELimpeza(t *testing.T) {
+func TestSolicitacao_VerificarSeSolicitacaoEstaAtivaOuJaFoiCancelada(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
@@ -103,7 +103,7 @@ func TestRepositorioSolicitacaoPG_BuscarAtivaPorClienteELimpeza(t *testing.T) {
 	// Inserir solicitação pendente
 	solID := inserirSolicitacao(t, db, clienteID, limpezaID)
 
-	t.Run("pendente retorna ativa", func(t *testing.T) {
+	t.Run("solicitacao pendente e considerada ativa", func(t *testing.T) {
 		got, err := repo.BuscarAtivaPorClienteELimpeza(ctx, clienteID, limpezaID)
 		if err != nil {
 			t.Fatalf("error: %v", err)
@@ -116,7 +116,7 @@ func TestRepositorioSolicitacaoPG_BuscarAtivaPorClienteELimpeza(t *testing.T) {
 	// Cancelar a solicitação
 	db.Exec(`UPDATE solicitacoes SET status='cancelada' WHERE id=$1`, solID)
 
-	t.Run("cancelada nao retorna ativa", func(t *testing.T) {
+	t.Run("solicitacao cancelada nao aparece como ativa", func(t *testing.T) {
 		_, err := repo.BuscarAtivaPorClienteELimpeza(ctx, clienteID, limpezaID)
 		if !errors.Is(err, errosdominio.ErrSolicitacaoNaoEncontrada) {
 			t.Errorf("got %v; want %v", err, errosdominio.ErrSolicitacaoNaoEncontrada)
@@ -124,7 +124,7 @@ func TestRepositorioSolicitacaoPG_BuscarAtivaPorClienteELimpeza(t *testing.T) {
 	})
 }
 
-func TestRepositorioSolicitacaoPG_Atualizar(t *testing.T) {
+func TestSolicitacao_FaxineiroAtualizaStatusDaSolicitacao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
@@ -147,7 +147,7 @@ func TestRepositorioSolicitacaoPG_Atualizar(t *testing.T) {
 	}
 }
 
-func TestRepositorioSolicitacaoPG_Deletar(t *testing.T) {
+func TestSolicitacao_ClienteCancelaSolicitacaoEElaDesaparece(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)

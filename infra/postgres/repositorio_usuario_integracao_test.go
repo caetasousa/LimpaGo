@@ -12,7 +12,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioUsuarioPG_Salvar(t *testing.T) {
+func TestCadastro_RegistrarNovoUsuarioNaPlataforma(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioUsuarioPG(db)
@@ -32,19 +32,19 @@ func TestRepositorioUsuarioPG_Salvar(t *testing.T) {
 		wantErrIs   error
 	}{
 		{
-			name:        "novo usuario valido",
+			name:        "usuario com email e nome unicos e registrado com sucesso",
 			email:       "maria@exemplo.com",
 			nomeUsuario: "maria456",
 		},
 		{
-			name:        "email duplicado",
+			name:        "sistema rejeita registro com email ja cadastrado",
 			email:       "joao@exemplo.com",
 			nomeUsuario: "outronome",
 			wantErr:     true,
 			wantErrIs:   errosdominio.ErrEmailJaUtilizado,
 		},
 		{
-			name:        "nome_usuario duplicado",
+			name:        "sistema rejeita registro com nome de usuario ja existente",
 			email:       "carlos@exemplo.com",
 			nomeUsuario: "joao123",
 			wantErr:     true,
@@ -79,7 +79,7 @@ func TestRepositorioUsuarioPG_Salvar(t *testing.T) {
 	}
 }
 
-func TestRepositorioUsuarioPG_BuscarPorID(t *testing.T) {
+func TestCadastro_BuscarUsuarioPorIDRetornaDadosCorretos(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioUsuarioPG(db)
@@ -93,8 +93,8 @@ func TestRepositorioUsuarioPG_BuscarPorID(t *testing.T) {
 		wantEmail string
 		wantNil   bool
 	}{
-		{name: "encontrado", id: id, wantEmail: "buscar@id.com"},
-		{name: "nao encontrado retorna nil nil", id: 999999, wantNil: true},
+		{name: "usuario existente e encontrado pelo ID", id: id, wantEmail: "buscar@id.com"},
+		{name: "ID inexistente retorna nulo sem erro", id: 999999, wantNil: true},
 	}
 
 	for _, tt := range tests {
@@ -119,7 +119,7 @@ func TestRepositorioUsuarioPG_BuscarPorID(t *testing.T) {
 	}
 }
 
-func TestRepositorioUsuarioPG_BuscarPorEmail(t *testing.T) {
+func TestCadastro_BuscarUsuarioPorEmailParaLogin(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioUsuarioPG(db)
@@ -132,8 +132,8 @@ func TestRepositorioUsuarioPG_BuscarPorEmail(t *testing.T) {
 		email   string
 		wantNil bool
 	}{
-		{name: "encontrado", email: "email@busca.com"},
-		{name: "nao encontrado", email: "naoexiste@ex.com", wantNil: true},
+		{name: "email cadastrado retorna usuario correspondente", email: "email@busca.com"},
+		{name: "email nao cadastrado retorna nulo", email: "naoexiste@ex.com", wantNil: true},
 	}
 
 	for _, tt := range tests {
@@ -152,7 +152,7 @@ func TestRepositorioUsuarioPG_BuscarPorEmail(t *testing.T) {
 	}
 }
 
-func TestRepositorioUsuarioPG_BuscarPorNomeUsuario(t *testing.T) {
+func TestCadastro_BuscarUsuarioPorNomeDeUsuario(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioUsuarioPG(db)
@@ -165,8 +165,8 @@ func TestRepositorioUsuarioPG_BuscarPorNomeUsuario(t *testing.T) {
 		nomeUsuario string
 		wantNil     bool
 	}{
-		{name: "encontrado", nomeUsuario: "nomebusca"},
-		{name: "nao encontrado", nomeUsuario: "naoexiste", wantNil: true},
+		{name: "nome de usuario existente retorna usuario", nomeUsuario: "nomebusca"},
+		{name: "nome de usuario inexistente retorna nulo", nomeUsuario: "naoexiste", wantNil: true},
 	}
 
 	for _, tt := range tests {

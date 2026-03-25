@@ -13,7 +13,7 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestRepositorioAvaliacaoPG_Salvar(t *testing.T) {
+func TestAvaliacao_ClienteAvaliaServicoAposConclusao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
@@ -24,21 +24,21 @@ func TestRepositorioAvaliacaoPG_Salvar(t *testing.T) {
 	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico Aval")
 
 	tests := []struct {
-		name        string
-		clienteID   int
-		limpezaID   int
-		nota        valueobject.Nota
-		wantErr     bool
-		wantErrIs   error
+		name      string
+		clienteID int
+		limpezaID int
+		nota      valueobject.Nota
+		wantErr   bool
+		wantErrIs error
 	}{
 		{
-			name:      "salvar avaliacao valida",
+			name:      "cliente registra avaliacao com nota e comentario",
 			clienteID: clienteID,
 			limpezaID: limpezaID,
 			nota:      4,
 		},
 		{
-			name:      "avaliacao duplicada retorna ErrAvaliacaoDuplicada",
+			name:      "sistema rejeita avaliacao duplicada para mesmo servico",
 			clienteID: clienteID,
 			limpezaID: limpezaID,
 			nota:      5,
@@ -71,7 +71,7 @@ func TestRepositorioAvaliacaoPG_Salvar(t *testing.T) {
 	}
 }
 
-func TestRepositorioAvaliacaoPG_BuscarPorClienteELimpeza(t *testing.T) {
+func TestAvaliacao_ConsultarAvaliacaoQueClienteDeuParaServico(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
@@ -93,9 +93,9 @@ func TestRepositorioAvaliacaoPG_BuscarPorClienteELimpeza(t *testing.T) {
 		wantErr   error
 		wantNil   bool
 	}{
-		{name: "encontrada", clienteID: clienteID, limpezaID: limpezaID},
+		{name: "avaliacao existente retorna nota e comentario", clienteID: clienteID, limpezaID: limpezaID},
 		{
-			name:      "nao encontrada",
+			name:      "avaliacao inexistente retorna erro de nao encontrada",
 			clienteID: 999999,
 			limpezaID: limpezaID,
 			wantErr:   errosdominio.ErrAvaliacaoNaoEncontrada,
@@ -124,7 +124,7 @@ func TestRepositorioAvaliacaoPG_BuscarPorClienteELimpeza(t *testing.T) {
 	}
 }
 
-func TestRepositorioAvaliacaoPG_ListarPorFaxineiro(t *testing.T) {
+func TestAvaliacao_ListarTodasAvaliacoesRecebidasPeloFaxineiro(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
@@ -148,7 +148,7 @@ func TestRepositorioAvaliacaoPG_ListarPorFaxineiro(t *testing.T) {
 	}
 }
 
-func TestRepositorioAvaliacaoPG_BuscarAgregadoPorFaxineiro(t *testing.T) {
+func TestAvaliacao_CalcularMediaEQuantidadeDeAvaliacoes(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
@@ -163,7 +163,7 @@ func TestRepositorioAvaliacaoPG_BuscarAgregadoPorFaxineiro(t *testing.T) {
 	repo.Salvar(ctx, entity.NovaAvaliacao(limp1, faxineiroID, cli1, 4, ""))
 	repo.Salvar(ctx, entity.NovaAvaliacao(limp2, faxineiroID, cli2, 2, ""))
 
-	t.Run("agregado com avaliacoes calcula media", func(t *testing.T) {
+	t.Run("media calculada corretamente com duas avaliacoes", func(t *testing.T) {
 		ag, err := repo.BuscarAgregadoPorFaxineiro(ctx, faxineiroID)
 		if err != nil {
 			t.Fatalf("BuscarAgregadoPorFaxineiro() error: %v", err)
@@ -176,7 +176,7 @@ func TestRepositorioAvaliacaoPG_BuscarAgregadoPorFaxineiro(t *testing.T) {
 		}
 	})
 
-	t.Run("faxineiro sem avaliacoes retorna zerado", func(t *testing.T) {
+	t.Run("faxineiro sem avaliacoes retorna media zero", func(t *testing.T) {
 		semAvaliacaoID := inserirUsuario(t, db, "semav@aval.com", "semavaliacao")
 		ag, err := repo.BuscarAgregadoPorFaxineiro(ctx, semAvaliacaoID)
 		if err != nil {
