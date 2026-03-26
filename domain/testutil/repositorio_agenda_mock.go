@@ -23,20 +23,20 @@ func NovoRepositorioAgendaMock() *RepositorioAgendaMock {
 	}
 }
 
-func (r *RepositorioAgendaMock) ListarDisponibilidadePorFaxineiro(_ context.Context, faxineiroID int) ([]*entity.Disponibilidade, error) {
+func (r *RepositorioAgendaMock) ListarDisponibilidadePorProfissional(_ context.Context, profissionalID int) ([]*entity.Disponibilidade, error) {
 	var resultado []*entity.Disponibilidade
 	for _, d := range r.disponibilidades {
-		if d.FaxineiroID == faxineiroID {
+		if d.ProfissionalID == profissionalID {
 			resultado = append(resultado, d)
 		}
 	}
 	return resultado, nil
 }
 
-func (r *RepositorioAgendaMock) ListarDisponibilidadePorDia(_ context.Context, faxineiroID int, diaSemana time.Weekday) ([]*entity.Disponibilidade, error) {
+func (r *RepositorioAgendaMock) ListarDisponibilidadePorDia(_ context.Context, profissionalID int, diaSemana time.Weekday) ([]*entity.Disponibilidade, error) {
 	var resultado []*entity.Disponibilidade
 	for _, d := range r.disponibilidades {
-		if d.FaxineiroID == faxineiroID && d.DiaSemana == diaSemana {
+		if d.ProfissionalID == profissionalID && d.DiaSemana == diaSemana {
 			resultado = append(resultado, d)
 		}
 	}
@@ -50,25 +50,25 @@ func (r *RepositorioAgendaMock) SalvarDisponibilidade(_ context.Context, d *enti
 	return nil
 }
 
-func (r *RepositorioAgendaMock) DeletarDisponibilidade(_ context.Context, id, faxineiroID int) error {
+func (r *RepositorioAgendaMock) DeletarDisponibilidade(_ context.Context, id, profissionalID int) error {
 	delete(r.disponibilidades, id)
 	return nil
 }
 
-func (r *RepositorioAgendaMock) ListarBloqueiosPorPeriodo(_ context.Context, faxineiroID int, inicio, fim time.Time) ([]*entity.Bloqueio, error) {
+func (r *RepositorioAgendaMock) ListarBloqueiosPorPeriodo(_ context.Context, profissionalID int, inicio, fim time.Time) ([]*entity.Bloqueio, error) {
 	var resultado []*entity.Bloqueio
 	for _, b := range r.bloqueios {
-		if b.FaxineiroID == faxineiroID && b.DataInicio.Before(fim) && b.DataFim.After(inicio) {
+		if b.ProfissionalID == profissionalID && b.DataInicio.Before(fim) && b.DataFim.After(inicio) {
 			resultado = append(resultado, b)
 		}
 	}
 	return resultado, nil
 }
 
-func (r *RepositorioAgendaMock) ListarBloqueiosPorFaxineiro(_ context.Context, faxineiroID int) ([]*entity.Bloqueio, error) {
+func (r *RepositorioAgendaMock) ListarBloqueiosPorProfissional(_ context.Context, profissionalID int) ([]*entity.Bloqueio, error) {
 	var resultado []*entity.Bloqueio
 	for _, b := range r.bloqueios {
-		if b.FaxineiroID == faxineiroID {
+		if b.ProfissionalID == profissionalID {
 			resultado = append(resultado, b)
 		}
 	}

@@ -13,7 +13,7 @@ type RequisicaoCriarAvaliacao struct {
 type RespostaAvaliacao struct {
 	ID          int    `json:"id"`
 	LimpezaID   int    `json:"limpeza_id"`
-	FaxineiroID int    `json:"faxineiro_id"`
+	ProfissionalID int    `json:"profissional_id"`
 	ClienteID   int    `json:"cliente_id"`
 	Nota        int    `json:"nota"`
 	Comentario  string `json:"comentario"`
@@ -24,7 +24,7 @@ func DeAvaliacao(a *entity.Avaliacao) RespostaAvaliacao {
 	return RespostaAvaliacao{
 		ID:          a.ID,
 		LimpezaID:   a.LimpezaID,
-		FaxineiroID: a.FaxineiroID,
+		ProfissionalID: a.ProfissionalID,
 		ClienteID:   a.ClienteID,
 		Nota:        int(a.Nota),
 		Comentario:  a.Comentario,
@@ -40,17 +40,17 @@ func DeAvaliacaoLista(lista []*entity.Avaliacao) []RespostaAvaliacao {
 	return resultado
 }
 
-// RespostaEstatisticasFaxineiro representa o agregado de avaliações de um faxineiro.
-type RespostaEstatisticasFaxineiro struct {
-	FaxineiroID     int     `json:"faxineiro_id"`
+// RespostaEstatisticasProfissional representa o agregado de avaliações de um profissional.
+type RespostaEstatisticasProfissional struct {
+	ProfissionalID     int     `json:"profissional_id"`
 	MediaNota       float64 `json:"media_nota"`
 	TotalAvaliacoes int     `json:"total_avaliacoes"`
 }
 
-// DeAgregadoAvaliacao converte um AgregadoAvaliacao para RespostaEstatisticasFaxineiro.
-func DeAgregadoAvaliacao(a *entity.AgregadoAvaliacao) RespostaEstatisticasFaxineiro {
-	return RespostaEstatisticasFaxineiro{
-		FaxineiroID:     a.FaxineiroID,
+// DeAgregadoAvaliacao converte um AgregadoAvaliacao para RespostaEstatisticasProfissional.
+func DeAgregadoAvaliacao(a *entity.AgregadoAvaliacao) RespostaEstatisticasProfissional {
+	return RespostaEstatisticasProfissional{
+		ProfissionalID:     a.ProfissionalID,
 		MediaNota:       a.MediaNota,
 		TotalAvaliacoes: a.TotalAvaliacoes,
 	}

@@ -73,7 +73,7 @@ func (h *HandlerLimpeza) BuscarLimpeza(w http.ResponseWriter, r *http.Request) {
 // @Failure 422 {object} dto.RespostaErro
 // @Router /limpezas [post]
 func (h *HandlerLimpeza) CriarLimpeza(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -83,7 +83,7 @@ func (h *HandlerLimpeza) CriarLimpeza(w http.ResponseWriter, r *http.Request) {
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "corpo inválido"))
 		return
 	}
-	limpeza, err := h.servico.Criar(r.Context(), faxineiroID, req.Nome, req.Descricao, req.ValorHora, req.DuracaoEstimada, valueobject.TipoLimpeza(req.TipoLimpeza))
+	limpeza, err := h.servico.Criar(r.Context(), profissionalID, req.Nome, req.Descricao, req.ValorHora, req.DuracaoEstimada, valueobject.TipoLimpeza(req.TipoLimpeza))
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -105,7 +105,7 @@ func (h *HandlerLimpeza) CriarLimpeza(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} dto.RespostaErro
 // @Router /limpezas/{id} [put]
 func (h *HandlerLimpeza) AtualizarLimpeza(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -120,7 +120,7 @@ func (h *HandlerLimpeza) AtualizarLimpeza(w http.ResponseWriter, r *http.Request
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "corpo inválido"))
 		return
 	}
-	limpeza, err := h.servico.Atualizar(r.Context(), id, faxineiroID, req.Nome, req.Descricao, req.ValorHora, req.DuracaoEstimada, valueobject.TipoLimpeza(req.TipoLimpeza))
+	limpeza, err := h.servico.Atualizar(r.Context(), id, profissionalID, req.Nome, req.Descricao, req.ValorHora, req.DuracaoEstimada, valueobject.TipoLimpeza(req.TipoLimpeza))
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -140,7 +140,7 @@ func (h *HandlerLimpeza) AtualizarLimpeza(w http.ResponseWriter, r *http.Request
 // @Failure 404 {object} dto.RespostaErro
 // @Router /limpezas/{id} [delete]
 func (h *HandlerLimpeza) DeletarLimpeza(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -150,7 +150,7 @@ func (h *HandlerLimpeza) DeletarLimpeza(w http.ResponseWriter, r *http.Request) 
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "id inválido"))
 		return
 	}
-	if err := h.servico.Deletar(r.Context(), id, faxineiroID); err != nil {
+	if err := h.servico.Deletar(r.Context(), id, profissionalID); err != nil {
 		escreverErro(w, err)
 		return
 	}
@@ -158,7 +158,7 @@ func (h *HandlerLimpeza) DeletarLimpeza(w http.ResponseWriter, r *http.Request) 
 }
 
 // ListarMinhasLimpezas godoc
-// @Summary Listar limpezas do faxineiro autenticado
+// @Summary Listar limpezas do profissional autenticado
 // @Tags limpezas
 // @Produce json
 // @Security BearerAuth
@@ -166,12 +166,12 @@ func (h *HandlerLimpeza) DeletarLimpeza(w http.ResponseWriter, r *http.Request) 
 // @Failure 401 {object} dto.RespostaErro
 // @Router /usuarios/eu/limpezas [get]
 func (h *HandlerLimpeza) ListarMinhasLimpezas(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
 	}
-	limpezas, err := h.servico.ListarPorFaxineiro(r.Context(), faxineiroID)
+	limpezas, err := h.servico.ListarPorProfissional(r.Context(), profissionalID)
 	if err != nil {
 		escreverErro(w, err)
 		return

@@ -27,8 +27,8 @@ func TestMapearErroDominio_erros_de_dominio_mapeiam_para_status_correto(t *testi
 		{name: "email duplicado retorna 409", err: errosdominio.ErrEmailJaUtilizado, wantStatus: http.StatusConflict},
 		{name: "nome usuario duplicado retorna 409", err: errosdominio.ErrNomeUsuarioJaUtilizado, wantStatus: http.StatusConflict},
 		{name: "solicitação duplicada retorna 409", err: errosdominio.ErrSolicitacaoDuplicada, wantStatus: http.StatusConflict},
-		{name: "não é faxineiro da limpeza retorna 403", err: errosdominio.ErrNaoEFaxineiroDaLimpeza, wantStatus: http.StatusForbidden},
-		{name: "faxineiro não pode solicitar próprio retorna 422", err: errosdominio.ErrFaxineiroNaoPodeSolicitarProprio, wantStatus: http.StatusUnprocessableEntity},
+		{name: "não é profissional da limpeza retorna 403", err: errosdominio.ErrNaoEProfissionalDaLimpeza, wantStatus: http.StatusForbidden},
+		{name: "profissional não pode solicitar próprio retorna 422", err: errosdominio.ErrProfissionalNaoPodeSolicitarProprio, wantStatus: http.StatusUnprocessableEntity},
 		{name: "horário indisponível retorna 422", err: errosdominio.ErrHorarioIndisponivel, wantStatus: http.StatusUnprocessableEntity},
 		{name: "credenciais inválidas retorna 401", err: auth.ErrCredenciaisInvalidas, wantStatus: http.StatusUnauthorized},
 		{name: "token inválido retorna 401", err: auth.ErrTokenInvalido, wantStatus: http.StatusUnauthorized},
@@ -76,7 +76,7 @@ func TestDeUsuario_converte_entidade_para_dto(t *testing.T) {
 func TestDeLimpeza_calcula_preco_total(t *testing.T) {
 	t.Parallel()
 	l := &entity.Limpeza{
-		ID: 1, FaxineiroID: 2, Nome: "Residencial",
+		ID: 1, ProfissionalID: 2, Nome: "Residencial",
 		ValorHora: 50.0, DuracaoEstimada: 3.0,
 		TipoLimpeza: valueobject.TipoLimpezaPadrao,
 	}
@@ -138,7 +138,7 @@ func TestDeParTokens_converte_tokens(t *testing.T) {
 
 func TestDeAgregadoAvaliacao_converte_estatisticas(t *testing.T) {
 	t.Parallel()
-	a := &entity.AgregadoAvaliacao{FaxineiroID: 1, MediaNota: 4.5, TotalAvaliacoes: 10}
+	a := &entity.AgregadoAvaliacao{ProfissionalID: 1, MediaNota: 4.5, TotalAvaliacoes: 10}
 	resp := dto.DeAgregadoAvaliacao(a)
 
 	if resp.MediaNota != 4.5 || resp.TotalAvaliacoes != 10 {
@@ -149,7 +149,7 @@ func TestDeAgregadoAvaliacao_converte_estatisticas(t *testing.T) {
 func TestDePaginaFeed_converte_pagina_com_itens(t *testing.T) {
 	t.Parallel()
 	limpeza := &entity.Limpeza{
-		ID: 1, FaxineiroID: 2, Nome: "Limpeza",
+		ID: 1, ProfissionalID: 2, Nome: "Limpeza",
 		ValorHora: 30, DuracaoEstimada: 2,
 		TipoLimpeza: valueobject.TipoLimpezaPadrao,
 	}

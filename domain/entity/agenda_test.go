@@ -49,8 +49,8 @@ func TestNovaDisponibilidade(t *testing.T) {
 			if err != nil {
 				t.Fatalf("NovaDisponibilidade() unexpected error: %v", err)
 			}
-			if d.FaxineiroID != tt.faxID {
-				t.Errorf("FaxineiroID = %d; want %d", d.FaxineiroID, tt.faxID)
+			if d.ProfissionalID != tt.faxID {
+				t.Errorf("ProfissionalID = %d; want %d", d.ProfissionalID, tt.faxID)
 			}
 			if d.HoraInicio != tt.horaInicio {
 				t.Errorf("HoraInicio = %d; want %d", d.HoraInicio, tt.horaInicio)

@@ -93,7 +93,7 @@ func limparTabelas(t *testing.T, db *sql.DB) {
 		"solicitacoes",
 		"limpezas",
 		"perfis_cliente",
-		"perfis_faxineiro",
+		"perfis_profissional",
 		"perfis",
 		"credenciais",
 		"usuarios",
@@ -122,14 +122,14 @@ func inserirUsuario(t *testing.T, db *sql.DB, email, nomeUsuario string) int {
 }
 
 // inserirLimpeza insere uma limpeza diretamente no banco e retorna o ID.
-func inserirLimpeza(t *testing.T, db *sql.DB, faxineiroID int, nome string) int {
+func inserirLimpeza(t *testing.T, db *sql.DB, profissionalID int, nome string) int {
 	t.Helper()
 
 	var id int
 	err := db.QueryRow(
-		`INSERT INTO limpezas (nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, faxineiro_id)
+		`INSERT INTO limpezas (nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, profissional_id)
 		 VALUES ($1, '', 50.00, 2.0, 'limpeza_padrao', $2) RETURNING id`,
-		nome, faxineiroID,
+		nome, profissionalID,
 	).Scan(&id)
 	if err != nil {
 		t.Fatalf("inserir limpeza %s: %v", nome, err)

@@ -8,7 +8,7 @@ import (
 
 type RepositorioAvaliacao interface {
 	BuscarPorClienteELimpeza(ctx context.Context, clienteID, limpezaID int) (*entity.Avaliacao, error)
-	ListarPorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Avaliacao, error)
-	BuscarAgregadoPorFaxineiro(ctx context.Context, faxineiroID int) (*entity.AgregadoAvaliacao, error)
+	ListarPorProfissional(ctx context.Context, profissionalID int) ([]*entity.Avaliacao, error)
+	BuscarAgregadoPorProfissional(ctx context.Context, profissionalID int) (*entity.AgregadoAvaliacao, error)
 	Salvar(ctx context.Context, avaliacao *entity.Avaliacao) error
 }

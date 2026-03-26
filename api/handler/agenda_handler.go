@@ -20,7 +20,7 @@ func NovoHandlerAgenda(servico *service.ServicoAgenda) *HandlerAgenda {
 }
 
 // ListarDisponibilidade godoc
-// @Summary Listar disponibilidades do faxineiro autenticado
+// @Summary Listar disponibilidades do profissional autenticado
 // @Tags agenda
 // @Produce json
 // @Security BearerAuth
@@ -28,12 +28,12 @@ func NovoHandlerAgenda(servico *service.ServicoAgenda) *HandlerAgenda {
 // @Failure 401 {object} dto.RespostaErro
 // @Router /agenda/disponibilidades [get]
 func (h *HandlerAgenda) ListarDisponibilidade(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
 	}
-	lista, err := h.servico.ListarDisponibilidade(r.Context(), faxineiroID)
+	lista, err := h.servico.ListarDisponibilidade(r.Context(), profissionalID)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -53,7 +53,7 @@ func (h *HandlerAgenda) ListarDisponibilidade(w http.ResponseWriter, r *http.Req
 // @Failure 422 {object} dto.RespostaErro
 // @Router /agenda/disponibilidades [post]
 func (h *HandlerAgenda) AdicionarDisponibilidade(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -63,7 +63,7 @@ func (h *HandlerAgenda) AdicionarDisponibilidade(w http.ResponseWriter, r *http.
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "corpo inválido"))
 		return
 	}
-	d, err := h.servico.AdicionarDisponibilidade(r.Context(), faxineiroID, time.Weekday(req.DiaSemana), req.HoraInicio, req.HoraFim)
+	d, err := h.servico.AdicionarDisponibilidade(r.Context(), profissionalID, time.Weekday(req.DiaSemana), req.HoraInicio, req.HoraFim)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -82,7 +82,7 @@ func (h *HandlerAgenda) AdicionarDisponibilidade(w http.ResponseWriter, r *http.
 // @Failure 404 {object} dto.RespostaErro
 // @Router /agenda/disponibilidades/{id} [delete]
 func (h *HandlerAgenda) RemoverDisponibilidade(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -92,7 +92,7 @@ func (h *HandlerAgenda) RemoverDisponibilidade(w http.ResponseWriter, r *http.Re
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "id inválido"))
 		return
 	}
-	if err := h.servico.RemoverDisponibilidade(r.Context(), id, faxineiroID); err != nil {
+	if err := h.servico.RemoverDisponibilidade(r.Context(), id, profissionalID); err != nil {
 		escreverErro(w, err)
 		return
 	}
@@ -100,7 +100,7 @@ func (h *HandlerAgenda) RemoverDisponibilidade(w http.ResponseWriter, r *http.Re
 }
 
 // ListarBloqueios godoc
-// @Summary Listar bloqueios do faxineiro autenticado
+// @Summary Listar bloqueios do profissional autenticado
 // @Tags agenda
 // @Produce json
 // @Security BearerAuth
@@ -108,12 +108,12 @@ func (h *HandlerAgenda) RemoverDisponibilidade(w http.ResponseWriter, r *http.Re
 // @Failure 401 {object} dto.RespostaErro
 // @Router /agenda/bloqueios [get]
 func (h *HandlerAgenda) ListarBloqueios(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
 	}
-	lista, err := h.servico.ListarBloqueios(r.Context(), faxineiroID)
+	lista, err := h.servico.ListarBloqueios(r.Context(), profissionalID)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -133,7 +133,7 @@ func (h *HandlerAgenda) ListarBloqueios(w http.ResponseWriter, r *http.Request) 
 // @Failure 422 {object} dto.RespostaErro
 // @Router /agenda/bloqueios [post]
 func (h *HandlerAgenda) CriarBloqueioPessoal(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -143,7 +143,7 @@ func (h *HandlerAgenda) CriarBloqueioPessoal(w http.ResponseWriter, r *http.Requ
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "corpo inválido"))
 		return
 	}
-	bloqueio, err := h.servico.CriarBloqueioPessoal(r.Context(), faxineiroID, req.DataInicio, req.DataFim)
+	bloqueio, err := h.servico.CriarBloqueioPessoal(r.Context(), profissionalID, req.DataInicio, req.DataFim)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -163,7 +163,7 @@ func (h *HandlerAgenda) CriarBloqueioPessoal(w http.ResponseWriter, r *http.Requ
 // @Failure 404 {object} dto.RespostaErro
 // @Router /agenda/bloqueios/{id} [delete]
 func (h *HandlerAgenda) RemoverBloqueioPessoal(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -173,7 +173,7 @@ func (h *HandlerAgenda) RemoverBloqueioPessoal(w http.ResponseWriter, r *http.Re
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "id inválido"))
 		return
 	}
-	if err := h.servico.RemoverBloqueioPessoal(r.Context(), id, faxineiroID); err != nil {
+	if err := h.servico.RemoverBloqueioPessoal(r.Context(), id, profissionalID); err != nil {
 		escreverErro(w, err)
 		return
 	}

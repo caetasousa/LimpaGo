@@ -12,10 +12,10 @@ type RepositorioPerfil interface {
 	Salvar(ctx context.Context, perfil *entity.Perfil) error
 	Atualizar(ctx context.Context, perfil *entity.Perfil) error
 
-	// Perfil Faxineiro
-	BuscarPerfilFaxineiro(ctx context.Context, usuarioID int) (*entity.PerfilFaxineiro, error)
-	SalvarPerfilFaxineiro(ctx context.Context, perfil *entity.PerfilFaxineiro) error
-	AtualizarPerfilFaxineiro(ctx context.Context, perfil *entity.PerfilFaxineiro) error
+	// Perfil Profissional
+	BuscarPerfilProfissional(ctx context.Context, usuarioID int) (*entity.PerfilProfissional, error)
+	SalvarPerfilProfissional(ctx context.Context, perfil *entity.PerfilProfissional) error
+	AtualizarPerfilProfissional(ctx context.Context, perfil *entity.PerfilProfissional) error
 
 	// Perfil Cliente
 	BuscarPerfilCliente(ctx context.Context, usuarioID int) (*entity.PerfilCliente, error)

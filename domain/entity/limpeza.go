@@ -14,13 +14,13 @@ type Limpeza struct {
 	ValorHora       float64 // valor cobrado por hora para este serviço
 	DuracaoEstimada float64 // duração estimada em horas
 	TipoLimpeza     valueobject.TipoLimpeza
-	FaxineiroID     int
-	Faxineiro       *Usuario
+	ProfissionalID  int
+	Profissional    *Usuario
 	CriadoEm        time.Time
 	AtualizadoEm    time.Time
 }
 
-func NovaLimpeza(faxineiroID int, nome string, valorHora, duracaoEstimada float64, tipoLimpeza valueobject.TipoLimpeza) (*Limpeza, error) {
+func NovaLimpeza(profissionalID int, nome string, valorHora, duracaoEstimada float64, tipoLimpeza valueobject.TipoLimpeza) (*Limpeza, error) {
 	if nome == "" {
 		return nil, &ErroValidacao{Campo: "nome", Mensagem: "nome é obrigatório"}
 	}
@@ -35,7 +35,7 @@ func NovaLimpeza(faxineiroID int, nome string, valorHora, duracaoEstimada float6
 	}
 
 	return &Limpeza{
-		FaxineiroID:     faxineiroID,
+		ProfissionalID:  profissionalID,
 		Nome:            nome,
 		ValorHora:       valorHora,
 		DuracaoEstimada: duracaoEstimada,
@@ -48,15 +48,15 @@ func (l *Limpeza) PrecoTotal() float64 {
 	return l.ValorHora * l.DuracaoEstimada
 }
 
-// EPublicadoPor verifica se o faxineiro fornecido é quem publicou este serviço.
-func (l *Limpeza) EPublicadoPor(faxineiroID int) bool {
-	return l.FaxineiroID == faxineiroID
+// EPublicadoPor verifica se o profissional fornecido é quem publicou este serviço.
+func (l *Limpeza) EPublicadoPor(profissionalID int) bool {
+	return l.ProfissionalID == profissionalID
 }
 
-// VerificarPropriedade retorna um erro se o faxineiroID não for o publicador do serviço.
-func (l *Limpeza) VerificarPropriedade(faxineiroID int) error {
-	if !l.EPublicadoPor(faxineiroID) {
-		return errosdominio.ErrNaoEFaxineiroDaLimpeza
+// VerificarPropriedade retorna um erro se o profissionalID não for o publicador do serviço.
+func (l *Limpeza) VerificarPropriedade(profissionalID int) error {
+	if !l.EPublicadoPor(profissionalID) {
+		return errosdominio.ErrNaoEProfissionalDaLimpeza
 	}
 	return nil
 }

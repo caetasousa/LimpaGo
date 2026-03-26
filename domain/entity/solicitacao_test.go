@@ -9,10 +9,10 @@ import (
 	"limpaGo/domain/valueobject"
 )
 
-func limpezaParaTeste(faxineiroID int) *Limpeza {
+func limpezaParaTeste(profissionalID int) *Limpeza {
 	return &Limpeza{
 		ID:              1,
-		FaxineiroID:     faxineiroID,
+		ProfissionalID:     profissionalID,
 		Nome:            "Limpeza Teste",
 		ValorHora:       50,
 		DuracaoEstimada: 3,
@@ -35,7 +35,7 @@ func TestNovaSolicitacao(t *testing.T) {
 		wantErrIs error
 	}{
 		{"cliente valido com data futura", 2, futuro, false, nil},
-		{"faxineiro solicitando proprio servico", 1, futuro, true, errosdominio.ErrFaxineiroNaoPodeSolicitarProprio},
+		{"profissional solicitando proprio servico", 1, futuro, true, errosdominio.ErrProfissionalNaoPodeSolicitarProprio},
 		{"data no passado", 2, passado, true, errosdominio.ErrAgendamentoNoPassado},
 	}
 

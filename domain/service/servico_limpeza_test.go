@@ -107,8 +107,8 @@ func TestServicoLimpeza_Atualizar(t *testing.T) {
 		l, _ := svc.Criar(ctx, 1, "Limpeza", "desc", 50, 3, valueobject.TipoLimpezaPadrao)
 
 		_, err := svc.Atualizar(ctx, l.ID, 999, "Novo", "", 0, 0, "")
-		if !errors.Is(err, errosdominio.ErrNaoEFaxineiroDaLimpeza) {
-			t.Errorf("error = %v; want ErrNaoEFaxineiroDaLimpeza", err)
+		if !errors.Is(err, errosdominio.ErrNaoEProfissionalDaLimpeza) {
+			t.Errorf("error = %v; want ErrNaoEProfissionalDaLimpeza", err)
 		}
 	})
 }
@@ -133,8 +133,8 @@ func TestServicoLimpeza_Deletar(t *testing.T) {
 		l, _ := svc.Criar(ctx, 1, "Limpeza", "desc", 50, 3, valueobject.TipoLimpezaPadrao)
 
 		err := svc.Deletar(ctx, l.ID, 999)
-		if !errors.Is(err, errosdominio.ErrNaoEFaxineiroDaLimpeza) {
-			t.Errorf("error = %v; want ErrNaoEFaxineiroDaLimpeza", err)
+		if !errors.Is(err, errosdominio.ErrNaoEProfissionalDaLimpeza) {
+			t.Errorf("error = %v; want ErrNaoEProfissionalDaLimpeza", err)
 		}
 	})
 }
@@ -173,7 +173,7 @@ func TestServicoLimpeza_ListarCatalogo(t *testing.T) {
 	})
 }
 
-func TestServicoLimpeza_ListarPorFaxineiro(t *testing.T) {
+func TestServicoLimpeza_ListarPorProfissional(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -182,9 +182,9 @@ func TestServicoLimpeza_ListarPorFaxineiro(t *testing.T) {
 	_, _ = svc.Criar(ctx, 1, "L2", "", 60, 2, valueobject.TipoLimpezaPesada)
 	_, _ = svc.Criar(ctx, 2, "L3", "", 70, 1, valueobject.TipoLimpezaExpress)
 
-	lista, err := svc.ListarPorFaxineiro(ctx, 1)
+	lista, err := svc.ListarPorProfissional(ctx, 1)
 	if err != nil {
-		t.Fatalf("ListarPorFaxineiro() unexpected error: %v", err)
+		t.Fatalf("ListarPorProfissional() unexpected error: %v", err)
 	}
 	if len(lista) != 2 {
 		t.Errorf("len(lista) = %d; want 2", len(lista))

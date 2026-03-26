@@ -63,7 +63,7 @@ definitions:
       tipo_imovel:
         type: string
     type: object
-  dto.RequisicaoAtualizarPerfilFaxineiro:
+  dto.RequisicaoAtualizarPerfilProfissional:
     properties:
       anos_experiencia:
         type: integer
@@ -160,7 +160,7 @@ definitions:
         type: integer
       comentario:
         type: string
-      faxineiro_id:
+      profissional_id:
         type: integer
       id:
         type: integer
@@ -177,7 +177,7 @@ definitions:
         type: string
       e_pessoal:
         type: boolean
-      faxineiro_id:
+      profissional_id:
         type: integer
       id:
         type: integer
@@ -188,7 +188,7 @@ definitions:
     properties:
       dia_semana:
         type: integer
-      faxineiro_id:
+      profissional_id:
         type: integer
       hora_fim:
         type: integer
@@ -208,9 +208,9 @@ definitions:
       mensagem:
         type: string
     type: object
-  dto.RespostaEstatisticasFaxineiro:
+  dto.RespostaEstatisticasProfissional:
     properties:
-      faxineiro_id:
+      profissional_id:
         type: integer
       media_nota:
         type: number
@@ -234,7 +234,7 @@ definitions:
         type: string
       duracao_estimada:
         type: number
-      faxineiro_id:
+      profissional_id:
         type: integer
       id:
         type: integer
@@ -283,7 +283,7 @@ definitions:
         type: integer
       endereco:
         $ref: '#/definitions/dto.EnderecoDTO'
-      faxineiro_preferido_id:
+      profissional_preferido_id:
         type: integer
       observacoes:
         type: string
@@ -296,7 +296,7 @@ definitions:
       usuario_id:
         type: integer
     type: object
-  dto.RespostaPerfilFaxineiro:
+  dto.RespostaPerfilProfissional:
     properties:
       anos_experiencia:
         type: integer
@@ -369,7 +369,7 @@ paths:
             $ref: '#/definitions/dto.RespostaErro'
       security:
       - BearerAuth: []
-      summary: Listar bloqueios do faxineiro autenticado
+      summary: Listar bloqueios do profissional autenticado
       tags:
       - agenda
     post:
@@ -449,7 +449,7 @@ paths:
             $ref: '#/definitions/dto.RespostaErro'
       security:
       - BearerAuth: []
-      summary: Listar disponibilidades do faxineiro autenticado
+      summary: Listar disponibilidades do profissional autenticado
       tags:
       - agenda
     post:
@@ -629,12 +629,12 @@ paths:
       summary: Criar avaliação de um serviço concluído
       tags:
       - avaliacoes
-  /faxineiros/{faxineiro_id}/avaliacoes:
+  /profissionais/{profissional_id}/avaliacoes:
     get:
       parameters:
-      - description: ID do faxineiro
+      - description: ID do profissional
         in: path
-        name: faxineiro_id
+        name: profissional_id
         required: true
         type: integer
       produces:
@@ -650,15 +650,15 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/dto.RespostaErro'
-      summary: Listar avaliações de um faxineiro
+      summary: Listar avaliações de um profissional
       tags:
       - avaliacoes
-  /faxineiros/{faxineiro_id}/estatisticas:
+  /profissionais/{profissional_id}/estatisticas:
     get:
       parameters:
-      - description: ID do faxineiro
+      - description: ID do profissional
         in: path
-        name: faxineiro_id
+        name: profissional_id
         required: true
         type: integer
       produces:
@@ -667,12 +667,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.RespostaEstatisticasFaxineiro'
+            $ref: '#/definitions/dto.RespostaEstatisticasProfissional'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/dto.RespostaErro'
-      summary: Buscar estatísticas de avaliações de um faxineiro
+      summary: Buscar estatísticas de avaliações de um profissional
       tags:
       - avaliacoes
   /feed:
@@ -870,7 +870,7 @@ paths:
             $ref: '#/definitions/dto.RespostaErro'
       security:
       - BearerAuth: []
-      summary: Listar solicitações de uma limpeza (faxineiro)
+      summary: Listar solicitações de uma limpeza (profissional)
       tags:
       - solicitacoes
   /solicitacoes:
@@ -1031,7 +1031,7 @@ paths:
             $ref: '#/definitions/dto.RespostaErro'
       security:
       - BearerAuth: []
-      summary: Listar limpezas do faxineiro autenticado
+      summary: Listar limpezas do profissional autenticado
       tags:
       - limpezas
   /usuarios/eu/perfil:
@@ -1139,7 +1139,7 @@ paths:
       summary: Atualizar perfil de cliente do usuário autenticado
       tags:
       - usuarios
-  /usuarios/eu/perfil-faxineiro:
+  /usuarios/eu/perfil-profissional:
     get:
       produces:
       - application/json
@@ -1147,14 +1147,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.RespostaPerfilFaxineiro'
+            $ref: '#/definitions/dto.RespostaPerfilProfissional'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
       - BearerAuth: []
-      summary: Buscar perfil de faxineiro do usuário autenticado
+      summary: Buscar perfil de profissional do usuário autenticado
       tags:
       - usuarios
     post:
@@ -1164,14 +1164,14 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.RespostaPerfilFaxineiro'
+            $ref: '#/definitions/dto.RespostaPerfilProfissional'
         "409":
           description: Conflict
           schema:
             $ref: '#/definitions/dto.RespostaErro'
       security:
       - BearerAuth: []
-      summary: Criar perfil de faxineiro para o usuário autenticado
+      summary: Criar perfil de profissional para o usuário autenticado
       tags:
       - usuarios
     put:
@@ -1183,17 +1183,17 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.RequisicaoAtualizarPerfilFaxineiro'
+          $ref: '#/definitions/dto.RequisicaoAtualizarPerfilProfissional'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.RespostaPerfilFaxineiro'
+            $ref: '#/definitions/dto.RespostaPerfilProfissional'
       security:
       - BearerAuth: []
-      summary: Atualizar perfil de faxineiro do usuário autenticado
+      summary: Atualizar perfil de profissional do usuário autenticado
       tags:
       - usuarios
   /usuarios/eu/solicitacoes:

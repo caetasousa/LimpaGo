@@ -18,10 +18,10 @@ func TestNovoPerfil(t *testing.T) {
 	}
 }
 
-func TestNovoPerfilFaxineiro(t *testing.T) {
+func TestNovoPerfilProfissional(t *testing.T) {
 	t.Parallel()
 
-	p := NovoPerfilFaxineiro(5)
+	p := NovoPerfilProfissional(5)
 
 	if p.UsuarioID != 5 {
 		t.Errorf("UsuarioID = %d; want 5", p.UsuarioID)

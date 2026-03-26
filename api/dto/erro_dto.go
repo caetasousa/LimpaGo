@@ -42,7 +42,7 @@ func MapearErroDominio(err error) (int, RespostaErro) {
 	switch {
 	case errors.Is(err, errosdominio.ErrUsuarioNaoEncontrado),
 		errors.Is(err, errosdominio.ErrPerfilNaoEncontrado),
-		errors.Is(err, errosdominio.ErrPerfilFaxineiroNaoEncontrado),
+		errors.Is(err, errosdominio.ErrPerfilProfissionalNaoEncontrado),
 		errors.Is(err, errosdominio.ErrPerfilClienteNaoEncontrado),
 		errors.Is(err, errosdominio.ErrLimpezaNaoEncontrada),
 		errors.Is(err, errosdominio.ErrSolicitacaoNaoEncontrada),
@@ -54,21 +54,21 @@ func MapearErroDominio(err error) (int, RespostaErro) {
 	// 409 — conflito / duplicado
 	case errors.Is(err, errosdominio.ErrEmailJaUtilizado),
 		errors.Is(err, errosdominio.ErrNomeUsuarioJaUtilizado),
-		errors.Is(err, errosdominio.ErrPerfilFaxineiroJaExiste),
+		errors.Is(err, errosdominio.ErrPerfilProfissionalJaExiste),
 		errors.Is(err, errosdominio.ErrPerfilClienteJaExiste),
 		errors.Is(err, errosdominio.ErrSolicitacaoDuplicada),
 		errors.Is(err, errosdominio.ErrAvaliacaoDuplicada):
 		return http.StatusConflict, NovaRespostaErro(http.StatusConflict, err.Error())
 
 	// 403 — sem permissão
-	case errors.Is(err, errosdominio.ErrNaoEFaxineiroDaLimpeza),
+	case errors.Is(err, errosdominio.ErrNaoEProfissionalDaLimpeza),
 		errors.Is(err, errosdominio.ErrNaoEClienteSolicitante),
-		errors.Is(err, errosdominio.ErrNaoEFaxineiroDaSolicitacao),
-		errors.Is(err, errosdominio.ErrNaoEFaxineiroDoBloqueio):
+		errors.Is(err, errosdominio.ErrNaoEProfissionalDaSolicitacao),
+		errors.Is(err, errosdominio.ErrNaoEProfissionalDoBloqueio):
 		return http.StatusForbidden, NovaRespostaErro(http.StatusForbidden, err.Error())
 
 	// 422 — regra de negócio violada
-	case errors.Is(err, errosdominio.ErrFaxineiroNaoPodeSolicitarProprio),
+	case errors.Is(err, errosdominio.ErrProfissionalNaoPodeSolicitarProprio),
 		errors.Is(err, errosdominio.ErrSolicitacaoNaoPodeSerAceita),
 		errors.Is(err, errosdominio.ErrSolicitacaoNaoPodeSerCancelada),
 		errors.Is(err, errosdominio.ErrSolicitacaoNaoPodeSerRejeitada),

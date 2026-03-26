@@ -28,21 +28,21 @@ func (r *RepositorioAvaliacaoMock) BuscarPorClienteELimpeza(_ context.Context, c
 	return r.avaliacoes[chave], nil
 }
 
-func (r *RepositorioAvaliacaoMock) ListarPorFaxineiro(_ context.Context, faxineiroID int) ([]*entity.Avaliacao, error) {
+func (r *RepositorioAvaliacaoMock) ListarPorProfissional(_ context.Context, profissionalID int) ([]*entity.Avaliacao, error) {
 	var resultado []*entity.Avaliacao
 	for _, a := range r.avaliacoes {
-		if a.FaxineiroID == faxineiroID {
+		if a.ProfissionalID == profissionalID {
 			resultado = append(resultado, a)
 		}
 	}
 	return resultado, nil
 }
 
-func (r *RepositorioAvaliacaoMock) BuscarAgregadoPorFaxineiro(_ context.Context, faxineiroID int) (*entity.AgregadoAvaliacao, error) {
+func (r *RepositorioAvaliacaoMock) BuscarAgregadoPorProfissional(_ context.Context, profissionalID int) (*entity.AgregadoAvaliacao, error) {
 	var total int
 	var soma float64
 	for _, a := range r.avaliacoes {
-		if a.FaxineiroID == faxineiroID {
+		if a.ProfissionalID == profissionalID {
 			total++
 			soma += float64(a.Nota)
 		}
@@ -54,7 +54,7 @@ func (r *RepositorioAvaliacaoMock) BuscarAgregadoPorFaxineiro(_ context.Context,
 	}
 
 	return &entity.AgregadoAvaliacao{
-		FaxineiroID:     faxineiroID,
+		ProfissionalID:     profissionalID,
 		MediaNota:       media,
 		TotalAvaliacoes: total,
 	}, nil

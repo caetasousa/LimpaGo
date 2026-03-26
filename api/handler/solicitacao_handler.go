@@ -62,7 +62,7 @@ func (h *HandlerSolicitacao) CriarSolicitacao(w http.ResponseWriter, r *http.Req
 // @Failure 404 {object} dto.RespostaErro
 // @Router /solicitacoes/{cliente_id}/{limpeza_id}/aceitar [post]
 func (h *HandlerSolicitacao) AceitarSolicitacao(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -77,7 +77,7 @@ func (h *HandlerSolicitacao) AceitarSolicitacao(w http.ResponseWriter, r *http.R
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "limpeza_id inválido"))
 		return
 	}
-	solicitacao, err := h.servico.AceitarSolicitacao(r.Context(), faxineiroID, clienteID, limpezaID)
+	solicitacao, err := h.servico.AceitarSolicitacao(r.Context(), profissionalID, clienteID, limpezaID)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -98,7 +98,7 @@ func (h *HandlerSolicitacao) AceitarSolicitacao(w http.ResponseWriter, r *http.R
 // @Failure 404 {object} dto.RespostaErro
 // @Router /solicitacoes/{cliente_id}/{limpeza_id}/rejeitar [post]
 func (h *HandlerSolicitacao) RejeitarSolicitacao(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -113,7 +113,7 @@ func (h *HandlerSolicitacao) RejeitarSolicitacao(w http.ResponseWriter, r *http.
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "limpeza_id inválido"))
 		return
 	}
-	solicitacao, err := h.servico.RejeitarSolicitacao(r.Context(), faxineiroID, clienteID, limpezaID)
+	solicitacao, err := h.servico.RejeitarSolicitacao(r.Context(), profissionalID, clienteID, limpezaID)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -152,7 +152,7 @@ func (h *HandlerSolicitacao) CancelarSolicitacao(w http.ResponseWriter, r *http.
 }
 
 // ListarPorLimpeza godoc
-// @Summary Listar solicitações de uma limpeza (faxineiro)
+// @Summary Listar solicitações de uma limpeza (profissional)
 // @Tags solicitacoes
 // @Produce json
 // @Security BearerAuth
@@ -162,7 +162,7 @@ func (h *HandlerSolicitacao) CancelarSolicitacao(w http.ResponseWriter, r *http.
 // @Failure 403 {object} dto.RespostaErro
 // @Router /limpezas/{limpeza_id}/solicitacoes [get]
 func (h *HandlerSolicitacao) ListarPorLimpeza(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, ok := middleware.ObterUsuarioID(r.Context())
+	profissionalID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
@@ -172,7 +172,7 @@ func (h *HandlerSolicitacao) ListarPorLimpeza(w http.ResponseWriter, r *http.Req
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "limpeza_id inválido"))
 		return
 	}
-	solicitacoes, err := h.servico.ListarSolicitacoesPorLimpeza(r.Context(), faxineiroID, limpezaID)
+	solicitacoes, err := h.servico.ListarSolicitacoesPorLimpeza(r.Context(), profissionalID, limpezaID)
 	if err != nil {
 		escreverErro(w, err)
 		return

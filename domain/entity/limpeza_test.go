@@ -13,7 +13,7 @@ func TestNovaLimpeza(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		faxineiroID     int
+		profissionalID     int
 		nome            string
 		valorHora       float64
 		duracaoEstimada float64
@@ -23,7 +23,7 @@ func TestNovaLimpeza(t *testing.T) {
 	}{
 		{
 			name:            "parametros validos",
-			faxineiroID:     1,
+			profissionalID:     1,
 			nome:            "Limpeza Padrão",
 			valorHora:       50,
 			duracaoEstimada: 3,
@@ -31,7 +31,7 @@ func TestNovaLimpeza(t *testing.T) {
 		},
 		{
 			name:            "nome vazio",
-			faxineiroID:     1,
+			profissionalID:     1,
 			nome:            "",
 			valorHora:       50,
 			duracaoEstimada: 3,
@@ -41,7 +41,7 @@ func TestNovaLimpeza(t *testing.T) {
 		},
 		{
 			name:            "valor hora zero",
-			faxineiroID:     1,
+			profissionalID:     1,
 			nome:            "Limpeza",
 			valorHora:       0,
 			duracaoEstimada: 3,
@@ -51,7 +51,7 @@ func TestNovaLimpeza(t *testing.T) {
 		},
 		{
 			name:            "valor hora negativo",
-			faxineiroID:     1,
+			profissionalID:     1,
 			nome:            "Limpeza",
 			valorHora:       -10,
 			duracaoEstimada: 3,
@@ -61,7 +61,7 @@ func TestNovaLimpeza(t *testing.T) {
 		},
 		{
 			name:            "duracao estimada zero",
-			faxineiroID:     1,
+			profissionalID:     1,
 			nome:            "Limpeza",
 			valorHora:       50,
 			duracaoEstimada: 0,
@@ -71,7 +71,7 @@ func TestNovaLimpeza(t *testing.T) {
 		},
 		{
 			name:            "tipo limpeza invalido",
-			faxineiroID:     1,
+			profissionalID:     1,
 			nome:            "Limpeza",
 			valorHora:       50,
 			duracaoEstimada: 3,
@@ -84,7 +84,7 @@ func TestNovaLimpeza(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			l, err := NovaLimpeza(tt.faxineiroID, tt.nome, tt.valorHora, tt.duracaoEstimada, tt.tipoLimpeza)
+			l, err := NovaLimpeza(tt.profissionalID, tt.nome, tt.valorHora, tt.duracaoEstimada, tt.tipoLimpeza)
 
 			if tt.wantErr {
 				if err == nil {
@@ -100,8 +100,8 @@ func TestNovaLimpeza(t *testing.T) {
 			if err != nil {
 				t.Fatalf("NovaLimpeza() unexpected error: %v", err)
 			}
-			if l.FaxineiroID != tt.faxineiroID {
-				t.Errorf("FaxineiroID = %d; want %d", l.FaxineiroID, tt.faxineiroID)
+			if l.ProfissionalID != tt.profissionalID {
+				t.Errorf("ProfissionalID = %d; want %d", l.ProfissionalID, tt.profissionalID)
 			}
 			if l.Nome != tt.nome {
 				t.Errorf("Nome = %q; want %q", l.Nome, tt.nome)
@@ -125,11 +125,11 @@ func TestLimpeza_PrecoTotal(t *testing.T) {
 func TestLimpeza_EPublicadoPor(t *testing.T) {
 	t.Parallel()
 
-	l := &Limpeza{FaxineiroID: 1}
+	l := &Limpeza{ProfissionalID: 1}
 
 	tests := []struct {
 		name        string
-		faxineiroID int
+		profissionalID int
 		want        bool
 	}{
 		{"id correto", 1, true},
@@ -139,9 +139,9 @@ func TestLimpeza_EPublicadoPor(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := l.EPublicadoPor(tt.faxineiroID)
+			got := l.EPublicadoPor(tt.profissionalID)
 			if got != tt.want {
-				t.Errorf("EPublicadoPor(%d) = %v; want %v", tt.faxineiroID, got, tt.want)
+				t.Errorf("EPublicadoPor(%d) = %v; want %v", tt.profissionalID, got, tt.want)
 			}
 		})
 	}
@@ -150,11 +150,11 @@ func TestLimpeza_EPublicadoPor(t *testing.T) {
 func TestLimpeza_VerificarPropriedade(t *testing.T) {
 	t.Parallel()
 
-	l := &Limpeza{FaxineiroID: 1}
+	l := &Limpeza{ProfissionalID: 1}
 
 	tests := []struct {
 		name        string
-		faxineiroID int
+		profissionalID int
 		wantErr     bool
 	}{
 		{"dono correto", 1, false},
@@ -164,11 +164,11 @@ func TestLimpeza_VerificarPropriedade(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := l.VerificarPropriedade(tt.faxineiroID)
+			err := l.VerificarPropriedade(tt.profissionalID)
 
 			if tt.wantErr {
-				if !errors.Is(err, errosdominio.ErrNaoEFaxineiroDaLimpeza) {
-					t.Errorf("VerificarPropriedade() error = %v; want ErrNaoEFaxineiroDaLimpeza", err)
+				if !errors.Is(err, errosdominio.ErrNaoEProfissionalDaLimpeza) {
+					t.Errorf("VerificarPropriedade() error = %v; want ErrNaoEProfissionalDaLimpeza", err)
 				}
 				return
 			}

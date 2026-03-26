@@ -15,9 +15,9 @@ func TestFeed_ClienteNavegaPelosServicosDisponiveisComPaginacao(t *testing.T) {
 	repo := postgres.NovoRepositorioFeedPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax@feed.com", "faxfeed")
+	profissionalID := inserirUsuario(t, db, "fax@feed.com", "faxfeed")
 	for i := 0; i < 5; i++ {
-		inserirLimpeza(t, db, faxineiroID, "Servico Feed")
+		inserirLimpeza(t, db, profissionalID, "Servico Feed")
 	}
 
 	tests := []struct {

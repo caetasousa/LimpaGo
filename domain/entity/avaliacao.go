@@ -9,24 +9,24 @@ import (
 type Avaliacao struct {
 	ID          int
 	LimpezaID   int
-	FaxineiroID int
+	ProfissionalID int
 	ClienteID   int
 	Nota        valueobject.Nota
 	Comentario  string
 	CriadoEm    time.Time
 }
 
-// AgregadoAvaliacao contém estatísticas de reputação de um faxineiro.
+// AgregadoAvaliacao contém estatísticas de reputação de um profissional.
 type AgregadoAvaliacao struct {
-	FaxineiroID     int
+	ProfissionalID     int
 	MediaNota       float64
 	TotalAvaliacoes int
 }
 
-func NovaAvaliacao(limpezaID, faxineiroID, clienteID int, nota valueobject.Nota, comentario string) *Avaliacao {
+func NovaAvaliacao(limpezaID, profissionalID, clienteID int, nota valueobject.Nota, comentario string) *Avaliacao {
 	return &Avaliacao{
 		LimpezaID:   limpezaID,
-		FaxineiroID: faxineiroID,
+		ProfissionalID: profissionalID,
 		ClienteID:   clienteID,
 		Nota:        nota,
 		Comentario:  comentario,

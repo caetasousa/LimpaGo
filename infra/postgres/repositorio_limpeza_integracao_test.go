@@ -13,16 +13,16 @@ import (
 	"limpaGo/infra/postgres"
 )
 
-func TestServico_FaxineiroPublicaNovoServicoDeClimpeza(t *testing.T) {
+func TestServico_ProfissionalPublicaNovoServicoDeClimpeza(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax@limpeza.com", "faxlimpeza")
+	profissionalID := inserirUsuario(t, db, "fax@limpeza.com", "faxlimpeza")
 
 	l := &entity.Limpeza{
-		FaxineiroID:     faxineiroID,
+		ProfissionalID:     profissionalID,
 		Nome:            "Limpeza Residencial",
 		Descricao:       "Limpeza completa",
 		ValorHora:       50.0,
@@ -47,8 +47,8 @@ func TestServico_ConsultarDetalhesDeUmServicoPeloID(t *testing.T) {
 	repo := postgres.NovoRepositorioLimpezaPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax2@limpeza.com", "faxlimpeza2")
-	id := inserirLimpeza(t, db, faxineiroID, "Limpeza Busca")
+	profissionalID := inserirUsuario(t, db, "fax2@limpeza.com", "faxlimpeza2")
+	id := inserirLimpeza(t, db, profissionalID, "Limpeza Busca")
 
 	tests := []struct {
 		name    string
@@ -86,19 +86,19 @@ func TestServico_ConsultarDetalhesDeUmServicoPeloID(t *testing.T) {
 	}
 }
 
-func TestServico_ListarTodosServicosDeUmFaxineiro(t *testing.T) {
+func TestServico_ListarTodosServicosDeUmProfissional(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax3@limpeza.com", "faxlimpeza3")
-	inserirLimpeza(t, db, faxineiroID, "Servico 1")
-	inserirLimpeza(t, db, faxineiroID, "Servico 2")
+	profissionalID := inserirUsuario(t, db, "fax3@limpeza.com", "faxlimpeza3")
+	inserirLimpeza(t, db, profissionalID, "Servico 1")
+	inserirLimpeza(t, db, profissionalID, "Servico 2")
 
-	got, err := repo.ListarPorFaxineiro(ctx, faxineiroID)
+	got, err := repo.ListarPorProfissional(ctx, profissionalID)
 	if err != nil {
-		t.Fatalf("ListarPorFaxineiro() error: %v", err)
+		t.Fatalf("ListarPorProfissional() error: %v", err)
 	}
 	if len(got) != 2 {
 		t.Errorf("len = %d; want 2", len(got))
@@ -111,9 +111,9 @@ func TestServico_ListarTodosServicosComPaginacao(t *testing.T) {
 	repo := postgres.NovoRepositorioLimpezaPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax4@limpeza.com", "faxlimpeza4")
+	profissionalID := inserirUsuario(t, db, "fax4@limpeza.com", "faxlimpeza4")
 	for i := 0; i < 5; i++ {
-		inserirLimpeza(t, db, faxineiroID, "Servico")
+		inserirLimpeza(t, db, profissionalID, "Servico")
 	}
 
 	tests := []struct {
@@ -140,14 +140,14 @@ func TestServico_ListarTodosServicosComPaginacao(t *testing.T) {
 	}
 }
 
-func TestServico_FaxineiroAtualizaValorEDescricaoDoServico(t *testing.T) {
+func TestServico_ProfissionalAtualizaValorEDescricaoDoServico(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax5@limpeza.com", "faxlimpeza5")
-	id := inserirLimpeza(t, db, faxineiroID, "Original")
+	profissionalID := inserirUsuario(t, db, "fax5@limpeza.com", "faxlimpeza5")
+	id := inserirLimpeza(t, db, profissionalID, "Original")
 
 	l := &entity.Limpeza{
 		ID:              id,
@@ -170,14 +170,14 @@ func TestServico_FaxineiroAtualizaValorEDescricaoDoServico(t *testing.T) {
 	}
 }
 
-func TestServico_FaxineiroRemoveServicoDaPlataforma(t *testing.T) {
+func TestServico_ProfissionalRemoveServicoDaPlataforma(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioLimpezaPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax6@limpeza.com", "faxlimpeza6")
-	id := inserirLimpeza(t, db, faxineiroID, "Para deletar")
+	profissionalID := inserirUsuario(t, db, "fax6@limpeza.com", "faxlimpeza6")
+	id := inserirLimpeza(t, db, profissionalID, "Para deletar")
 
 	if err := repo.Deletar(ctx, id); err != nil {
 		t.Fatalf("Deletar() error: %v", err)

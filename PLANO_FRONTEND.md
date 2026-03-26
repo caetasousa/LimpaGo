@@ -28,14 +28,14 @@ Três camadas de teste, aplicadas em cada etapa:
 |-------|---------------|---------------------|------------|
 | 1 | Cadastro (Registro) | `POST /auth/registrar` | — |
 | 2 | Login + Gerenciamento de tokens | `POST /auth/login`, `POST /auth/renovar` | Etapa 1 |
-| 3 | Perfil do usuário (base + cliente + faxineiro) | `GET/PUT /usuarios/eu/perfil`, perfil-cliente, perfil-faxineiro | Etapa 2 |
+| 3 | Perfil do usuário (base + cliente + profissional) | `GET/PUT /usuarios/eu/perfil`, perfil-cliente, perfil-profissional | Etapa 2 |
 | 4 | Catálogo de serviços (feed público) | `GET /limpezas`, `GET /limpezas/{id}`, `GET /feed` | Etapa 2 |
-| 5 | Publicar serviço (faxineiro) | `POST /limpezas`, `PUT/DELETE /limpezas/{id}`, `GET /usuarios/eu/limpezas` | Etapa 3 |
-| 6 | Agenda do faxineiro | `GET/POST/DELETE /agenda/disponibilidades`, `GET/POST/DELETE /agenda/bloqueios` | Etapa 5 |
+| 5 | Publicar serviço (profissional) | `POST /limpezas`, `PUT/DELETE /limpezas/{id}`, `GET /usuarios/eu/limpezas` | Etapa 3 |
+| 6 | Agenda do profissional | `GET/POST/DELETE /agenda/disponibilidades`, `GET/POST/DELETE /agenda/bloqueios` | Etapa 5 |
 | 7 | Solicitar serviço (cliente) | `POST /solicitacoes`, `GET /usuarios/eu/solicitacoes` | Etapa 4, 6 |
-| 8 | Gerenciar solicitações (faxineiro) | `GET /limpezas/{id}/solicitacoes`, aceitar, rejeitar | Etapa 7 |
+| 8 | Gerenciar solicitações (profissional) | `GET /limpezas/{id}/solicitacoes`, aceitar, rejeitar | Etapa 7 |
 | 9 | Cancelar solicitação (cliente) | `POST /solicitacoes/{id}/cancelar` | Etapa 7 |
-| 10 | Avaliar serviço + Reputação | `POST /avaliacoes`, `GET /faxineiros/{id}/avaliacoes`, `GET /faxineiros/{id}/estatisticas` | Etapa 8 |
+| 10 | Avaliar serviço + Reputação | `POST /avaliacoes`, `GET /profissionais/{id}/avaliacoes`, `GET /profissionais/{id}/estatisticas` | Etapa 8 |
 
 ---
 
@@ -153,21 +153,21 @@ Response 401: token de renovação inválido/expirado
 ## Etapa 3 — Perfil do Usuário
 
 ### O que faz
-Permite que o usuário complete e edite seu perfil. O mesmo usuário pode ter **perfil de cliente E faxineiro** simultaneamente.
+Permite que o usuário complete e edite seu perfil. O mesmo usuário pode ter **perfil de cliente E profissional** simultaneamente.
 
 ### Regras de negócio
 - **Perfil base** (todos): nome completo, telefone, imagem (foto)
-- **Perfil faxineiro** (opcional): descrição, anos de experiência, especialidades (lista), cidades atendidas (lista), documentos (RG, CPF, foto documento), verificação pela plataforma
-- **Perfil cliente** (opcional): endereço (rua, bairro, cidade, estado, CEP), tipo de imóvel (apartamento/casa/comercial), quartos, banheiros, tamanho em m², observações, faxineiro preferido
+- **Perfil profissional** (opcional): descrição, anos de experiência, especialidades (lista), cidades atendidas (lista), documentos (RG, CPF, foto documento), verificação pela plataforma
+- **Perfil cliente** (opcional): endereço (rua, bairro, cidade, estado, CEP), tipo de imóvel (apartamento/casa/comercial), quartos, banheiros, tamanho em m², observações, profissional preferido
 - Especialidades aceitas: `limpeza_padrao`, `limpeza_pesada`, `limpeza_express`, `limpeza_pre_mudanca`, `limpeza_pos_obra`, `limpeza_comercial`, `passadoria`
 
 ### Endpoints
 ```
 GET  /api/v1/usuarios/eu/perfil              → perfil base
 PUT  /api/v1/usuarios/eu/perfil              → atualizar perfil base
-POST /api/v1/usuarios/eu/perfil-faxineiro    → criar perfil faxineiro
-GET  /api/v1/usuarios/eu/perfil-faxineiro    → buscar perfil faxineiro
-PUT  /api/v1/usuarios/eu/perfil-faxineiro    → atualizar perfil faxineiro
+POST /api/v1/usuarios/eu/perfil-profissional    → criar perfil profissional
+GET  /api/v1/usuarios/eu/perfil-profissional    → buscar perfil profissional
+PUT  /api/v1/usuarios/eu/perfil-profissional    → atualizar perfil profissional
 POST /api/v1/usuarios/eu/perfil-cliente      → criar perfil cliente
 GET  /api/v1/usuarios/eu/perfil-cliente      → buscar perfil cliente
 PUT  /api/v1/usuarios/eu/perfil-cliente      → atualizar perfil cliente
@@ -175,7 +175,7 @@ PUT  /api/v1/usuarios/eu/perfil-cliente      → atualizar perfil cliente
 
 ### Telas
 - **Tela de perfil base**: formulário com nome completo, telefone, upload de imagem
-- **Seção "Quero ser faxineiro"**: formulário com descrição, experiência, seleção múltipla de especialidades, cidades atendidas, upload de documentos
+- **Seção "Quero ser profissional"**: formulário com descrição, experiência, seleção múltipla de especialidades, cidades atendidas, upload de documentos
 - **Seção "Quero ser cliente"**: formulário com endereço completo, tipo de imóvel, detalhes do imóvel, observações
 - Exibir badges visuais de qual(is) perfil(is) o usuário ativou
 
@@ -190,15 +190,15 @@ PUT  /api/v1/usuarios/eu/perfil-cliente      → atualizar perfil cliente
 
 **Componente:**
 - Perfil base renderiza campos nome, telefone, imagem
-- Seção faxineiro mostra seleção múltipla de especialidades (7 opções)
+- Seção profissional mostra seleção múltipla de especialidades (7 opções)
 - Seção cliente mostra campos de endereço completo
-- Badge "Faxineiro" aparece quando perfil faxineiro está ativo
+- Badge "Profissional" aparece quando perfil profissional está ativo
 - Badge "Cliente" aparece quando perfil cliente está ativo
 - Formulário exibe dados existentes ao carregar (modo edição)
 
 **Integração:**
 - Preencher perfil base → salvar → API retorna 200 → dados atualizados na tela
-- Criar perfil faxineiro com especialidades → API retorna 201 → badge faxineiro aparece
+- Criar perfil profissional com especialidades → API retorna 201 → badge profissional aparece
 - Criar perfil cliente com endereço → API retorna 201 → badge cliente aparece
 
 ---
@@ -219,13 +219,13 @@ Página principal pública onde qualquer pessoa (logada ou não) pode navegar pe
 GET /api/v1/limpezas?pagina=1&tamanho_pagina=20    → catálogo paginado
 GET /api/v1/limpezas/{id}                            → detalhe do serviço
 GET /api/v1/feed?pagina=1&tamanho_pagina=20          → feed de atividades
-GET /api/v1/faxineiros/{id}/estatisticas             → nota média + total avaliações
-GET /api/v1/faxineiros/{id}/avaliacoes               → lista de avaliações
+GET /api/v1/profissionais/{id}/estatisticas             → nota média + total avaliações
+GET /api/v1/profissionais/{id}/avaliacoes               → lista de avaliações
 ```
 
 ### Telas
 - **Página de catálogo**: grid/lista de cards com serviços, paginação, filtro por tipo
-- **Página de detalhe do serviço**: todas as informações + avaliações do faxineiro + botão "Solicitar" (se logado como cliente)
+- **Página de detalhe do serviço**: todas as informações + avaliações do profissional + botão "Solicitar" (se logado como cliente)
 - **Feed lateral ou seção**: últimas atividades da plataforma
 
 ### Testes
@@ -242,7 +242,7 @@ GET /api/v1/faxineiros/{id}/avaliacoes               → lista de avaliações
 - Filtro por tipo de limpeza renderiza 7 opções
 - Paginação renderiza botões anterior/próximo
 - Botão "Solicitar" aparece apenas se usuário logado como cliente
-- Botão "Solicitar" não aparece se usuário não logado ou se é o faxineiro dono
+- Botão "Solicitar" não aparece se usuário não logado ou se é o profissional dono
 - Página de detalhe exibe nota média e total de avaliações
 
 **Integração:**
@@ -252,16 +252,16 @@ GET /api/v1/faxineiros/{id}/avaliacoes               → lista de avaliações
 
 ---
 
-## Etapa 5 — Publicar Serviço (Faxineiro)
+## Etapa 5 — Publicar Serviço (Profissional)
 
 ### O que faz
-Permite que um faxineiro crie, edite e remova seus serviços de limpeza.
+Permite que um profissional crie, edite e remova seus serviços de limpeza.
 
 ### Regras de negócio
-- Apenas usuários com **perfil de faxineiro** podem publicar
+- Apenas usuários com **perfil de profissional** podem publicar
 - Campos obrigatórios: nome, descrição, valor por hora (> 0), duração estimada em horas (> 0), tipo de limpeza
 - **Preço total = valor/hora × duração estimada** (calculado automaticamente, não editável)
-- Faxineiro só pode editar/deletar seus **próprios** serviços (backend retorna `403` se tentar alterar serviço de outro)
+- Profissional só pode editar/deletar seus **próprios** serviços (backend retorna `403` se tentar alterar serviço de outro)
 
 ### Endpoints
 ```
@@ -272,7 +272,7 @@ GET    /api/v1/usuarios/eu/limpezas           → meus serviços publicados
 ```
 
 ### Telas
-- **Dashboard do faxineiro**: lista dos serviços publicados com opções editar/excluir
+- **Dashboard do profissional**: lista dos serviços publicados com opções editar/excluir
 - **Formulário criar/editar serviço**: nome, descrição, valor/hora, duração estimada, select de tipo de limpeza, preview do preço total calculado
 - Confirmação antes de deletar
 
@@ -290,32 +290,32 @@ GET    /api/v1/usuarios/eu/limpezas           → meus serviços publicados
 - Select de tipo de limpeza lista 7 opções
 - Botão editar abre formulário com dados preenchidos
 - Modal de confirmação aparece ao clicar excluir
-- Dashboard lista apenas serviços do faxineiro logado
+- Dashboard lista apenas serviços do profissional logado
 
 **Integração:**
 - Preencher formulário válido → submit → API retorna 201 → serviço aparece na lista
 - Editar serviço existente → submit → API retorna 200 → dados atualizados na lista
 - Confirmar exclusão → API retorna 200 → serviço removido da lista
-- Usuário sem perfil faxineiro → tela exibe mensagem para criar perfil primeiro
+- Usuário sem perfil profissional → tela exibe mensagem para criar perfil primeiro
 
 ---
 
-## Etapa 6 — Agenda do Faxineiro
+## Etapa 6 — Agenda do Profissional
 
 ### O que faz
-Permite que o faxineiro gerencie sua disponibilidade semanal e bloqueios de horário.
+Permite que o profissional gerencie sua disponibilidade semanal e bloqueios de horário.
 
 ### Regras de negócio
 - **Disponibilidade**: blocos recorrentes por dia da semana (0=Domingo a 6=Sábado)
   - Cada bloco: dia da semana, hora início (0-23), hora fim (1-24)
   - Múltiplos blocos por dia permitidos (ex: manhã 8-12 e tarde 14-18)
   - Pode adicionar e remover livremente
-- **Bloqueio pessoal**: período específico (data/hora início e fim) onde o faxineiro não está disponível
+- **Bloqueio pessoal**: período específico (data/hora início e fim) onde o profissional não está disponível
   - DataFim deve ser posterior a DataInicio
   - Não pode criar bloqueios no passado
   - Pode remover livremente
 - **Bloqueio de serviço**: criado automaticamente pelo sistema quando uma solicitação é aceita (não aparece para criação manual, mas aparece na listagem com flag `e_pessoal: false`)
-- A disponibilidade é verificada em **dois momentos**: quando o cliente solicita E quando o faxineiro aceita
+- A disponibilidade é verificada em **dois momentos**: quando o cliente solicita E quando o profissional aceita
 
 ### Endpoints
 ```
@@ -360,16 +360,16 @@ DELETE /api/v1/agenda/bloqueios/{id}              → remover bloqueio pessoal
 ## Etapa 7 — Solicitar Serviço (Cliente)
 
 ### O que faz
-Permite que um cliente solicite um serviço de limpeza publicado por um faxineiro.
+Permite que um cliente solicite um serviço de limpeza publicado por um profissional.
 
 ### Regras de negócio
 - Apenas usuários com **perfil de cliente** podem solicitar
-- **Faxineiro NÃO pode solicitar seu próprio serviço** (backend retorna erro)
+- **Profissional NÃO pode solicitar seu próprio serviço** (backend retorna erro)
 - Data agendada deve ser no **futuro**
 - **Apenas 1 solicitação ativa** (pendente ou aceita) por cliente por serviço
 - Preço total é **capturado no momento da criação** e não muda depois
 - Verificação de disponibilidade automática:
-  1. Disponibilidade semanal do faxineiro cobre a duração?
+  1. Disponibilidade semanal do profissional cobre a duração?
   2. Nenhum bloqueio (pessoal ou serviço) conflita com o horário?
 - Status inicial: `pendente`
 - Endereço pode ser informado manualmente ou copiado do perfil do cliente
@@ -415,17 +415,17 @@ GET /api/v1/usuarios/eu/solicitacoes   → minhas solicitações como cliente
 **Integração:**
 - Preencher data futura → submit → API retorna 201 → solicitação aparece como "pendente" na lista
 - Tentar solicitar novamente o mesmo serviço → API retorna 409 → exibe "Já existe solicitação ativa"
-- Selecionar data sem disponibilidade → API retorna 422 → exibe "Faxineiro indisponível neste horário"
+- Selecionar data sem disponibilidade → API retorna 422 → exibe "Profissional indisponível neste horário"
 
 ---
 
-## Etapa 8 — Gerenciar Solicitações (Faxineiro)
+## Etapa 8 — Gerenciar Solicitações (Profissional)
 
 ### O que faz
-Permite que o faxineiro veja, aceite ou rejeite solicitações recebidas para seus serviços.
+Permite que o profissional veja, aceite ou rejeite solicitações recebidas para seus serviços.
 
 ### Regras de negócio
-- Apenas o faxineiro **dono do serviço** pode aceitar/rejeitar
+- Apenas o profissional **dono do serviço** pode aceitar/rejeitar
 - Só pode aceitar/rejeitar solicitações com status `pendente`
 - Ao **aceitar**:
   - Sistema verifica disponibilidade **novamente** (pode ter mudado desde a criação)
@@ -441,7 +441,7 @@ POST /api/v1/solicitacoes/{cliente_id}/{limpeza_id}/rejeitar          → rejeit
 ```
 
 ### Telas
-- **Painel de solicitações do faxineiro**: agrupado por serviço, com badges de status
+- **Painel de solicitações do profissional**: agrupado por serviço, com badges de status
 - Cada solicitação pendente mostra: nome do cliente, data agendada, endereço, preço total + botões Aceitar/Rejeitar
 - Confirmação antes de aceitar/rejeitar
 - Feedback visual claro quando aceite falha por indisponibilidade de agenda
@@ -478,7 +478,7 @@ Permite que o cliente cancele uma solicitação pendente ou aceita, com regras d
 - **Solicitação aceita**:
   - Se faltam **≥ 24 horas** para o serviço → cancelamento sem custo
   - Se faltam **< 24 horas** → multa de **20% do preço total**
-- Cancelar solicitação aceita → remove automaticamente o bloqueio de serviço da agenda do faxineiro
+- Cancelar solicitação aceita → remove automaticamente o bloqueio de serviço da agenda do profissional
 - Apenas o **cliente que criou** pode cancelar
 - Status `rejeitada`, `cancelada` e `concluída` não podem ser cancelados
 
@@ -530,7 +530,7 @@ Response 422: status não permite cancelamento
 ## Etapa 10 — Avaliar Serviço + Reputação
 
 ### O que faz
-Permite que o cliente avalie um serviço aceito, marcando-o como concluído. Exibe reputação pública do faxineiro.
+Permite que o cliente avalie um serviço aceito, marcando-o como concluído. Exibe reputação pública do profissional.
 
 ### Regras de negócio
 - Apenas solicitações com status `aceita` podem ser avaliadas
@@ -538,7 +538,7 @@ Permite que o cliente avalie um serviço aceito, marcando-o como concluído. Exi
 - Nota: inteiro de **0 a 5** (obrigatória)
 - Comentário: texto livre (opcional)
 - Criar avaliação → solicitação muda automaticamente para `concluída`
-- Estatísticas do faxineiro são públicas: média das notas + total de avaliações
+- Estatísticas do profissional são públicas: média das notas + total de avaliações
 
 ### Endpoints
 ```
@@ -547,14 +547,14 @@ Body: { "limpeza_id": 1, "nota": 5, "comentario": "Excelente!" }
 Response 201: { avaliação criada }
 Response 409: já avaliou esta solicitação
 
-GET /api/v1/faxineiros/{faxineiro_id}/avaliacoes      → lista de avaliações
-GET /api/v1/faxineiros/{faxineiro_id}/estatisticas     → média + total
+GET /api/v1/profissionais/{profissional_id}/avaliacoes      → lista de avaliações
+GET /api/v1/profissionais/{profissional_id}/estatisticas     → média + total
 ```
 
 ### Telas
 - **Botão "Avaliar"** aparece apenas em solicitações com status `aceita`
 - **Modal/página de avaliação**: estrelas (0-5) + campo de comentário + botão enviar
-- **Seção de reputação** no perfil público do faxineiro: nota média, total de avaliações, lista de comentários
+- **Seção de reputação** no perfil público do profissional: nota média, total de avaliações, lista de comentários
 - Exibir reputação também na página de detalhe do serviço (Etapa 4)
 
 ### Testes
@@ -579,21 +579,21 @@ GET /api/v1/faxineiros/{faxineiro_id}/estatisticas     → média + total
 **Integração:**
 - Selecionar nota 5 + comentário → submit → API retorna 201 → solicitação muda para "concluída"
 - Tentar avaliar novamente → API retorna 409 → exibe "Você já avaliou este serviço"
-- Página do faxineiro carrega → API retorna estatísticas → exibe média e total corretos
+- Página do profissional carrega → API retorna estatísticas → exibe média e total corretos
 
 ---
 
 ## Melhorias transversais (aplicadas ao longo das etapas)
 
 ### UX — Onboarding guiado (Etapa 1-3)
-Após cadastro, wizard de 2-3 passos: "Você quer contratar ou prestar serviços?" → direciona para criar perfil cliente ou faxineiro. Evita que o usuário fique perdido após o registro.
+Após cadastro, wizard de 2-3 passos: "Você quer contratar ou prestar serviços?" → direciona para criar perfil cliente ou profissional. Evita que o usuário fique perdido após o registro.
 
 **Testes:**
-- **Componente:** wizard renderiza passo 1 ("Contratar" / "Prestar serviços"), clicar "Prestar serviços" avança para formulário de faxineiro
+- **Componente:** wizard renderiza passo 1 ("Contratar" / "Prestar serviços"), clicar "Prestar serviços" avança para formulário de profissional
 - **Integração:** completar wizard → perfil criado via API → redireciona para dashboard correto
 
 ### UX — Notificações em tempo real (Etapa 7-8)
-Quando o faxineiro aceita/rejeita uma solicitação, o cliente vê a atualização sem recarregar. WebSocket ou polling curto para atualizar status.
+Quando o profissional aceita/rejeita uma solicitação, o cliente vê a atualização sem recarregar. WebSocket ou polling curto para atualizar status.
 
 **Testes:**
 - **Unitário:** `processarEvento({ tipo: "solicitacao_aceita", id: 1 })` → atualiza status local
@@ -601,7 +601,7 @@ Quando o faxineiro aceita/rejeita uma solicitação, o cliente vê a atualizaç�
 - **Integração:** simular evento WebSocket → lista de solicitações atualiza automaticamente
 
 ### UX — Busca com filtros combinados (Etapa 4)
-No catálogo, filtrar por: cidade, faixa de preço (mín-máx), nota mínima do faxineiro, tipo de limpeza. Filtros combinam entre si.
+No catálogo, filtrar por: cidade, faixa de preço (mín-máx), nota mínima do profissional, tipo de limpeza. Filtros combinam entre si.
 
 **Testes:**
 - **Unitário:** `construirQueryFiltros({ cidade: "SP", precoMin: 50, tipoLimpeza: "pesada" })` → query string correta
@@ -611,12 +611,12 @@ No catálogo, filtrar por: cidade, faixa de preço (mín-máx), nota mínima do 
 ### Segurança — Proteção de rotas (Etapa 2)
 Componente de guarda que redireciona:
 - Para login se não autenticado
-- Para "criar perfil faxineiro" se tentar acessar área de faxineiro sem perfil
+- Para "criar perfil profissional" se tentar acessar área de profissional sem perfil
 - Para "criar perfil cliente" se tentar acessar área de cliente sem perfil
 
 **Testes:**
 - **Componente:** usuário não autenticado tenta acessar `/agenda` → renderiza redirect para `/login`
-- **Componente:** usuário sem perfil faxineiro acessa `/meus-servicos` → renderiza redirect para criar perfil
+- **Componente:** usuário sem perfil profissional acessa `/meus-servicos` → renderiza redirect para criar perfil
 - **Integração:** navegar para rota protegida sem token → redireciona para login → fazer login → redireciona de volta para rota original
 
 ### Segurança — Rate limiting visual (transversal)
@@ -647,7 +647,7 @@ Scroll infinito no feed de atividades em vez de botões de página. Carrega pró
 - **Componente:** exibe "Carregando mais..." durante fetch da próxima página
 - **Componente:** exibe "Não há mais atividades" quando última página
 
-### Negócio — Resumo financeiro do faxineiro (Etapa 8)
+### Negócio — Resumo financeiro do profissional (Etapa 8)
 Dashboard com: total ganho (soma dos preços de solicitações concluídas), serviços realizados (count), nota média, tudo em cards resumo no topo do painel.
 
 **Testes:**

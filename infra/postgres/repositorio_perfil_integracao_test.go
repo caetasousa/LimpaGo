@@ -65,25 +65,25 @@ func TestPerfil_GerenciarPerfilBaseDoUsuario(t *testing.T) {
 	})
 }
 
-func TestPerfil_FaxineiroCadastraPerfilProfissionalComEspecialidades(t *testing.T) {
+func TestPerfil_ProfissionalCadastraPerfilProfissionalComEspecialidades(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioPerfilPG(db)
 	ctx := context.Background()
 
-	usuarioID := inserirUsuario(t, db, "faxineiro@teste.com", "faxineiroteste")
+	usuarioID := inserirUsuario(t, db, "profissional@teste.com", "profissionalteste")
 
-	t.Run("faxineiro registra especialidades e cidades atendidas", func(t *testing.T) {
-		p := entity.NovoPerfilFaxineiro(usuarioID)
-		p.Descricao = "Faxineiro experiente"
+	t.Run("profissional registra especialidades e cidades atendidas", func(t *testing.T) {
+		p := entity.NovoPerfilProfissional(usuarioID)
+		p.Descricao = "Profissional experiente"
 		p.AnosExperiencia = 5
 		p.Especialidades = []string{"limpeza_padrao", "limpeza_pesada"}
 		p.CidadesAtendidas = []string{"São Paulo", "Guarulhos"}
 		p.DocumentoCPF = "123.456.789-00"
 		p.DocumentoRG = "12.345.678-9"
 
-		if err := repo.SalvarPerfilFaxineiro(ctx, p); err != nil {
-			t.Fatalf("SalvarPerfilFaxineiro() error: %v", err)
+		if err := repo.SalvarPerfilProfissional(ctx, p); err != nil {
+			t.Fatalf("SalvarPerfilProfissional() error: %v", err)
 		}
 		if p.CriadoEm.IsZero() {
 			t.Error("CriadoEm zerado; want preenchido")
@@ -91,12 +91,12 @@ func TestPerfil_FaxineiroCadastraPerfilProfissionalComEspecialidades(t *testing.
 	})
 
 	t.Run("especialidades e cidades sao preservadas ao consultar perfil", func(t *testing.T) {
-		got, err := repo.BuscarPerfilFaxineiro(ctx, usuarioID)
+		got, err := repo.BuscarPerfilProfissional(ctx, usuarioID)
 		if err != nil {
-			t.Fatalf("BuscarPerfilFaxineiro() error: %v", err)
+			t.Fatalf("BuscarPerfilProfissional() error: %v", err)
 		}
 		if got == nil {
-			t.Fatal("got nil; want perfil faxineiro")
+			t.Fatal("got nil; want perfil profissional")
 		}
 		if len(got.Especialidades) != 2 {
 			t.Errorf("Especialidades len = %d; want 2", len(got.Especialidades))
@@ -109,8 +109,8 @@ func TestPerfil_FaxineiroCadastraPerfilProfissionalComEspecialidades(t *testing.
 		}
 	})
 
-	t.Run("faxineiro atualiza experiencia e especialidades", func(t *testing.T) {
-		p := &entity.PerfilFaxineiro{
+	t.Run("profissional atualiza experiencia e especialidades", func(t *testing.T) {
+		p := &entity.PerfilProfissional{
 			UsuarioID:        usuarioID,
 			Descricao:        "Atualizado",
 			AnosExperiencia:  7,
@@ -118,15 +118,15 @@ func TestPerfil_FaxineiroCadastraPerfilProfissionalComEspecialidades(t *testing.
 			CidadesAtendidas: []string{"Campinas"},
 			Verificado:       true,
 		}
-		if err := repo.AtualizarPerfilFaxineiro(ctx, p); err != nil {
-			t.Fatalf("AtualizarPerfilFaxineiro() error: %v", err)
+		if err := repo.AtualizarPerfilProfissional(ctx, p); err != nil {
+			t.Fatalf("AtualizarPerfilProfissional() error: %v", err)
 		}
 	})
 
-	t.Run("perfil faxineiro inexistente retorna erro de nao encontrado", func(t *testing.T) {
-		_, err := repo.BuscarPerfilFaxineiro(ctx, 999999)
-		if !errors.Is(err, errosdominio.ErrPerfilFaxineiroNaoEncontrado) {
-			t.Errorf("got %v; want %v", err, errosdominio.ErrPerfilFaxineiroNaoEncontrado)
+	t.Run("perfil profissional inexistente retorna erro de nao encontrado", func(t *testing.T) {
+		_, err := repo.BuscarPerfilProfissional(ctx, 999999)
+		if !errors.Is(err, errosdominio.ErrPerfilProfissionalNaoEncontrado) {
+			t.Errorf("got %v; want %v", err, errosdominio.ErrPerfilProfissionalNaoEncontrado)
 		}
 	})
 }

@@ -8,14 +8,14 @@ import (
 
 type RepositorioPerfilMock struct {
 	perfis           map[int]*entity.Perfil
-	perfisFaxineiro  map[int]*entity.PerfilFaxineiro
+	perfisProfissional  map[int]*entity.PerfilProfissional
 	perfisCliente    map[int]*entity.PerfilCliente
 }
 
 func NovoRepositorioPerfilMock() *RepositorioPerfilMock {
 	return &RepositorioPerfilMock{
 		perfis:          make(map[int]*entity.Perfil),
-		perfisFaxineiro: make(map[int]*entity.PerfilFaxineiro),
+		perfisProfissional: make(map[int]*entity.PerfilProfissional),
 		perfisCliente:   make(map[int]*entity.PerfilCliente),
 	}
 }
@@ -34,17 +34,17 @@ func (r *RepositorioPerfilMock) Atualizar(_ context.Context, perfil *entity.Perf
 	return nil
 }
 
-func (r *RepositorioPerfilMock) BuscarPerfilFaxineiro(_ context.Context, usuarioID int) (*entity.PerfilFaxineiro, error) {
-	return r.perfisFaxineiro[usuarioID], nil
+func (r *RepositorioPerfilMock) BuscarPerfilProfissional(_ context.Context, usuarioID int) (*entity.PerfilProfissional, error) {
+	return r.perfisProfissional[usuarioID], nil
 }
 
-func (r *RepositorioPerfilMock) SalvarPerfilFaxineiro(_ context.Context, perfil *entity.PerfilFaxineiro) error {
-	r.perfisFaxineiro[perfil.UsuarioID] = perfil
+func (r *RepositorioPerfilMock) SalvarPerfilProfissional(_ context.Context, perfil *entity.PerfilProfissional) error {
+	r.perfisProfissional[perfil.UsuarioID] = perfil
 	return nil
 }
 
-func (r *RepositorioPerfilMock) AtualizarPerfilFaxineiro(_ context.Context, perfil *entity.PerfilFaxineiro) error {
-	r.perfisFaxineiro[perfil.UsuarioID] = perfil
+func (r *RepositorioPerfilMock) AtualizarPerfilProfissional(_ context.Context, perfil *entity.PerfilProfissional) error {
+	r.perfisProfissional[perfil.UsuarioID] = perfil
 	return nil
 }
 

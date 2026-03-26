@@ -13,7 +13,7 @@ import (
 	"limpaGo/domain/valueobject"
 )
 
-// setupSolicitacao cria cenario completo: faxineiroID=1, limpeza 3h, disponibilidade segunda 8-17h.
+// setupSolicitacao cria cenario completo: profissionalID=1, limpeza 3h, disponibilidade segunda 8-17h.
 func setupSolicitacao(t *testing.T) (
 	*service.ServicoSolicitacao,
 	*service.ServicoAgenda,
@@ -33,7 +33,7 @@ func setupSolicitacao(t *testing.T) (
 	ctx := context.Background()
 
 	limpeza := &entity.Limpeza{
-		FaxineiroID:     1,
+		ProfissionalID:     1,
 		Nome:            "Limpeza Teste",
 		ValorHora:       50,
 		DuracaoEstimada: 3,
@@ -78,13 +78,13 @@ func TestServicoSolicitacao_CriarSolicitacao(t *testing.T) {
 		}
 	})
 
-	t.Run("faxineiro solicitando proprio servico", func(t *testing.T) {
+	t.Run("profissional solicitando proprio servico", func(t *testing.T) {
 		t.Parallel()
 		svc, _, _, limpeza, dataAg := setupSolicitacao(t)
 
 		_, err := svc.CriarSolicitacao(ctx, 1, limpeza.ID, dataAg)
-		if !errors.Is(err, errosdominio.ErrFaxineiroNaoPodeSolicitarProprio) {
-			t.Errorf("error = %v; want ErrFaxineiroNaoPodeSolicitarProprio", err)
+		if !errors.Is(err, errosdominio.ErrProfissionalNaoPodeSolicitarProprio) {
+			t.Errorf("error = %v; want ErrProfissionalNaoPodeSolicitarProprio", err)
 		}
 	})
 
@@ -107,7 +107,7 @@ func TestServicoSolicitacao_CriarSolicitacao(t *testing.T) {
 		svcAgenda := service.NovoServicoAgenda(repoAgenda)
 		svcSolic := service.NovoServicoSolicitacao(repoSolic, repoLimpeza, svcAgenda)
 
-		limpeza := &entity.Limpeza{FaxineiroID: 1, ValorHora: 50, DuracaoEstimada: 3, TipoLimpeza: valueobject.TipoLimpezaPadrao}
+		limpeza := &entity.Limpeza{ProfissionalID: 1, ValorHora: 50, DuracaoEstimada: 3, TipoLimpeza: valueobject.TipoLimpezaPadrao}
 		_ = repoLimpeza.Salvar(ctx, limpeza)
 
 		futuro := time.Now().Add(48 * time.Hour)
@@ -141,14 +141,14 @@ func TestServicoSolicitacao_AceitarSolicitacao(t *testing.T) {
 		}
 	})
 
-	t.Run("nao faxineiro", func(t *testing.T) {
+	t.Run("nao profissional", func(t *testing.T) {
 		t.Parallel()
 		svc, _, _, limpeza, dataAg := setupSolicitacao(t)
 		_, _ = svc.CriarSolicitacao(ctx, 2, limpeza.ID, dataAg)
 
 		_, err := svc.AceitarSolicitacao(ctx, 999, 2, limpeza.ID)
-		if !errors.Is(err, errosdominio.ErrNaoEFaxineiroDaSolicitacao) {
-			t.Errorf("error = %v; want ErrNaoEFaxineiroDaSolicitacao", err)
+		if !errors.Is(err, errosdominio.ErrNaoEProfissionalDaSolicitacao) {
+			t.Errorf("error = %v; want ErrNaoEProfissionalDaSolicitacao", err)
 		}
 	})
 
@@ -193,14 +193,14 @@ func TestServicoSolicitacao_RejeitarSolicitacao(t *testing.T) {
 		}
 	})
 
-	t.Run("nao faxineiro", func(t *testing.T) {
+	t.Run("nao profissional", func(t *testing.T) {
 		t.Parallel()
 		svc, _, _, limpeza, dataAg := setupSolicitacao(t)
 		_, _ = svc.CriarSolicitacao(ctx, 2, limpeza.ID, dataAg)
 
 		_, err := svc.RejeitarSolicitacao(ctx, 999, 2, limpeza.ID)
-		if !errors.Is(err, errosdominio.ErrNaoEFaxineiroDaSolicitacao) {
-			t.Errorf("error = %v; want ErrNaoEFaxineiroDaSolicitacao", err)
+		if !errors.Is(err, errosdominio.ErrNaoEProfissionalDaSolicitacao) {
+			t.Errorf("error = %v; want ErrNaoEProfissionalDaSolicitacao", err)
 		}
 	})
 

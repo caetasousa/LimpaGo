@@ -58,8 +58,8 @@ type RequisicaoAtualizarPerfil struct {
 	Imagem       string `json:"imagem"`
 }
 
-// RespostaPerfilFaxineiro representa o perfil do faxineiro na resposta da API.
-type RespostaPerfilFaxineiro struct {
+// RespostaPerfilProfissional representa o perfil do profissional na resposta da API.
+type RespostaPerfilProfissional struct {
 	UsuarioID        int      `json:"usuario_id"`
 	Descricao        string   `json:"descricao"`
 	AnosExperiencia  int      `json:"anos_experiencia"`
@@ -68,9 +68,9 @@ type RespostaPerfilFaxineiro struct {
 	Verificado       bool     `json:"verificado"`
 }
 
-// DePerfilFaxineiro converte uma entidade PerfilFaxineiro para RespostaPerfilFaxineiro.
-func DePerfilFaxineiro(p *entity.PerfilFaxineiro) RespostaPerfilFaxineiro {
-	return RespostaPerfilFaxineiro{
+// DePerfilProfissional converte uma entidade PerfilProfissional para RespostaPerfilProfissional.
+func DePerfilProfissional(p *entity.PerfilProfissional) RespostaPerfilProfissional {
+	return RespostaPerfilProfissional{
 		UsuarioID:        p.UsuarioID,
 		Descricao:        p.Descricao,
 		AnosExperiencia:  p.AnosExperiencia,
@@ -80,8 +80,8 @@ func DePerfilFaxineiro(p *entity.PerfilFaxineiro) RespostaPerfilFaxineiro {
 	}
 }
 
-// RequisicaoAtualizarPerfilFaxineiro representa o corpo para atualizar o perfil do faxineiro.
-type RequisicaoAtualizarPerfilFaxineiro struct {
+// RequisicaoAtualizarPerfilProfissional representa o corpo para atualizar o perfil do profissional.
+type RequisicaoAtualizarPerfilProfissional struct {
 	Descricao        string   `json:"descricao"`
 	AnosExperiencia  int      `json:"anos_experiencia"`
 	Especialidades   []string `json:"especialidades"`
@@ -131,7 +131,7 @@ type RespostaPerfilCliente struct {
 	Banheiros           int         `json:"banheiros"`
 	TamanhoImovelM2     float64     `json:"tamanho_imovel_m2"`
 	Observacoes         string      `json:"observacoes"`
-	FaxineiroPreferidoID *int       `json:"faxineiro_preferido_id,omitempty"`
+	ProfissionalPreferidoID *int       `json:"profissional_preferido_id,omitempty"`
 }
 
 // DePerfilCliente converte uma entidade PerfilCliente para RespostaPerfilCliente.
@@ -144,7 +144,7 @@ func DePerfilCliente(p *entity.PerfilCliente) RespostaPerfilCliente {
 		Banheiros:            p.Banheiros,
 		TamanhoImovelM2:      p.TamanhoImovelM2,
 		Observacoes:          p.Observacoes,
-		FaxineiroPreferidoID: p.FaxineiroPreferidoID,
+		ProfissionalPreferidoID: p.ProfissionalPreferidoID,
 	}
 }
 

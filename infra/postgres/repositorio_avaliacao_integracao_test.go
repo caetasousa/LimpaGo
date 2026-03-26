@@ -19,9 +19,9 @@ func TestAvaliacao_ClienteAvaliaServicoAposConclusao(t *testing.T) {
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax@aval.com", "faxaval")
+	profissionalID := inserirUsuario(t, db, "fax@aval.com", "faxaval")
 	clienteID := inserirUsuario(t, db, "cli@aval.com", "cliaval")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico Aval")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico Aval")
 
 	tests := []struct {
 		name      string
@@ -49,7 +49,7 @@ func TestAvaliacao_ClienteAvaliaServicoAposConclusao(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := entity.NovaAvaliacao(tt.limpezaID, faxineiroID, tt.clienteID, tt.nota, "Ótimo serviço")
+			a := entity.NovaAvaliacao(tt.limpezaID, profissionalID, tt.clienteID, tt.nota, "Ótimo serviço")
 			err := repo.Salvar(ctx, a)
 
 			if tt.wantErr {
@@ -77,11 +77,11 @@ func TestAvaliacao_ConsultarAvaliacaoQueClienteDeuParaServico(t *testing.T) {
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax2@aval.com", "fax2aval")
+	profissionalID := inserirUsuario(t, db, "fax2@aval.com", "fax2aval")
 	clienteID := inserirUsuario(t, db, "cli2@aval.com", "cli2aval")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico2 Aval")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico2 Aval")
 
-	a := entity.NovaAvaliacao(limpezaID, faxineiroID, clienteID, 5, "Perfeito")
+	a := entity.NovaAvaliacao(limpezaID, profissionalID, clienteID, 5, "Perfeito")
 	if err := repo.Salvar(ctx, a); err != nil {
 		t.Fatalf("setup: %v", err)
 	}
@@ -124,24 +124,24 @@ func TestAvaliacao_ConsultarAvaliacaoQueClienteDeuParaServico(t *testing.T) {
 	}
 }
 
-func TestAvaliacao_ListarTodasAvaliacoesRecebidasPeloFaxineiro(t *testing.T) {
+func TestAvaliacao_ListarTodasAvaliacoesRecebidasPeloProfissional(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax3@aval.com", "fax3aval")
+	profissionalID := inserirUsuario(t, db, "fax3@aval.com", "fax3aval")
 	cli1 := inserirUsuario(t, db, "cli3a@aval.com", "cli3a")
 	cli2 := inserirUsuario(t, db, "cli3b@aval.com", "cli3b")
-	limp1 := inserirLimpeza(t, db, faxineiroID, "Aval1")
-	limp2 := inserirLimpeza(t, db, faxineiroID, "Aval2")
+	limp1 := inserirLimpeza(t, db, profissionalID, "Aval1")
+	limp2 := inserirLimpeza(t, db, profissionalID, "Aval2")
 
-	repo.Salvar(ctx, entity.NovaAvaliacao(limp1, faxineiroID, cli1, 4, "Bom"))
-	repo.Salvar(ctx, entity.NovaAvaliacao(limp2, faxineiroID, cli2, 5, "Excelente"))
+	repo.Salvar(ctx, entity.NovaAvaliacao(limp1, profissionalID, cli1, 4, "Bom"))
+	repo.Salvar(ctx, entity.NovaAvaliacao(limp2, profissionalID, cli2, 5, "Excelente"))
 
-	got, err := repo.ListarPorFaxineiro(ctx, faxineiroID)
+	got, err := repo.ListarPorProfissional(ctx, profissionalID)
 	if err != nil {
-		t.Fatalf("ListarPorFaxineiro() error: %v", err)
+		t.Fatalf("ListarPorProfissional() error: %v", err)
 	}
 	if len(got) != 2 {
 		t.Errorf("len = %d; want 2", len(got))
@@ -154,19 +154,19 @@ func TestAvaliacao_CalcularMediaEQuantidadeDeAvaliacoes(t *testing.T) {
 	repo := postgres.NovoRepositorioAvaliacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax4@aval.com", "fax4aval")
+	profissionalID := inserirUsuario(t, db, "fax4@aval.com", "fax4aval")
 	cli1 := inserirUsuario(t, db, "cli4a@aval.com", "cli4a")
 	cli2 := inserirUsuario(t, db, "cli4b@aval.com", "cli4b")
-	limp1 := inserirLimpeza(t, db, faxineiroID, "Aval3")
-	limp2 := inserirLimpeza(t, db, faxineiroID, "Aval4")
+	limp1 := inserirLimpeza(t, db, profissionalID, "Aval3")
+	limp2 := inserirLimpeza(t, db, profissionalID, "Aval4")
 
-	repo.Salvar(ctx, entity.NovaAvaliacao(limp1, faxineiroID, cli1, 4, ""))
-	repo.Salvar(ctx, entity.NovaAvaliacao(limp2, faxineiroID, cli2, 2, ""))
+	repo.Salvar(ctx, entity.NovaAvaliacao(limp1, profissionalID, cli1, 4, ""))
+	repo.Salvar(ctx, entity.NovaAvaliacao(limp2, profissionalID, cli2, 2, ""))
 
 	t.Run("media calculada corretamente com duas avaliacoes", func(t *testing.T) {
-		ag, err := repo.BuscarAgregadoPorFaxineiro(ctx, faxineiroID)
+		ag, err := repo.BuscarAgregadoPorProfissional(ctx, profissionalID)
 		if err != nil {
-			t.Fatalf("BuscarAgregadoPorFaxineiro() error: %v", err)
+			t.Fatalf("BuscarAgregadoPorProfissional() error: %v", err)
 		}
 		if ag.TotalAvaliacoes != 2 {
 			t.Errorf("TotalAvaliacoes = %d; want 2", ag.TotalAvaliacoes)
@@ -176,9 +176,9 @@ func TestAvaliacao_CalcularMediaEQuantidadeDeAvaliacoes(t *testing.T) {
 		}
 	})
 
-	t.Run("faxineiro sem avaliacoes retorna media zero", func(t *testing.T) {
+	t.Run("profissional sem avaliacoes retorna media zero", func(t *testing.T) {
 		semAvaliacaoID := inserirUsuario(t, db, "semav@aval.com", "semavaliacao")
-		ag, err := repo.BuscarAgregadoPorFaxineiro(ctx, semAvaliacaoID)
+		ag, err := repo.BuscarAgregadoPorProfissional(ctx, semAvaliacaoID)
 		if err != nil {
 			t.Fatalf("error: %v", err)
 		}

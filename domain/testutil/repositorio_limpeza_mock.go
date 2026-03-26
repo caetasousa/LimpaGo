@@ -27,10 +27,10 @@ func (r *RepositorioLimpezaMock) BuscarPorID(_ context.Context, id int) (*entity
 	return l, nil
 }
 
-func (r *RepositorioLimpezaMock) ListarPorFaxineiro(_ context.Context, faxineiroID int) ([]*entity.Limpeza, error) {
+func (r *RepositorioLimpezaMock) ListarPorProfissional(_ context.Context, profissionalID int) ([]*entity.Limpeza, error) {
 	var resultado []*entity.Limpeza
 	for _, l := range r.limpezas {
-		if l.FaxineiroID == faxineiroID {
+		if l.ProfissionalID == profissionalID {
 			resultado = append(resultado, l)
 		}
 	}

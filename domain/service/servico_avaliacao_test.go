@@ -30,7 +30,7 @@ func setupServicoAvaliacao(t *testing.T) (
 	ctx := context.Background()
 
 	limpeza := &entity.Limpeza{
-		FaxineiroID:     1,
+		ProfissionalID:     1,
 		Nome:            "Limpeza Teste",
 		ValorHora:       50,
 		DuracaoEstimada: 3,
@@ -65,8 +65,8 @@ func TestServicoAvaliacao_CriarAvaliacao(t *testing.T) {
 		if int(a.Nota) != 5 {
 			t.Errorf("Nota = %d; want 5", a.Nota)
 		}
-		if a.FaxineiroID != 1 {
-			t.Errorf("FaxineiroID = %d; want 1", a.FaxineiroID)
+		if a.ProfissionalID != 1 {
+			t.Errorf("ProfissionalID = %d; want 1", a.ProfissionalID)
 		}
 	})
 
@@ -74,7 +74,7 @@ func TestServicoAvaliacao_CriarAvaliacao(t *testing.T) {
 		t.Parallel()
 		svc, _, repoSolic, repoLimpeza := setupServicoAvaliacao(t)
 
-		limpeza2 := &entity.Limpeza{FaxineiroID: 1, ValorHora: 40, DuracaoEstimada: 2, TipoLimpeza: valueobject.TipoLimpezaPesada}
+		limpeza2 := &entity.Limpeza{ProfissionalID: 1, ValorHora: 40, DuracaoEstimada: 2, TipoLimpeza: valueobject.TipoLimpezaPesada}
 		_ = repoLimpeza.Salvar(ctx, limpeza2)
 		solic2 := &entity.Solicitacao{ClienteID: 2, LimpezaID: limpeza2.ID, Status: valueobject.StatusSolicitacaoAceita, PrecoTotal: 80}
 		_ = repoSolic.Salvar(ctx, solic2)
@@ -102,7 +102,7 @@ func TestServicoAvaliacao_CriarAvaliacao(t *testing.T) {
 		t.Parallel()
 		svc, _, repoSolic, repoLimpeza := setupServicoAvaliacao(t)
 
-		limpeza3 := &entity.Limpeza{FaxineiroID: 1, ValorHora: 30, DuracaoEstimada: 1, TipoLimpeza: valueobject.TipoLimpezaExpress}
+		limpeza3 := &entity.Limpeza{ProfissionalID: 1, ValorHora: 30, DuracaoEstimada: 1, TipoLimpeza: valueobject.TipoLimpezaExpress}
 		_ = repoLimpeza.Salvar(ctx, limpeza3)
 		solicPend := &entity.Solicitacao{ClienteID: 3, LimpezaID: limpeza3.ID, Status: valueobject.StatusSolicitacaoPendente, PrecoTotal: 30}
 		_ = repoSolic.Salvar(ctx, solicPend)
@@ -117,7 +117,7 @@ func TestServicoAvaliacao_CriarAvaliacao(t *testing.T) {
 		t.Parallel()
 		svc, repoAval, repoSolic, repoLimpeza := setupServicoAvaliacao(t)
 
-		limpezaDup := &entity.Limpeza{FaxineiroID: 1, ValorHora: 30, DuracaoEstimada: 1, TipoLimpeza: valueobject.TipoLimpezaExpress}
+		limpezaDup := &entity.Limpeza{ProfissionalID: 1, ValorHora: 30, DuracaoEstimada: 1, TipoLimpeza: valueobject.TipoLimpezaExpress}
 		_ = repoLimpeza.Salvar(ctx, limpezaDup)
 		solicDup := &entity.Solicitacao{ClienteID: 6, LimpezaID: limpezaDup.ID, Status: valueobject.StatusSolicitacaoAceita, PrecoTotal: 30}
 		_ = repoSolic.Salvar(ctx, solicDup)
@@ -145,7 +145,7 @@ func TestServicoAvaliacao_CriarAvaliacao(t *testing.T) {
 			t.Parallel()
 			svc, _, repoSolic, repoLimpeza := setupServicoAvaliacao(t)
 
-			l := &entity.Limpeza{FaxineiroID: 1, ValorHora: 30, DuracaoEstimada: 1, TipoLimpeza: valueobject.TipoLimpezaExpress}
+			l := &entity.Limpeza{ProfissionalID: 1, ValorHora: 30, DuracaoEstimada: 1, TipoLimpeza: valueobject.TipoLimpezaExpress}
 			_ = repoLimpeza.Salvar(ctx, l)
 			s := &entity.Solicitacao{ClienteID: 10, LimpezaID: l.ID, Status: valueobject.StatusSolicitacaoAceita, PrecoTotal: 30}
 			_ = repoSolic.Salvar(ctx, s)
@@ -159,16 +159,16 @@ func TestServicoAvaliacao_CriarAvaliacao(t *testing.T) {
 	}
 }
 
-func TestServicoAvaliacao_BuscarEstatisticasFaxineiro(t *testing.T) {
+func TestServicoAvaliacao_BuscarEstatisticasProfissional(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
 	svc, _, _, _ := setupServicoAvaliacao(t)
 	_, _ = svc.CriarAvaliacao(ctx, 2, 1, 5, "")
 
-	agg, err := svc.BuscarEstatisticasFaxineiro(ctx, 1)
+	agg, err := svc.BuscarEstatisticasProfissional(ctx, 1)
 	if err != nil {
-		t.Fatalf("BuscarEstatisticasFaxineiro() unexpected error: %v", err)
+		t.Fatalf("BuscarEstatisticasProfissional() unexpected error: %v", err)
 	}
 	if agg.TotalAvaliacoes != 1 {
 		t.Errorf("TotalAvaliacoes = %d; want 1", agg.TotalAvaliacoes)
@@ -178,16 +178,16 @@ func TestServicoAvaliacao_BuscarEstatisticasFaxineiro(t *testing.T) {
 	}
 }
 
-func TestServicoAvaliacao_ListarAvaliacoesPorFaxineiro(t *testing.T) {
+func TestServicoAvaliacao_ListarAvaliacoesPorProfissional(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
 	svc, _, _, _ := setupServicoAvaliacao(t)
 	_, _ = svc.CriarAvaliacao(ctx, 2, 1, 4, "Bom")
 
-	lista, err := svc.ListarAvaliacoesPorFaxineiro(ctx, 1)
+	lista, err := svc.ListarAvaliacoesPorProfissional(ctx, 1)
 	if err != nil {
-		t.Fatalf("ListarAvaliacoesPorFaxineiro() unexpected error: %v", err)
+		t.Fatalf("ListarAvaliacoesPorProfissional() unexpected error: %v", err)
 	}
 	if len(lista) != 1 {
 		t.Errorf("len(lista) = %d; want 1", len(lista))

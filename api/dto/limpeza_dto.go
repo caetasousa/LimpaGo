@@ -29,7 +29,7 @@ type RespostaLimpeza struct {
 	DuracaoEstimada float64 `json:"duracao_estimada"`
 	TipoLimpeza     string  `json:"tipo_limpeza"`
 	PrecoTotal      float64 `json:"preco_total"`
-	FaxineiroID     int     `json:"faxineiro_id"`
+	ProfissionalID     int     `json:"profissional_id"`
 }
 
 // DeLimpeza converte uma entidade Limpeza para RespostaLimpeza.
@@ -42,7 +42,7 @@ func DeLimpeza(l *entity.Limpeza) RespostaLimpeza {
 		DuracaoEstimada: l.DuracaoEstimada,
 		TipoLimpeza:     string(l.TipoLimpeza),
 		PrecoTotal:      l.PrecoTotal(),
-		FaxineiroID:     l.FaxineiroID,
+		ProfissionalID:     l.ProfissionalID,
 	}
 }
 

@@ -118,25 +118,25 @@ func TestNovoUsuario(t *testing.T) {
 	}
 }
 
-func TestUsuario_EFaxineiro(t *testing.T) {
+func TestUsuario_EProfissional(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name            string
-		perfilFaxineiro *PerfilFaxineiro
-		want            bool
+		name               string
+		perfilProfissional *PerfilProfissional
+		want               bool
 	}{
-		{"com perfil faxineiro", &PerfilFaxineiro{}, true},
-		{"sem perfil faxineiro", nil, false},
+		{"com perfil profissional", &PerfilProfissional{}, true},
+		{"sem perfil profissional", nil, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			u := &Usuario{PerfilFaxineiro: tt.perfilFaxineiro}
-			got := u.EFaxineiro()
+			u := &Usuario{PerfilProfissional: tt.perfilProfissional}
+			got := u.EProfissional()
 			if got != tt.want {
-				t.Errorf("EFaxineiro() = %v; want %v", got, tt.want)
+				t.Errorf("EProfissional() = %v; want %v", got, tt.want)
 			}
 		})
 	}

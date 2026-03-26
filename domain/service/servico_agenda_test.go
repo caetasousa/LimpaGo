@@ -190,7 +190,7 @@ func TestServicoAgenda_RemoverBloqueioPessoal(t *testing.T) {
 			wantErrIs: errosdominio.ErrBloqueioNaoEncontrado,
 		},
 		{
-			name: "outro faxineiro",
+			name: "outro profissional",
 			setup: func(svc *service.ServicoAgenda) int {
 				futuro := time.Now().Add(48 * time.Hour)
 				b, _ := svc.CriarBloqueioPessoal(ctx, 1, futuro, futuro.Add(3*time.Hour))
@@ -198,7 +198,7 @@ func TestServicoAgenda_RemoverBloqueioPessoal(t *testing.T) {
 			},
 			faxID:     999,
 			wantErr:   true,
-			wantErrIs: errosdominio.ErrNaoEFaxineiroDoBloqueio,
+			wantErrIs: errosdominio.ErrNaoEProfissionalDoBloqueio,
 		},
 		{
 			name: "bloqueio de servico",

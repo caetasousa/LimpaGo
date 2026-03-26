@@ -11,7 +11,7 @@ CREATE TABLE perfis_cliente (
     banheiros              INT                NOT NULL DEFAULT 0,
     tamanho_imovel_m2      DOUBLE PRECISION   NOT NULL DEFAULT 0,
     observacoes            TEXT               NOT NULL DEFAULT '',
-    faxineiro_preferido_id INT REFERENCES usuarios(id) ON DELETE SET NULL,
+    profissional_preferido_id INT REFERENCES usuarios(id) ON DELETE SET NULL,
     criado_em              TIMESTAMPTZ        NOT NULL DEFAULT NOW(),
     atualizado_em          TIMESTAMPTZ        NOT NULL DEFAULT NOW()
 );

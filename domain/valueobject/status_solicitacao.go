@@ -27,8 +27,8 @@ func (s StatusSolicitacao) PodeSerCanceladaPeloCliente() bool {
 	return s == StatusSolicitacaoPendente || s == StatusSolicitacaoAceita
 }
 
-// PodeSerRejeitadaPeloFaxineiro retorna true se o faxineiro pode rejeitar a solicitação.
+// PodeSerRejeitadaPeloProfissional retorna true se o profissional pode rejeitar a solicitação.
 // Apenas solicitações pendentes podem ser rejeitadas.
-func (s StatusSolicitacao) PodeSerRejeitadaPeloFaxineiro() bool {
+func (s StatusSolicitacao) PodeSerRejeitadaPeloProfissional() bool {
 	return s == StatusSolicitacaoPendente
 }

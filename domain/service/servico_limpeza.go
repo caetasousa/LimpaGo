@@ -16,9 +16,9 @@ func NovoServicoLimpeza(limpezas repository.RepositorioLimpeza) *ServicoLimpeza 
 	return &ServicoLimpeza{limpezas: limpezas}
 }
 
-// Criar permite que um faxineiro publique um novo serviço de limpeza com valor por hora e duração estimada.
-func (s *ServicoLimpeza) Criar(ctx context.Context, faxineiroID int, nome, descricao string, valorHora, duracaoEstimada float64, tipoLimpeza valueobject.TipoLimpeza) (*entity.Limpeza, error) {
-	limpeza, err := entity.NovaLimpeza(faxineiroID, nome, valorHora, duracaoEstimada, tipoLimpeza)
+// Criar permite que um profissional publique um novo serviço de limpeza com valor por hora e duração estimada.
+func (s *ServicoLimpeza) Criar(ctx context.Context, profissionalID int, nome, descricao string, valorHora, duracaoEstimada float64, tipoLimpeza valueobject.TipoLimpeza) (*entity.Limpeza, error) {
+	limpeza, err := entity.NovaLimpeza(profissionalID, nome, valorHora, duracaoEstimada, tipoLimpeza)
 	if err != nil {
 		return nil, err
 	}
@@ -30,14 +30,14 @@ func (s *ServicoLimpeza) Criar(ctx context.Context, faxineiroID int, nome, descr
 	return limpeza, nil
 }
 
-// Atualizar permite que o faxineiro atualize seu serviço publicado.
-func (s *ServicoLimpeza) Atualizar(ctx context.Context, limpezaID, faxineiroID int, nome, descricao string, valorHora, duracaoEstimada float64, tipoLimpeza valueobject.TipoLimpeza) (*entity.Limpeza, error) {
+// Atualizar permite que o profissional atualize seu serviço publicado.
+func (s *ServicoLimpeza) Atualizar(ctx context.Context, limpezaID, profissionalID int, nome, descricao string, valorHora, duracaoEstimada float64, tipoLimpeza valueobject.TipoLimpeza) (*entity.Limpeza, error) {
 	limpeza, err := s.limpezas.BuscarPorID(ctx, limpezaID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := limpeza.VerificarPropriedade(faxineiroID); err != nil {
+	if err := limpeza.VerificarPropriedade(profissionalID); err != nil {
 		return nil, err
 	}
 
@@ -65,13 +65,13 @@ func (s *ServicoLimpeza) Atualizar(ctx context.Context, limpezaID, faxineiroID i
 	return limpeza, nil
 }
 
-// Deletar permite que o faxineiro remova seu serviço publicado.
-func (s *ServicoLimpeza) Deletar(ctx context.Context, limpezaID, faxineiroID int) error {
+// Deletar permite que o profissional remova seu serviço publicado.
+func (s *ServicoLimpeza) Deletar(ctx context.Context, limpezaID, profissionalID int) error {
 	limpeza, err := s.limpezas.BuscarPorID(ctx, limpezaID)
 	if err != nil {
 		return err
 	}
-	if err := limpeza.VerificarPropriedade(faxineiroID); err != nil {
+	if err := limpeza.VerificarPropriedade(profissionalID); err != nil {
 		return err
 	}
 	return s.limpezas.Deletar(ctx, limpezaID)
@@ -81,9 +81,9 @@ func (s *ServicoLimpeza) BuscarPorID(ctx context.Context, id int) (*entity.Limpe
 	return s.limpezas.BuscarPorID(ctx, id)
 }
 
-// ListarPorFaxineiro retorna todos os serviços publicados por um faxineiro.
-func (s *ServicoLimpeza) ListarPorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Limpeza, error) {
-	return s.limpezas.ListarPorFaxineiro(ctx, faxineiroID)
+// ListarPorProfissional retorna todos os serviços publicados por um profissional.
+func (s *ServicoLimpeza) ListarPorProfissional(ctx context.Context, profissionalID int) ([]*entity.Limpeza, error) {
+	return s.limpezas.ListarPorProfissional(ctx, profissionalID)
 }
 
 // ListarCatalogo retorna todos os serviços disponíveis para os clientes navegarem.

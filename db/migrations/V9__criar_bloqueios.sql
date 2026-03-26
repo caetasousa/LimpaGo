@@ -1,6 +1,6 @@
 CREATE TABLE bloqueios (
     id             SERIAL PRIMARY KEY,
-    faxineiro_id   INT         NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    profissional_id   INT         NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     solicitacao_id INT REFERENCES solicitacoes(id) ON DELETE SET NULL,
     data_inicio    TIMESTAMPTZ NOT NULL,
     data_fim       TIMESTAMPTZ NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE bloqueios (
     CHECK (data_fim > data_inicio)
 );
 
-CREATE INDEX idx_bloqueios_faxineiro ON bloqueios(faxineiro_id);
-CREATE INDEX idx_bloqueios_faxineiro_periodo ON bloqueios(faxineiro_id, data_inicio, data_fim);
+CREATE INDEX idx_bloqueios_profissional ON bloqueios(profissional_id);
+CREATE INDEX idx_bloqueios_profissional_periodo ON bloqueios(profissional_id, data_inicio, data_fim);
 CREATE INDEX idx_bloqueios_solicitacao ON bloqueios(solicitacao_id)
     WHERE solicitacao_id IS NOT NULL;

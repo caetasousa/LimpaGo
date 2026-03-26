@@ -6,7 +6,7 @@ import (
 	"limpaGo/domain/valueobject"
 )
 
-// ItemFeed representa um evento de atividade no feed — como serviços publicados ou atualizados por faxineiros.
+// ItemFeed representa um evento de atividade no feed — como serviços publicados ou atualizados por profissionais.
 type ItemFeed struct {
 	Limpeza     *Limpeza
 	TipoEvento  valueobject.TipoEventoFeed

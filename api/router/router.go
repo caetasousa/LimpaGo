@@ -66,9 +66,9 @@ func Novo(d Dependencias) http.Handler {
 
 			r.Get("/usuarios/eu/perfil", d.Usuario.BuscarMeuPerfil)
 			r.Put("/usuarios/eu/perfil", d.Usuario.AtualizarMeuPerfil)
-			r.Post("/usuarios/eu/perfil-faxineiro", d.Usuario.CriarPerfilFaxineiro)
-			r.Get("/usuarios/eu/perfil-faxineiro", d.Usuario.BuscarPerfilFaxineiro)
-			r.Put("/usuarios/eu/perfil-faxineiro", d.Usuario.AtualizarPerfilFaxineiro)
+			r.Post("/usuarios/eu/perfil-profissional", d.Usuario.CriarPerfilProfissional)
+			r.Get("/usuarios/eu/perfil-profissional", d.Usuario.BuscarPerfilProfissional)
+			r.Put("/usuarios/eu/perfil-profissional", d.Usuario.AtualizarPerfilProfissional)
 			r.Post("/usuarios/eu/perfil-cliente", d.Usuario.CriarPerfilCliente)
 			r.Get("/usuarios/eu/perfil-cliente", d.Usuario.BuscarPerfilCliente)
 			r.Put("/usuarios/eu/perfil-cliente", d.Usuario.AtualizarPerfilCliente)
@@ -113,8 +113,8 @@ func Novo(d Dependencias) http.Handler {
 		})
 
 		// Avaliações (público)
-		r.Get("/faxineiros/{faxineiro_id}/avaliacoes", d.Avaliacao.ListarAvaliacoes)
-		r.Get("/faxineiros/{faxineiro_id}/estatisticas", d.Avaliacao.BuscarEstatisticas)
+		r.Get("/profissionais/{profissional_id}/avaliacoes", d.Avaliacao.ListarAvaliacoes)
+		r.Get("/profissionais/{profissional_id}/estatisticas", d.Avaliacao.BuscarEstatisticas)
 
 		// Avaliações (autenticado)
 		r.Group(func(r chi.Router) {

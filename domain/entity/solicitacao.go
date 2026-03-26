@@ -29,9 +29,9 @@ type Solicitacao struct {
 }
 
 func NovaSolicitacao(clienteID, limpezaID int, limpeza *Limpeza, dataAgendada time.Time) (*Solicitacao, error) {
-	// Faxineiro não pode solicitar o próprio serviço
+	// Profissional não pode solicitar o próprio serviço
 	if limpeza.EPublicadoPor(clienteID) {
-		return nil, errosdominio.ErrFaxineiroNaoPodeSolicitarProprio
+		return nil, errosdominio.ErrProfissionalNaoPodeSolicitarProprio
 	}
 
 	if dataAgendada.Before(time.Now()) {
@@ -62,7 +62,7 @@ func (s *Solicitacao) DefinirEnderecoDoCliente(perfil *PerfilCliente) {
 	s.Endereco = perfil.Endereco
 }
 
-// Aceitar define esta solicitação como aceita pelo faxineiro.
+// Aceitar define esta solicitação como aceita pelo profissional.
 // Apenas solicitações pendentes podem ser aceitas.
 func (s *Solicitacao) Aceitar() error {
 	if s.Status != valueobject.StatusSolicitacaoPendente {
@@ -72,9 +72,9 @@ func (s *Solicitacao) Aceitar() error {
 	return nil
 }
 
-// Rejeitar define esta solicitação como rejeitada pelo faxineiro.
+// Rejeitar define esta solicitação como rejeitada pelo profissional.
 func (s *Solicitacao) Rejeitar() error {
-	if !s.Status.PodeSerRejeitadaPeloFaxineiro() {
+	if !s.Status.PodeSerRejeitadaPeloProfissional() {
 		return errosdominio.ErrSolicitacaoNaoPodeSerRejeitada
 	}
 	s.Status = valueobject.StatusSolicitacaoRejeitada

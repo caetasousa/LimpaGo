@@ -22,7 +22,7 @@ func (r *RepositorioFeedPG) BuscarPaginaFeed(ctx context.Context, pagina, tamanh
 	offset := (pagina - 1) * tamanhoPagina
 
 	q := `SELECT
-	          id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, faxineiro_id,
+	          id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, profissional_id,
 	          criado_em, atualizado_em,
 	          CASE WHEN criado_em = atualizado_em THEN 'criacao' ELSE 'atualizacao' END AS tipo_evento,
 	          ROW_NUMBER() OVER (ORDER BY atualizado_em DESC) AS numero_linha,
@@ -48,7 +48,7 @@ func (r *RepositorioFeedPG) BuscarPaginaFeed(ctx context.Context, pagina, tamanh
 		var numeroLinha, totalItens int
 
 		if err := rows.Scan(
-			&l.ID, &l.Nome, &l.Descricao, &l.ValorHora, &l.DuracaoEstimada, &tipoLimpeza, &l.FaxineiroID,
+			&l.ID, &l.Nome, &l.Descricao, &l.ValorHora, &l.DuracaoEstimada, &tipoLimpeza, &l.ProfissionalID,
 			&l.CriadoEm, &l.AtualizadoEm,
 			&tipoEvento, &numeroLinha, &totalItens,
 		); err != nil {

@@ -15,8 +15,8 @@ func TestNovaAvaliacao(t *testing.T) {
 	if a.LimpezaID != 10 {
 		t.Errorf("LimpezaID = %d; want 10", a.LimpezaID)
 	}
-	if a.FaxineiroID != 1 {
-		t.Errorf("FaxineiroID = %d; want 1", a.FaxineiroID)
+	if a.ProfissionalID != 1 {
+		t.Errorf("ProfissionalID = %d; want 1", a.ProfissionalID)
 	}
 	if a.ClienteID != 2 {
 		t.Errorf("ClienteID = %d; want 2", a.ClienteID)

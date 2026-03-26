@@ -1,4 +1,4 @@
-CREATE TABLE perfis_faxineiro (
+CREATE TABLE perfis_profissional (
     usuario_id        INT PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
     descricao         TEXT         NOT NULL DEFAULT '',
     anos_experiencia  INT          NOT NULL DEFAULT 0,

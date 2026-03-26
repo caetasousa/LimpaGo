@@ -16,7 +16,7 @@ type Usuario struct {
 	Ativo            bool
 	SuperUsuario     bool
 	Perfil           *Perfil
-	PerfilFaxineiro  *PerfilFaxineiro
+	PerfilProfissional  *PerfilProfissional
 	PerfilCliente    *PerfilCliente
 	CriadoEm        time.Time
 	AtualizadoEm    time.Time
@@ -40,9 +40,9 @@ func NovoUsuario(email, nomeUsuario string) (*Usuario, error) {
 	}, nil
 }
 
-// EFaxineiro retorna true se o usuário possui um perfil de faxineiro.
-func (u *Usuario) EFaxineiro() bool {
-	return u.PerfilFaxineiro != nil
+// EProfissional retorna true se o usuário possui um perfil de profissional.
+func (u *Usuario) EProfissional() bool {
+	return u.PerfilProfissional != nil
 }
 
 // ECliente retorna true se o usuário possui um perfil de cliente.

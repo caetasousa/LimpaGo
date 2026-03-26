@@ -107,7 +107,7 @@ func TestServicoUsuario_Registrar(t *testing.T) {
 	}
 }
 
-func TestServicoUsuario_CriarPerfilFaxineiro(t *testing.T) {
+func TestServicoUsuario_CriarPerfilProfissional(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
@@ -115,9 +115,9 @@ func TestServicoUsuario_CriarPerfilFaxineiro(t *testing.T) {
 		t.Parallel()
 		svc, _, _ := setupServicoUsuario(t)
 
-		perfil, err := svc.CriarPerfilFaxineiro(ctx, 1)
+		perfil, err := svc.CriarPerfilProfissional(ctx, 1)
 		if err != nil {
-			t.Fatalf("CriarPerfilFaxineiro() unexpected error: %v", err)
+			t.Fatalf("CriarPerfilProfissional() unexpected error: %v", err)
 		}
 		if perfil.UsuarioID != 1 {
 			t.Errorf("UsuarioID = %d; want 1", perfil.UsuarioID)
@@ -127,11 +127,11 @@ func TestServicoUsuario_CriarPerfilFaxineiro(t *testing.T) {
 	t.Run("duplicado", func(t *testing.T) {
 		t.Parallel()
 		svc, _, _ := setupServicoUsuario(t)
-		_, _ = svc.CriarPerfilFaxineiro(ctx, 1)
+		_, _ = svc.CriarPerfilProfissional(ctx, 1)
 
-		_, err := svc.CriarPerfilFaxineiro(ctx, 1)
-		if !errors.Is(err, errosdominio.ErrPerfilFaxineiroJaExiste) {
-			t.Errorf("error = %v; want ErrPerfilFaxineiroJaExiste", err)
+		_, err := svc.CriarPerfilProfissional(ctx, 1)
+		if !errors.Is(err, errosdominio.ErrPerfilProfissionalJaExiste) {
+			t.Errorf("error = %v; want ErrPerfilProfissionalJaExiste", err)
 		}
 	})
 }
@@ -184,18 +184,18 @@ func TestServicoUsuario_AtualizarPerfil(t *testing.T) {
 	}
 }
 
-func TestServicoUsuario_AtualizarPerfilFaxineiro(t *testing.T) {
+func TestServicoUsuario_AtualizarPerfilProfissional(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
 	t.Run("atualiza dados profissionais", func(t *testing.T) {
 		t.Parallel()
 		svc, _, _ := setupServicoUsuario(t)
-		_, _ = svc.CriarPerfilFaxineiro(ctx, 1)
+		_, _ = svc.CriarPerfilProfissional(ctx, 1)
 
-		p, err := svc.AtualizarPerfilFaxineiro(ctx, 1, "Profissional experiente", 5, []string{"limpeza_padrao"}, []string{"São Paulo"})
+		p, err := svc.AtualizarPerfilProfissional(ctx, 1, "Profissional experiente", 5, []string{"limpeza_padrao"}, []string{"São Paulo"})
 		if err != nil {
-			t.Fatalf("AtualizarPerfilFaxineiro() unexpected error: %v", err)
+			t.Fatalf("AtualizarPerfilProfissional() unexpected error: %v", err)
 		}
 		if p.Descricao != "Profissional experiente" {
 			t.Errorf("Descricao = %q; want %q", p.Descricao, "Profissional experiente")
@@ -209,9 +209,9 @@ func TestServicoUsuario_AtualizarPerfilFaxineiro(t *testing.T) {
 		t.Parallel()
 		svc, _, _ := setupServicoUsuario(t)
 
-		_, err := svc.AtualizarPerfilFaxineiro(ctx, 999, "desc", 1, nil, nil)
-		if !errors.Is(err, errosdominio.ErrPerfilFaxineiroNaoEncontrado) {
-			t.Errorf("error = %v; want ErrPerfilFaxineiroNaoEncontrado", err)
+		_, err := svc.AtualizarPerfilProfissional(ctx, 999, "desc", 1, nil, nil)
+		if !errors.Is(err, errosdominio.ErrPerfilProfissionalNaoEncontrado) {
+			t.Errorf("error = %v; want ErrPerfilProfissionalNaoEncontrado", err)
 		}
 	})
 }

@@ -240,10 +240,10 @@ func TestRenovarToken_token_invalido_retorna_401(t *testing.T) {
 
 // --- Testes de Limpeza (Serviço de Limpeza) ---
 
-func TestCriarLimpeza_faxineiro_publica_servico_retorna_201(t *testing.T) {
+func TestCriarLimpeza_profissional_publica_servico_retorna_201(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "fax@email.com", "faxineiro1")
+	usuario, _ := amb.registrarUsuario(t, "fax@email.com", "profissional1")
 
 	body := dto.RequisicaoCriarLimpeza{
 		Nome: "Limpeza Residencial", Descricao: "Limpeza completa",
@@ -333,7 +333,7 @@ func TestBuscarLimpeza_inexistente_retorna_404(t *testing.T) {
 	}
 }
 
-func TestDeletarLimpeza_faxineiro_remove_seu_servico(t *testing.T) {
+func TestDeletarLimpeza_profissional_remove_seu_servico(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	usuario, _ := amb.registrarUsuario(t, "del@email.com", "deletar")
@@ -351,10 +351,10 @@ func TestDeletarLimpeza_faxineiro_remove_seu_servico(t *testing.T) {
 	}
 }
 
-func TestListarMinhasLimpezas_faxineiro_ve_seus_servicos(t *testing.T) {
+func TestListarMinhasLimpezas_profissional_ve_seus_servicos(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
-	usuario, _ := amb.registrarUsuario(t, "fax2@email.com", "faxineiro2")
+	usuario, _ := amb.registrarUsuario(t, "fax2@email.com", "profissional2")
 	_, _ = amb.svcLimpeza.Criar(context.Background(), usuario.ID, "Minha Limpeza", "desc", 30.0, 2.0, valueobject.TipoLimpezaPadrao)
 
 	req := httptest.NewRequest(http.MethodGet, "/usuarios/eu/limpezas", nil)
@@ -424,16 +424,16 @@ func TestAtualizarPerfil_usuario_atualiza_nome_e_telefone(t *testing.T) {
 	}
 }
 
-func TestCriarPerfilFaxineiro_usuario_se_torna_faxineiro(t *testing.T) {
+func TestCriarPerfilProfissional_usuario_se_torna_profissional(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	usuario, _ := amb.registrarUsuario(t, "faxp@email.com", "faxprof")
 
-	req := httptest.NewRequest(http.MethodPost, "/usuarios/eu/perfil-faxineiro", nil)
+	req := httptest.NewRequest(http.MethodPost, "/usuarios/eu/perfil-profissional", nil)
 	req = reqComContextoUsuario(req, usuario.ID)
 	rec := httptest.NewRecorder()
 
-	amb.handlerUsuario.CriarPerfilFaxineiro(rec, req)
+	amb.handlerUsuario.CriarPerfilProfissional(rec, req)
 
 	if rec.Code != http.StatusCreated {
 		t.Errorf("got %d; want %d", rec.Code, http.StatusCreated)
@@ -458,7 +458,7 @@ func TestCriarPerfilCliente_usuario_se_torna_cliente(t *testing.T) {
 
 // --- Testes de Agenda ---
 
-func TestAdicionarDisponibilidade_faxineiro_define_horario(t *testing.T) {
+func TestAdicionarDisponibilidade_profissional_define_horario(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	usuario, _ := amb.registrarUsuario(t, "ag@email.com", "aguser")
@@ -475,7 +475,7 @@ func TestAdicionarDisponibilidade_faxineiro_define_horario(t *testing.T) {
 	}
 }
 
-func TestListarDisponibilidade_faxineiro_ve_seus_horarios(t *testing.T) {
+func TestListarDisponibilidade_profissional_ve_seus_horarios(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	usuario, _ := amb.registrarUsuario(t, "ld@email.com", "lduser")
@@ -492,7 +492,7 @@ func TestListarDisponibilidade_faxineiro_ve_seus_horarios(t *testing.T) {
 	}
 }
 
-func TestCriarBloqueioPessoal_faxineiro_bloqueia_horario(t *testing.T) {
+func TestCriarBloqueioPessoal_profissional_bloqueia_horario(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	usuario, _ := amb.registrarUsuario(t, "bl@email.com", "bluser")
@@ -512,7 +512,7 @@ func TestCriarBloqueioPessoal_faxineiro_bloqueia_horario(t *testing.T) {
 	}
 }
 
-func TestListarBloqueios_faxineiro_ve_seus_bloqueios(t *testing.T) {
+func TestListarBloqueios_profissional_ve_seus_bloqueios(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	usuario, _ := amb.registrarUsuario(t, "lb@email.com", "lbuser")
@@ -547,12 +547,12 @@ func TestBuscarFeed_retorna_pagina_de_atividades(t *testing.T) {
 
 // --- Testes de Avaliação ---
 
-func TestListarAvaliacoes_de_faxineiro_retorna_200(t *testing.T) {
+func TestListarAvaliacoes_de_profissional_retorna_200(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/faxineiros/1/avaliacoes", nil)
-	req = reqComChiParams(req, map[string]string{"faxineiro_id": "1"})
+	req := httptest.NewRequest(http.MethodGet, "/profissionais/1/avaliacoes", nil)
+	req = reqComChiParams(req, map[string]string{"profissional_id": "1"})
 	rec := httptest.NewRecorder()
 
 	amb.handlerAvaliacao.ListarAvaliacoes(rec, req)
@@ -562,12 +562,12 @@ func TestListarAvaliacoes_de_faxineiro_retorna_200(t *testing.T) {
 	}
 }
 
-func TestBuscarEstatisticas_de_faxineiro_retorna_200(t *testing.T) {
+func TestBuscarEstatisticas_de_profissional_retorna_200(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/faxineiros/1/estatisticas", nil)
-	req = reqComChiParams(req, map[string]string{"faxineiro_id": "1"})
+	req := httptest.NewRequest(http.MethodGet, "/profissionais/1/estatisticas", nil)
+	req = reqComChiParams(req, map[string]string{"profissional_id": "1"})
 	rec := httptest.NewRecorder()
 
 	amb.handlerAvaliacao.BuscarEstatisticas(rec, req)

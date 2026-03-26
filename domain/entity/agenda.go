@@ -6,10 +6,10 @@ import (
 	errosdominio "limpaGo/domain/errors"
 )
 
-// Disponibilidade representa um bloco de horário disponível na agenda do faxineiro.
+// Disponibilidade representa um bloco de horário disponível na agenda do profissional.
 type Disponibilidade struct {
 	ID           int
-	FaxineiroID  int
+	ProfissionalID  int
 	DiaSemana    time.Weekday // 0=Domingo, 1=Segunda, ..., 6=Sábado
 	HoraInicio   int          // hora de início (0-23)
 	HoraFim      int          // hora de fim (1-24)
@@ -17,7 +17,7 @@ type Disponibilidade struct {
 	AtualizadoEm time.Time
 }
 
-func NovaDisponibilidade(faxineiroID int, diaSemana time.Weekday, horaInicio, horaFim int) (*Disponibilidade, error) {
+func NovaDisponibilidade(profissionalID int, diaSemana time.Weekday, horaInicio, horaFim int) (*Disponibilidade, error) {
 	if horaInicio < 0 || horaInicio > 23 {
 		return nil, &ErroValidacao{Campo: "hora_inicio", Mensagem: "hora de início deve estar entre 0 e 23"}
 	}
@@ -29,7 +29,7 @@ func NovaDisponibilidade(faxineiroID int, diaSemana time.Weekday, horaInicio, ho
 	}
 
 	return &Disponibilidade{
-		FaxineiroID: faxineiroID,
+		ProfissionalID: profissionalID,
 		DiaSemana:   diaSemana,
 		HoraInicio:  horaInicio,
 		HoraFim:     horaFim,
@@ -41,12 +41,12 @@ func (d *Disponibilidade) DuracaoHoras() int {
 	return d.HoraFim - d.HoraInicio
 }
 
-// Bloqueio representa um horário ocupado na agenda do faxineiro.
-// Pode ser gerado por uma solicitação aceita ou pelo próprio faxineiro.
+// Bloqueio representa um horário ocupado na agenda do profissional.
+// Pode ser gerado por uma solicitação aceita ou pelo próprio profissional.
 type Bloqueio struct {
 	ID            int
-	FaxineiroID   int
-	SolicitacaoID *int // nil = bloqueio pessoal do faxineiro, preenchido = serviço agendado
+	ProfissionalID   int
+	SolicitacaoID *int // nil = bloqueio pessoal do profissional, preenchido = serviço agendado
 	DataInicio    time.Time
 	DataFim       time.Time
 	CriadoEm      time.Time
@@ -58,27 +58,27 @@ func (b *Bloqueio) EPessoal() bool {
 }
 
 // NovoBloqueioServico cria um bloqueio gerado pela aceitação de uma solicitação.
-func NovoBloqueioServico(faxineiroID, solicitacaoID int, dataInicio, dataFim time.Time) (*Bloqueio, error) {
+func NovoBloqueioServico(profissionalID, solicitacaoID int, dataInicio, dataFim time.Time) (*Bloqueio, error) {
 	if err := validarPeriodoBloqueio(dataInicio, dataFim); err != nil {
 		return nil, err
 	}
 
 	return &Bloqueio{
-		FaxineiroID:   faxineiroID,
+		ProfissionalID:   profissionalID,
 		SolicitacaoID: &solicitacaoID,
 		DataInicio:    dataInicio,
 		DataFim:       dataFim,
 	}, nil
 }
 
-// NovoBloqueiopessoal cria um bloqueio pessoal do faxineiro (ex: consulta médica, dentista, folga).
-func NovoBloqueiopessoal(faxineiroID int, dataInicio, dataFim time.Time) (*Bloqueio, error) {
+// NovoBloqueiopessoal cria um bloqueio pessoal do profissional (ex: consulta médica, dentista, folga).
+func NovoBloqueiopessoal(profissionalID int, dataInicio, dataFim time.Time) (*Bloqueio, error) {
 	if err := validarPeriodoBloqueio(dataInicio, dataFim); err != nil {
 		return nil, err
 	}
 
 	return &Bloqueio{
-		FaxineiroID: faxineiroID,
+		ProfissionalID: profissionalID,
 		DataInicio:  dataInicio,
 		DataFim:     dataFim,
 	}, nil

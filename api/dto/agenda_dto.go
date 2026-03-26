@@ -16,7 +16,7 @@ type RequisicaoDisponibilidade struct {
 // RespostaDisponibilidade representa uma disponibilidade na resposta da API.
 type RespostaDisponibilidade struct {
 	ID          int `json:"id"`
-	FaxineiroID int `json:"faxineiro_id"`
+	ProfissionalID int `json:"profissional_id"`
 	DiaSemana   int `json:"dia_semana"`
 	HoraInicio  int `json:"hora_inicio"`
 	HoraFim     int `json:"hora_fim"`
@@ -26,7 +26,7 @@ type RespostaDisponibilidade struct {
 func DeDisponibilidade(d *entity.Disponibilidade) RespostaDisponibilidade {
 	return RespostaDisponibilidade{
 		ID:          d.ID,
-		FaxineiroID: d.FaxineiroID,
+		ProfissionalID: d.ProfissionalID,
 		DiaSemana:   int(d.DiaSemana),
 		HoraInicio:  d.HoraInicio,
 		HoraFim:     d.HoraFim,
@@ -51,7 +51,7 @@ type RequisicaoBloqueio struct {
 // RespostaBloqueio representa um bloqueio na resposta da API.
 type RespostaBloqueio struct {
 	ID            int        `json:"id"`
-	FaxineiroID   int        `json:"faxineiro_id"`
+	ProfissionalID   int        `json:"profissional_id"`
 	SolicitacaoID *int       `json:"solicitacao_id,omitempty"`
 	DataInicio    time.Time  `json:"data_inicio"`
 	DataFim       time.Time  `json:"data_fim"`
@@ -62,7 +62,7 @@ type RespostaBloqueio struct {
 func DeBloqueio(b *entity.Bloqueio) RespostaBloqueio {
 	return RespostaBloqueio{
 		ID:            b.ID,
-		FaxineiroID:   b.FaxineiroID,
+		ProfissionalID:   b.ProfissionalID,
 		SolicitacaoID: b.SolicitacaoID,
 		DataInicio:    b.DataInicio,
 		DataFim:       b.DataFim,

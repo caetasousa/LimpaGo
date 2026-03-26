@@ -71,76 +71,76 @@ func (h *HandlerUsuario) AtualizarMeuPerfil(w http.ResponseWriter, r *http.Reque
 	escreverJSON(w, http.StatusOK, dto.DePerfil(perfil))
 }
 
-// CriarPerfilFaxineiro godoc
-// @Summary Criar perfil de faxineiro para o usuário autenticado
+// CriarPerfilProfissional godoc
+// @Summary Criar perfil de profissional para o usuário autenticado
 // @Tags usuarios
 // @Produce json
 // @Security BearerAuth
-// @Success 201 {object} dto.RespostaPerfilFaxineiro
+// @Success 201 {object} dto.RespostaPerfilProfissional
 // @Failure 409 {object} dto.RespostaErro
-// @Router /usuarios/eu/perfil-faxineiro [post]
-func (h *HandlerUsuario) CriarPerfilFaxineiro(w http.ResponseWriter, r *http.Request) {
+// @Router /usuarios/eu/perfil-profissional [post]
+func (h *HandlerUsuario) CriarPerfilProfissional(w http.ResponseWriter, r *http.Request) {
 	usuarioID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
 	}
-	perfil, err := h.servico.CriarPerfilFaxineiro(r.Context(), usuarioID)
+	perfil, err := h.servico.CriarPerfilProfissional(r.Context(), usuarioID)
 	if err != nil {
 		escreverErro(w, err)
 		return
 	}
-	escreverJSON(w, http.StatusCreated, dto.DePerfilFaxineiro(perfil))
+	escreverJSON(w, http.StatusCreated, dto.DePerfilProfissional(perfil))
 }
 
-// BuscarPerfilFaxineiro godoc
-// @Summary Buscar perfil de faxineiro do usuário autenticado
+// BuscarPerfilProfissional godoc
+// @Summary Buscar perfil de profissional do usuário autenticado
 // @Tags usuarios
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} dto.RespostaPerfilFaxineiro
+// @Success 200 {object} dto.RespostaPerfilProfissional
 // @Failure 404 {object} dto.RespostaErro
-// @Router /usuarios/eu/perfil-faxineiro [get]
-func (h *HandlerUsuario) BuscarPerfilFaxineiro(w http.ResponseWriter, r *http.Request) {
+// @Router /usuarios/eu/perfil-profissional [get]
+func (h *HandlerUsuario) BuscarPerfilProfissional(w http.ResponseWriter, r *http.Request) {
 	usuarioID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
 	}
-	perfil, err := h.servico.BuscarPerfilFaxineiro(r.Context(), usuarioID)
+	perfil, err := h.servico.BuscarPerfilProfissional(r.Context(), usuarioID)
 	if err != nil {
 		escreverErro(w, err)
 		return
 	}
-	escreverJSON(w, http.StatusOK, dto.DePerfilFaxineiro(perfil))
+	escreverJSON(w, http.StatusOK, dto.DePerfilProfissional(perfil))
 }
 
-// AtualizarPerfilFaxineiro godoc
-// @Summary Atualizar perfil de faxineiro do usuário autenticado
+// AtualizarPerfilProfissional godoc
+// @Summary Atualizar perfil de profissional do usuário autenticado
 // @Tags usuarios
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param body body dto.RequisicaoAtualizarPerfilFaxineiro true "Dados do perfil"
-// @Success 200 {object} dto.RespostaPerfilFaxineiro
-// @Router /usuarios/eu/perfil-faxineiro [put]
-func (h *HandlerUsuario) AtualizarPerfilFaxineiro(w http.ResponseWriter, r *http.Request) {
+// @Param body body dto.RequisicaoAtualizarPerfilProfissional true "Dados do perfil"
+// @Success 200 {object} dto.RespostaPerfilProfissional
+// @Router /usuarios/eu/perfil-profissional [put]
+func (h *HandlerUsuario) AtualizarPerfilProfissional(w http.ResponseWriter, r *http.Request) {
 	usuarioID, ok := middleware.ObterUsuarioID(r.Context())
 	if !ok {
 		escreverJSON(w, http.StatusUnauthorized, dto.NovaRespostaErro(http.StatusUnauthorized, "não autenticado"))
 		return
 	}
-	var req dto.RequisicaoAtualizarPerfilFaxineiro
+	var req dto.RequisicaoAtualizarPerfilProfissional
 	if err := lerJSON(r, &req); err != nil {
 		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "corpo inválido"))
 		return
 	}
-	perfil, err := h.servico.AtualizarPerfilFaxineiro(r.Context(), usuarioID, req.Descricao, req.AnosExperiencia, req.Especialidades, req.CidadesAtendidas)
+	perfil, err := h.servico.AtualizarPerfilProfissional(r.Context(), usuarioID, req.Descricao, req.AnosExperiencia, req.Especialidades, req.CidadesAtendidas)
 	if err != nil {
 		escreverErro(w, err)
 		return
 	}
-	escreverJSON(w, http.StatusOK, dto.DePerfilFaxineiro(perfil))
+	escreverJSON(w, http.StatusOK, dto.DePerfilProfissional(perfil))
 }
 
 // CriarPerfilCliente godoc

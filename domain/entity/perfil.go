@@ -28,9 +28,9 @@ func NovoPerfil(usuarioID int, email, nomeUsuario string) *Perfil {
 	}
 }
 
-// PerfilFaxineiro contém dados profissionais do faxineiro.
+// PerfilProfissional contém dados profissionais do profissional.
 // Criado quando o usuário decide oferecer serviços de limpeza.
-type PerfilFaxineiro struct {
+type PerfilProfissional struct {
 	UsuarioID        int
 	Descricao        string   // apresentação profissional / bio de trabalho
 	AnosExperiencia  int
@@ -45,8 +45,8 @@ type PerfilFaxineiro struct {
 	AtualizadoEm  time.Time
 }
 
-func NovoPerfilFaxineiro(usuarioID int) *PerfilFaxineiro {
-	return &PerfilFaxineiro{
+func NovoPerfilProfissional(usuarioID int) *PerfilProfissional {
+	return &PerfilProfissional{
 		UsuarioID: usuarioID,
 	}
 }
@@ -62,7 +62,7 @@ type PerfilCliente struct {
 	TamanhoImovelM2 float64 // tamanho do imóvel em metros quadrados
 	Observacoes     string  // ex: "tem animais de estimação", "portaria 24h"
 	// Profissional preferido
-	FaxineiroPreferidoID *int // ID do faxineiro preferido (opcional)
+	ProfissionalPreferidoID *int // ID do profissional preferido (opcional)
 	CriadoEm             time.Time
 	AtualizadoEm         time.Time
 }

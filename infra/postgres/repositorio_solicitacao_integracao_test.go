@@ -20,9 +20,9 @@ func TestSolicitacao_ClienteSolicitaServicoComEnderecoEDataAgendada(t *testing.T
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "faxs@sol.com", "faxsol")
+	profissionalID := inserirUsuario(t, db, "faxs@sol.com", "faxsol")
 	clienteID := inserirUsuario(t, db, "clisol@sol.com", "clisol")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico Sol")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico Sol")
 
 	s := &entity.Solicitacao{
 		ClienteID:    clienteID,
@@ -56,9 +56,9 @@ func TestSolicitacao_ConsultarSolicitacaoPorClienteEServico(t *testing.T) {
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax2s@sol.com", "fax2sol")
+	profissionalID := inserirUsuario(t, db, "fax2s@sol.com", "fax2sol")
 	clienteID := inserirUsuario(t, db, "cli2sol@sol.com", "cli2sol")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico2 Sol")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico2 Sol")
 	inserirSolicitacao(t, db, clienteID, limpezaID)
 
 	tests := []struct {
@@ -96,9 +96,9 @@ func TestSolicitacao_VerificarSeSolicitacaoEstaAtivaOuJaFoiCancelada(t *testing.
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax3s@sol.com", "fax3sol")
+	profissionalID := inserirUsuario(t, db, "fax3s@sol.com", "fax3sol")
 	clienteID := inserirUsuario(t, db, "cli3sol@sol.com", "cli3sol")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico3 Sol")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico3 Sol")
 
 	// Inserir solicitação pendente
 	solID := inserirSolicitacao(t, db, clienteID, limpezaID)
@@ -124,15 +124,15 @@ func TestSolicitacao_VerificarSeSolicitacaoEstaAtivaOuJaFoiCancelada(t *testing.
 	})
 }
 
-func TestSolicitacao_FaxineiroAtualizaStatusDaSolicitacao(t *testing.T) {
+func TestSolicitacao_ProfissionalAtualizaStatusDaSolicitacao(t *testing.T) {
 	db := criarBancoTeste(t)
 	t.Cleanup(func() { limparTabelas(t, db) })
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax4s@sol.com", "fax4sol")
+	profissionalID := inserirUsuario(t, db, "fax4s@sol.com", "fax4sol")
 	clienteID := inserirUsuario(t, db, "cli4sol@sol.com", "cli4sol")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico4 Sol")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico4 Sol")
 	solID := inserirSolicitacao(t, db, clienteID, limpezaID)
 
 	s := &entity.Solicitacao{
@@ -153,9 +153,9 @@ func TestSolicitacao_ClienteCancelaSolicitacaoEElaDesaparece(t *testing.T) {
 	repo := postgres.NovoRepositorioSolicitacaoPG(db)
 	ctx := context.Background()
 
-	faxineiroID := inserirUsuario(t, db, "fax5s@sol.com", "fax5sol")
+	profissionalID := inserirUsuario(t, db, "fax5s@sol.com", "fax5sol")
 	clienteID := inserirUsuario(t, db, "cli5sol@sol.com", "cli5sol")
-	limpezaID := inserirLimpeza(t, db, faxineiroID, "Servico5 Sol")
+	limpezaID := inserirLimpeza(t, db, profissionalID, "Servico5 Sol")
 	inserirSolicitacao(t, db, clienteID, limpezaID)
 
 	if err := repo.Deletar(ctx, clienteID, limpezaID); err != nil {

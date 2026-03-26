@@ -28,7 +28,7 @@ const docTemplate = `{
                 "tags": [
                     "agenda"
                 ],
-                "summary": "Listar bloqueios do faxineiro autenticado",
+                "summary": "Listar bloqueios do profissional autenticado",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -157,7 +157,7 @@ const docTemplate = `{
                 "tags": [
                     "agenda"
                 ],
-                "summary": "Listar disponibilidades do faxineiro autenticado",
+                "summary": "Listar disponibilidades do profissional autenticado",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -455,7 +455,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/faxineiros/{faxineiro_id}/avaliacoes": {
+        "/profissionais/{profissional_id}/avaliacoes": {
             "get": {
                 "produces": [
                     "application/json"
@@ -463,12 +463,12 @@ const docTemplate = `{
                 "tags": [
                     "avaliacoes"
                 ],
-                "summary": "Listar avaliações de um faxineiro",
+                "summary": "Listar avaliações de um profissional",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID do faxineiro",
-                        "name": "faxineiro_id",
+                        "description": "ID do profissional",
+                        "name": "profissional_id",
                         "in": "path",
                         "required": true
                     }
@@ -492,7 +492,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/faxineiros/{faxineiro_id}/estatisticas": {
+        "/profissionais/{profissional_id}/estatisticas": {
             "get": {
                 "produces": [
                     "application/json"
@@ -500,12 +500,12 @@ const docTemplate = `{
                 "tags": [
                     "avaliacoes"
                 ],
-                "summary": "Buscar estatísticas de avaliações de um faxineiro",
+                "summary": "Buscar estatísticas de avaliações de um profissional",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "ID do faxineiro",
-                        "name": "faxineiro_id",
+                        "description": "ID do profissional",
+                        "name": "profissional_id",
                         "in": "path",
                         "required": true
                     }
@@ -514,7 +514,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.RespostaEstatisticasFaxineiro"
+                            "$ref": "#/definitions/dto.RespostaEstatisticasProfissional"
                         }
                     },
                     "404": {
@@ -801,7 +801,7 @@ const docTemplate = `{
                 "tags": [
                     "solicitacoes"
                 ],
-                "summary": "Listar solicitações de uma limpeza (faxineiro)",
+                "summary": "Listar solicitações de uma limpeza (profissional)",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1072,7 +1072,7 @@ const docTemplate = `{
                 "tags": [
                     "limpezas"
                 ],
-                "summary": "Listar limpezas do faxineiro autenticado",
+                "summary": "Listar limpezas do profissional autenticado",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1264,7 +1264,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/usuarios/eu/perfil-faxineiro": {
+        "/usuarios/eu/perfil-profissional": {
             "get": {
                 "security": [
                     {
@@ -1277,12 +1277,12 @@ const docTemplate = `{
                 "tags": [
                     "usuarios"
                 ],
-                "summary": "Buscar perfil de faxineiro do usuário autenticado",
+                "summary": "Buscar perfil de profissional do usuário autenticado",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.RespostaPerfilFaxineiro"
+                            "$ref": "#/definitions/dto.RespostaPerfilProfissional"
                         }
                     },
                     "404": {
@@ -1308,7 +1308,7 @@ const docTemplate = `{
                 "tags": [
                     "usuarios"
                 ],
-                "summary": "Atualizar perfil de faxineiro do usuário autenticado",
+                "summary": "Atualizar perfil de profissional do usuário autenticado",
                 "parameters": [
                     {
                         "description": "Dados do perfil",
@@ -1316,7 +1316,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.RequisicaoAtualizarPerfilFaxineiro"
+                            "$ref": "#/definitions/dto.RequisicaoAtualizarPerfilProfissional"
                         }
                     }
                 ],
@@ -1324,7 +1324,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.RespostaPerfilFaxineiro"
+                            "$ref": "#/definitions/dto.RespostaPerfilProfissional"
                         }
                     }
                 }
@@ -1341,12 +1341,12 @@ const docTemplate = `{
                 "tags": [
                     "usuarios"
                 ],
-                "summary": "Criar perfil de faxineiro para o usuário autenticado",
+                "summary": "Criar perfil de profissional para o usuário autenticado",
                 "responses": {
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dto.RespostaPerfilFaxineiro"
+                            "$ref": "#/definitions/dto.RespostaPerfilProfissional"
                         }
                     },
                     "409": {
@@ -1490,7 +1490,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RequisicaoAtualizarPerfilFaxineiro": {
+        "dto.RequisicaoAtualizarPerfilProfissional": {
             "type": "object",
             "properties": {
                 "anos_experiencia": {
@@ -1639,7 +1639,7 @@ const docTemplate = `{
                 "comentario": {
                     "type": "string"
                 },
-                "faxineiro_id": {
+                "profissional_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -1665,7 +1665,7 @@ const docTemplate = `{
                 "e_pessoal": {
                     "type": "boolean"
                 },
-                "faxineiro_id": {
+                "profissional_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -1682,7 +1682,7 @@ const docTemplate = `{
                 "dia_semana": {
                     "type": "integer"
                 },
-                "faxineiro_id": {
+                "profissional_id": {
                     "type": "integer"
                 },
                 "hora_fim": {
@@ -1713,10 +1713,10 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RespostaEstatisticasFaxineiro": {
+        "dto.RespostaEstatisticasProfissional": {
             "type": "object",
             "properties": {
-                "faxineiro_id": {
+                "profissional_id": {
                     "type": "integer"
                 },
                 "media_nota": {
@@ -1753,7 +1753,7 @@ const docTemplate = `{
                 "duracao_estimada": {
                     "type": "number"
                 },
-                "faxineiro_id": {
+                "profissional_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -1828,7 +1828,7 @@ const docTemplate = `{
                 "endereco": {
                     "$ref": "#/definitions/dto.EnderecoDTO"
                 },
-                "faxineiro_preferido_id": {
+                "profissional_preferido_id": {
                     "type": "integer"
                 },
                 "observacoes": {
@@ -1848,7 +1848,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RespostaPerfilFaxineiro": {
+        "dto.RespostaPerfilProfissional": {
             "type": "object",
             "properties": {
                 "anos_experiencia": {

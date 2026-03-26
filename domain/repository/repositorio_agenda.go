@@ -9,14 +9,14 @@ import (
 
 type RepositorioAgenda interface {
 	// Disponibilidade
-	ListarDisponibilidadePorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Disponibilidade, error)
-	ListarDisponibilidadePorDia(ctx context.Context, faxineiroID int, diaSemana time.Weekday) ([]*entity.Disponibilidade, error)
+	ListarDisponibilidadePorProfissional(ctx context.Context, profissionalID int) ([]*entity.Disponibilidade, error)
+	ListarDisponibilidadePorDia(ctx context.Context, profissionalID int, diaSemana time.Weekday) ([]*entity.Disponibilidade, error)
 	SalvarDisponibilidade(ctx context.Context, d *entity.Disponibilidade) error
-	DeletarDisponibilidade(ctx context.Context, id, faxineiroID int) error
+	DeletarDisponibilidade(ctx context.Context, id, profissionalID int) error
 
 	// Bloqueios (horários reservados — serviço ou pessoal)
-	ListarBloqueiosPorPeriodo(ctx context.Context, faxineiroID int, inicio, fim time.Time) ([]*entity.Bloqueio, error)
-	ListarBloqueiosPorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Bloqueio, error)
+	ListarBloqueiosPorPeriodo(ctx context.Context, profissionalID int, inicio, fim time.Time) ([]*entity.Bloqueio, error)
+	ListarBloqueiosPorProfissional(ctx context.Context, profissionalID int) ([]*entity.Bloqueio, error)
 	BuscarBloqueioPorSolicitacao(ctx context.Context, solicitacaoID int) (*entity.Bloqueio, error)
 	BuscarBloqueioPorID(ctx context.Context, id int) (*entity.Bloqueio, error)
 	SalvarBloqueio(ctx context.Context, b *entity.Bloqueio) error

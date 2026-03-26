@@ -50,7 +50,7 @@ go build ./...
 ### Nomes e construtores
 - Tudo em **português** — não traduzir para inglês
 - Construtores: `NovoXxx()` ou `NovaXxx()` retornam `(*Tipo, error)` ou `*Tipo`
-- Métodos de verificação: `EPessoal()`, `EFaxineiro()`, `EPublicadoPor()`, `EstaPreenchido()`
+- Métodos de verificação: `EPessoal()`, `EProfissional()`, `EPublicadoPor()`, `EstaPreenchido()`
 
 ### Erros
 - Erros sentinela em `domain/errors/erros.go`: `var ErrXxx = errors.New("...")`
@@ -131,19 +131,19 @@ func TestNovaXxx(t *testing.T) {
 
 | Fluxo | Descrição |
 |---|---|
-| Publicar serviço | Faxineiro cria `Limpeza` com `ValorHora` e `DuracaoEstimada` |
+| Publicar serviço | Profissional cria `Limpeza` com `ValorHora` e `DuracaoEstimada` |
 | Preço total | `ValorHora × DuracaoEstimada` — capturado na criação da `Solicitacao` |
 | Solicitar serviço | Cliente cria `Solicitacao` → sistema verifica disponibilidade → status `pendente` |
 | Verificação de agenda | 2 passos: (1) cobre disponibilidade semanal? (2) sem conflito de bloqueio? |
-| Aceitar | Faxineiro aceita → verifica novamente → cria `BloqueioServico` na agenda |
+| Aceitar | Profissional aceita → verifica novamente → cria `BloqueioServico` na agenda |
 | Cancelar aceita | Multa de **20%** se cancelar com **< 24h** de antecedência |
 | Avaliar | Apenas solicitações `aceita` → cria `Avaliacao` → marca como `concluida` |
-| Bloqueio pessoal | Faxineiro pode bloquear horários pessoais (sem vincular a serviço) |
+| Bloqueio pessoal | Profissional pode bloquear horários pessoais (sem vincular a serviço) |
 
 ### Máquina de estados da Solicitação
 ```
-pendente → aceita (faxineiro) → concluída (via avaliação)
-pendente → rejeitada (faxineiro)
+pendente → aceita (profissional) → concluída (via avaliação)
+pendente → rejeitada (profissional)
 pendente → cancelada (cliente, sem multa)
 aceita   → cancelada (cliente, possível multa 20%)
 ```
@@ -263,18 +263,20 @@ O documento deve sempre terminar com uma seção **"Como rodar o projeto"** cont
 ...
 ```
 
-### 2. Executar TODOS os testes
+### 2. Executar os testes relevantes
 
-**Obrigatório antes de qualquer commit.** Rodar a suíte completa e garantir que tudo passa:
+**Obrigatório antes de qualquer commit.** Executar os testes correspondentes à área alterada:
 
-```bash
-go test ./... -race -count=1
-```
-
-Se houver testes de integração relevantes à mudança, rodar também:
-```bash
-make test-integration
-```
+- **Tarefa apenas de frontend** (sem alteração em código Go/backend): executar apenas os testes do frontend (`npm test` dentro de `frontend/`). **NÃO** é necessário rodar `go test ./...` nem `make test-integration`.
+- **Tarefa de backend** (ou que altera código Go): rodar a suíte completa do backend:
+  ```bash
+  go test ./... -race -count=1
+  ```
+  Se houver testes de integração relevantes à mudança, rodar também:
+  ```bash
+  make test-integration
+  ```
+- **Tarefa que altera frontend E backend**: rodar os testes de ambos.
 
 > **Regra absoluta**: não fazer commit com testes falhando. Se um teste quebrou, corrigir antes de prosseguir.
 
@@ -292,22 +294,38 @@ make test-integration
 
 > **Regra absoluta**: se qualquer valor no código (porta, URL, comando, nome) for diferente do que está na documentação, corrigir a documentação **antes** de encerrar a tarefa. Nunca deixar divergência para depois.
 
-### 4. Fazer commit e perguntar sobre git push
+### 4. Pedir aprovação, fazer commit e perguntar sobre git push
 
 > **⚠️ REGRA CRÍTICA — NUNCA PULAR ESTE PASSO ⚠️**
-> Este passo é **OBRIGATÓRIO** ao final de QUALQUER tarefa, sem exceção.
-> O Claude NÃO pode encerrar a resposta sem ter feito o commit e mostrado a mensagem abaixo.
+> Este passo é **OBRIGATÓRIO** ao final de QUALQUER tarefa que altere código, sem exceção.
+> O Claude NÃO pode fazer commit sem antes ter a aprovação explícita do usuário.
 
 **Sequência obrigatória:**
 
-1. **Fazer o commit automaticamente** (sem perguntar ao usuário), seguindo o padrão de commits deste documento.
+1. **Perguntar se o usuário aprova as alterações** antes de qualquer commit. Exibir um resumo claro do que foi feito e apresentar as opções:
+   ```
+   Resumo das alterações:
+   - <o que foi alterado 1>
+   - <o que foi alterado 2>
 
-2. **Executar o comando** para listar todos os commits pendentes:
+   O que deseja fazer?
+   1. ✅ Aprovar — fazer commit e seguir para push
+   2. ❌ Não aprovar — reverter e ajustar
+   3. 🗑️ Descartar — apagar tudo que foi feito desde o último commit
+   ```
+
+2. **Se o usuário escolher "Não aprovar" (opção 2)**: reverter as alterações feitas na tarefa. Não fazer commit. Perguntar o que o usuário gostaria de diferente.
+
+3. **Se o usuário escolher "Descartar" (opção 3)**: executar `git checkout -- .` e `git clean -fd` para descartar **todas** as alterações não commitadas, voltando ao estado exato do último commit. Confirmar ao usuário que tudo foi descartado. Encerrar a tarefa sem commit.
+
+4. **Se o usuário aprovar (opção 1)**: fazer o commit seguindo o padrão de commits deste documento.
+
+5. **Executar o comando** para listar todos os commits pendentes:
    ```bash
    git log origin/master..HEAD --pretty=format:"• %h %s (%cr)"
    ```
 
-3. **Exibir a mensagem final** no chat, SEMPRE neste formato exato:
+6. **Exibir a mensagem final** no chat, SEMPRE neste formato exato:
    ```
    Esses são os commits que serão enviados:
 
@@ -317,8 +335,8 @@ make test-integration
    Deseja que eu faça `git push` para o GitHub agora?
    ```
 
-> **Importante**: o commit é feito automaticamente — a **única pergunta** ao usuário é sobre o push.
-> **Importante**: a mensagem acima é a **última coisa** que o Claude escreve na resposta. Nada vem depois dela.
+> **Importante**: o commit só acontece **após aprovação** do usuário.
+> **Importante**: a mensagem de commits + pergunta sobre push é a **última coisa** que o Claude escreve na resposta. Nada vem depois dela.
 
 Se a resposta for sim, executar:
 ```bash

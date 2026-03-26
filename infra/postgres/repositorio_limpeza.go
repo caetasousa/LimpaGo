@@ -20,32 +20,32 @@ func NovoRepositorioLimpezaPG(db *sql.DB) *RepositorioLimpezaPG {
 }
 
 func (r *RepositorioLimpezaPG) BuscarPorID(ctx context.Context, id int) (*entity.Limpeza, error) {
-	q := `SELECT id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, faxineiro_id, criado_em, atualizado_em
+	q := `SELECT id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, profissional_id, criado_em, atualizado_em
 	      FROM limpezas WHERE id = $1`
 	return r.escanearUm(obterExecutor(ctx, r.db).QueryRowContext(ctx, q, id))
 }
 
-func (r *RepositorioLimpezaPG) ListarPorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Limpeza, error) {
-	q := `SELECT id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, faxineiro_id, criado_em, atualizado_em
-	      FROM limpezas WHERE faxineiro_id = $1 ORDER BY criado_em DESC`
-	return r.escanearLista(obterExecutor(ctx, r.db).QueryContext(ctx, q, faxineiroID))
+func (r *RepositorioLimpezaPG) ListarPorProfissional(ctx context.Context, profissionalID int) ([]*entity.Limpeza, error) {
+	q := `SELECT id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, profissional_id, criado_em, atualizado_em
+	      FROM limpezas WHERE profissional_id = $1 ORDER BY criado_em DESC`
+	return r.escanearLista(obterExecutor(ctx, r.db).QueryContext(ctx, q, profissionalID))
 }
 
 func (r *RepositorioLimpezaPG) ListarTodas(ctx context.Context, pagina, tamanhoPagina int) ([]*entity.Limpeza, error) {
 	offset := (pagina - 1) * tamanhoPagina
-	q := `SELECT id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, faxineiro_id, criado_em, atualizado_em
+	q := `SELECT id, nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, profissional_id, criado_em, atualizado_em
 	      FROM limpezas ORDER BY criado_em DESC LIMIT $1 OFFSET $2`
 	return r.escanearLista(obterExecutor(ctx, r.db).QueryContext(ctx, q, tamanhoPagina, offset))
 }
 
 func (r *RepositorioLimpezaPG) Salvar(ctx context.Context, limpeza *entity.Limpeza) error {
-	q := `INSERT INTO limpezas (nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, faxineiro_id)
+	q := `INSERT INTO limpezas (nome, descricao, valor_hora, duracao_estimada, tipo_limpeza, profissional_id)
 	      VALUES ($1,$2,$3,$4,$5,$6)
 	      RETURNING id, criado_em, atualizado_em`
 
 	return obterExecutor(ctx, r.db).QueryRowContext(ctx, q,
 		limpeza.Nome, limpeza.Descricao, limpeza.ValorHora, limpeza.DuracaoEstimada,
-		string(limpeza.TipoLimpeza), limpeza.FaxineiroID).
+		string(limpeza.TipoLimpeza), limpeza.ProfissionalID).
 		Scan(&limpeza.ID, &limpeza.CriadoEm, &limpeza.AtualizadoEm)
 }
 
@@ -67,7 +67,7 @@ func (r *RepositorioLimpezaPG) Deletar(ctx context.Context, id int) error {
 func (r *RepositorioLimpezaPG) escanearUm(row *sql.Row) (*entity.Limpeza, error) {
 	l := &entity.Limpeza{}
 	var tipoLimpeza string
-	err := row.Scan(&l.ID, &l.Nome, &l.Descricao, &l.ValorHora, &l.DuracaoEstimada, &tipoLimpeza, &l.FaxineiroID, &l.CriadoEm, &l.AtualizadoEm)
+	err := row.Scan(&l.ID, &l.Nome, &l.Descricao, &l.ValorHora, &l.DuracaoEstimada, &tipoLimpeza, &l.ProfissionalID, &l.CriadoEm, &l.AtualizadoEm)
 	if err != nil {
 		return nil, mapearErroPG(err, errosdominio.ErrLimpezaNaoEncontrada)
 	}
@@ -85,7 +85,7 @@ func (r *RepositorioLimpezaPG) escanearLista(rows *sql.Rows, err error) ([]*enti
 	for rows.Next() {
 		l := &entity.Limpeza{}
 		var tipoLimpeza string
-		if err := rows.Scan(&l.ID, &l.Nome, &l.Descricao, &l.ValorHora, &l.DuracaoEstimada, &tipoLimpeza, &l.FaxineiroID, &l.CriadoEm, &l.AtualizadoEm); err != nil {
+		if err := rows.Scan(&l.ID, &l.Nome, &l.Descricao, &l.ValorHora, &l.DuracaoEstimada, &tipoLimpeza, &l.ProfissionalID, &l.CriadoEm, &l.AtualizadoEm); err != nil {
 			return nil, err
 		}
 		l.TipoLimpeza = valueobject.TipoLimpeza(tipoLimpeza)

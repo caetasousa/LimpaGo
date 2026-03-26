@@ -55,7 +55,7 @@ func TestStatusSolicitacao_PodeSerCanceladaPeloCliente(t *testing.T) {
 	}
 }
 
-func TestStatusSolicitacao_PodeSerRejeitadaPeloFaxineiro(t *testing.T) {
+func TestStatusSolicitacao_PodeSerRejeitadaPeloProfissional(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -73,9 +73,9 @@ func TestStatusSolicitacao_PodeSerRejeitadaPeloFaxineiro(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := tt.status.PodeSerRejeitadaPeloFaxineiro()
+			got := tt.status.PodeSerRejeitadaPeloProfissional()
 			if got != tt.want {
-				t.Errorf("PodeSerRejeitadaPeloFaxineiro() = %v; want %v", got, tt.want)
+				t.Errorf("PodeSerRejeitadaPeloProfissional() = %v; want %v", got, tt.want)
 			}
 		})
 	}

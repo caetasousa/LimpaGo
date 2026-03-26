@@ -79,38 +79,38 @@ func (s *ServicoUsuario) AtualizarPerfil(ctx context.Context, usuarioID int, nom
 	return perfil, nil
 }
 
-// --- Perfil Faxineiro ---
+// --- Perfil Profissional ---
 
-// CriarPerfilFaxineiro cria o perfil profissional para o usuário atuar como faxineiro.
-func (s *ServicoUsuario) CriarPerfilFaxineiro(ctx context.Context, usuarioID int) (*entity.PerfilFaxineiro, error) {
-	existenteFax, err := s.perfis.BuscarPerfilFaxineiro(ctx, usuarioID)
+// CriarPerfilProfissional cria o perfil profissional para o usuário atuar como profissional.
+func (s *ServicoUsuario) CriarPerfilProfissional(ctx context.Context, usuarioID int) (*entity.PerfilProfissional, error) {
+	existenteFax, err := s.perfis.BuscarPerfilProfissional(ctx, usuarioID)
 	if err != nil {
 		return nil, err
 	}
 	if existenteFax != nil {
-		return nil, errosdominio.ErrPerfilFaxineiroJaExiste
+		return nil, errosdominio.ErrPerfilProfissionalJaExiste
 	}
 
-	perfil := entity.NovoPerfilFaxineiro(usuarioID)
-	if err := s.perfis.SalvarPerfilFaxineiro(ctx, perfil); err != nil {
+	perfil := entity.NovoPerfilProfissional(usuarioID)
+	if err := s.perfis.SalvarPerfilProfissional(ctx, perfil); err != nil {
 		return nil, err
 	}
 	return perfil, nil
 }
 
-// BuscarPerfilFaxineiro retorna o perfil profissional do faxineiro.
-func (s *ServicoUsuario) BuscarPerfilFaxineiro(ctx context.Context, usuarioID int) (*entity.PerfilFaxineiro, error) {
-	return s.perfis.BuscarPerfilFaxineiro(ctx, usuarioID)
+// BuscarPerfilProfissional retorna o perfil profissional do profissional.
+func (s *ServicoUsuario) BuscarPerfilProfissional(ctx context.Context, usuarioID int) (*entity.PerfilProfissional, error) {
+	return s.perfis.BuscarPerfilProfissional(ctx, usuarioID)
 }
 
-// AtualizarPerfilFaxineiro atualiza os dados profissionais do faxineiro.
-func (s *ServicoUsuario) AtualizarPerfilFaxineiro(ctx context.Context, usuarioID int, descricao string, anosExperiencia int, especialidades, cidadesAtendidas []string) (*entity.PerfilFaxineiro, error) {
-	perfil, err := s.perfis.BuscarPerfilFaxineiro(ctx, usuarioID)
+// AtualizarPerfilProfissional atualiza os dados profissionais do profissional.
+func (s *ServicoUsuario) AtualizarPerfilProfissional(ctx context.Context, usuarioID int, descricao string, anosExperiencia int, especialidades, cidadesAtendidas []string) (*entity.PerfilProfissional, error) {
+	perfil, err := s.perfis.BuscarPerfilProfissional(ctx, usuarioID)
 	if err != nil {
 		return nil, err
 	}
 	if perfil == nil {
-		return nil, errosdominio.ErrPerfilFaxineiroNaoEncontrado
+		return nil, errosdominio.ErrPerfilProfissionalNaoEncontrado
 	}
 
 	perfil.Descricao = descricao
@@ -118,7 +118,7 @@ func (s *ServicoUsuario) AtualizarPerfilFaxineiro(ctx context.Context, usuarioID
 	perfil.Especialidades = especialidades
 	perfil.CidadesAtendidas = cidadesAtendidas
 
-	if err := s.perfis.AtualizarPerfilFaxineiro(ctx, perfil); err != nil {
+	if err := s.perfis.AtualizarPerfilProfissional(ctx, perfil); err != nil {
 		return nil, err
 	}
 	return perfil, nil

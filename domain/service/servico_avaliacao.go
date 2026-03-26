@@ -9,7 +9,7 @@ import (
 	"limpaGo/domain/valueobject"
 )
 
-// ServicoAvaliacao lida com notas e reputação de faxineiros.
+// ServicoAvaliacao lida com notas e reputação de profissionais.
 //
 // Regras:
 //   - Apenas o cliente que solicitou o serviço pode criar uma avaliação.
@@ -60,7 +60,7 @@ func (s *ServicoAvaliacao) CriarAvaliacao(ctx context.Context, clienteID, limpez
 		return nil, &entity.ErroValidacao{Campo: "nota", Mensagem: err.Error()}
 	}
 
-	avaliacao := entity.NovaAvaliacao(limpezaID, limpeza.FaxineiroID, clienteID, nota, comentario)
+	avaliacao := entity.NovaAvaliacao(limpezaID, limpeza.ProfissionalID, clienteID, nota, comentario)
 
 	if err := s.avaliacoes.Salvar(ctx, avaliacao); err != nil {
 		return nil, err
@@ -74,10 +74,10 @@ func (s *ServicoAvaliacao) CriarAvaliacao(ctx context.Context, clienteID, limpez
 	return avaliacao, nil
 }
 
-func (s *ServicoAvaliacao) BuscarEstatisticasFaxineiro(ctx context.Context, faxineiroID int) (*entity.AgregadoAvaliacao, error) {
-	return s.avaliacoes.BuscarAgregadoPorFaxineiro(ctx, faxineiroID)
+func (s *ServicoAvaliacao) BuscarEstatisticasProfissional(ctx context.Context, profissionalID int) (*entity.AgregadoAvaliacao, error) {
+	return s.avaliacoes.BuscarAgregadoPorProfissional(ctx, profissionalID)
 }
 
-func (s *ServicoAvaliacao) ListarAvaliacoesPorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Avaliacao, error) {
-	return s.avaliacoes.ListarPorFaxineiro(ctx, faxineiroID)
+func (s *ServicoAvaliacao) ListarAvaliacoesPorProfissional(ctx context.Context, profissionalID int) ([]*entity.Avaliacao, error) {
+	return s.avaliacoes.ListarPorProfissional(ctx, profissionalID)
 }

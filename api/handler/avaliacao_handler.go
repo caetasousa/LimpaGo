@@ -8,7 +8,7 @@ import (
 	"limpaGo/domain/service"
 )
 
-// HandlerAvaliacao gerencia os endpoints de avaliações de faxineiros.
+// HandlerAvaliacao gerencia os endpoints de avaliações de profissionais.
 type HandlerAvaliacao struct {
 	servico *service.ServicoAvaliacao
 }
@@ -50,20 +50,20 @@ func (h *HandlerAvaliacao) CriarAvaliacao(w http.ResponseWriter, r *http.Request
 }
 
 // ListarAvaliacoes godoc
-// @Summary Listar avaliações de um faxineiro
+// @Summary Listar avaliações de um profissional
 // @Tags avaliacoes
 // @Produce json
-// @Param faxineiro_id path int true "ID do faxineiro"
+// @Param profissional_id path int true "ID do profissional"
 // @Success 200 {array} dto.RespostaAvaliacao
 // @Failure 404 {object} dto.RespostaErro
-// @Router /faxineiros/{faxineiro_id}/avaliacoes [get]
+// @Router /profissionais/{profissional_id}/avaliacoes [get]
 func (h *HandlerAvaliacao) ListarAvaliacoes(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, err := lerParamInteiro(r, "faxineiro_id")
+	profissionalID, err := lerParamInteiro(r, "profissional_id")
 	if err != nil {
-		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "faxineiro_id inválido"))
+		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "profissional_id inválido"))
 		return
 	}
-	lista, err := h.servico.ListarAvaliacoesPorFaxineiro(r.Context(), faxineiroID)
+	lista, err := h.servico.ListarAvaliacoesPorProfissional(r.Context(), profissionalID)
 	if err != nil {
 		escreverErro(w, err)
 		return
@@ -72,20 +72,20 @@ func (h *HandlerAvaliacao) ListarAvaliacoes(w http.ResponseWriter, r *http.Reque
 }
 
 // BuscarEstatisticas godoc
-// @Summary Buscar estatísticas de avaliações de um faxineiro
+// @Summary Buscar estatísticas de avaliações de um profissional
 // @Tags avaliacoes
 // @Produce json
-// @Param faxineiro_id path int true "ID do faxineiro"
-// @Success 200 {object} dto.RespostaEstatisticasFaxineiro
+// @Param profissional_id path int true "ID do profissional"
+// @Success 200 {object} dto.RespostaEstatisticasProfissional
 // @Failure 404 {object} dto.RespostaErro
-// @Router /faxineiros/{faxineiro_id}/estatisticas [get]
+// @Router /profissionais/{profissional_id}/estatisticas [get]
 func (h *HandlerAvaliacao) BuscarEstatisticas(w http.ResponseWriter, r *http.Request) {
-	faxineiroID, err := lerParamInteiro(r, "faxineiro_id")
+	profissionalID, err := lerParamInteiro(r, "profissional_id")
 	if err != nil {
-		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "faxineiro_id inválido"))
+		escreverJSON(w, http.StatusBadRequest, dto.NovaRespostaErro(http.StatusBadRequest, "profissional_id inválido"))
 		return
 	}
-	stats, err := h.servico.BuscarEstatisticasFaxineiro(r.Context(), faxineiroID)
+	stats, err := h.servico.BuscarEstatisticasProfissional(r.Context(), profissionalID)
 	if err != nil {
 		escreverErro(w, err)
 		return

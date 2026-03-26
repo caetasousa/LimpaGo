@@ -20,13 +20,13 @@ func NovoRepositorioAvaliacaoPG(db *sql.DB) *RepositorioAvaliacaoPG {
 }
 
 func (r *RepositorioAvaliacaoPG) BuscarPorClienteELimpeza(ctx context.Context, clienteID, limpezaID int) (*entity.Avaliacao, error) {
-	q := `SELECT id, limpeza_id, faxineiro_id, cliente_id, nota, comentario, criado_em
+	q := `SELECT id, limpeza_id, profissional_id, cliente_id, nota, comentario, criado_em
 	      FROM avaliacoes WHERE cliente_id=$1 AND limpeza_id=$2`
 
 	a := &entity.Avaliacao{}
 	var nota int
 	err := obterExecutor(ctx, r.db).QueryRowContext(ctx, q, clienteID, limpezaID).
-		Scan(&a.ID, &a.LimpezaID, &a.FaxineiroID, &a.ClienteID, &nota, &a.Comentario, &a.CriadoEm)
+		Scan(&a.ID, &a.LimpezaID, &a.ProfissionalID, &a.ClienteID, &nota, &a.Comentario, &a.CriadoEm)
 	if err != nil {
 		return nil, mapearErroPG(err, errosdominio.ErrAvaliacaoNaoEncontrada)
 	}
@@ -34,11 +34,11 @@ func (r *RepositorioAvaliacaoPG) BuscarPorClienteELimpeza(ctx context.Context, c
 	return a, nil
 }
 
-func (r *RepositorioAvaliacaoPG) ListarPorFaxineiro(ctx context.Context, faxineiroID int) ([]*entity.Avaliacao, error) {
-	q := `SELECT id, limpeza_id, faxineiro_id, cliente_id, nota, comentario, criado_em
-	      FROM avaliacoes WHERE faxineiro_id=$1 ORDER BY criado_em DESC`
+func (r *RepositorioAvaliacaoPG) ListarPorProfissional(ctx context.Context, profissionalID int) ([]*entity.Avaliacao, error) {
+	q := `SELECT id, limpeza_id, profissional_id, cliente_id, nota, comentario, criado_em
+	      FROM avaliacoes WHERE profissional_id=$1 ORDER BY criado_em DESC`
 
-	rows, err := obterExecutor(ctx, r.db).QueryContext(ctx, q, faxineiroID)
+	rows, err := obterExecutor(ctx, r.db).QueryContext(ctx, q, profissionalID)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (r *RepositorioAvaliacaoPG) ListarPorFaxineiro(ctx context.Context, faxinei
 	for rows.Next() {
 		a := &entity.Avaliacao{}
 		var nota int
-		if err := rows.Scan(&a.ID, &a.LimpezaID, &a.FaxineiroID, &a.ClienteID, &nota, &a.Comentario, &a.CriadoEm); err != nil {
+		if err := rows.Scan(&a.ID, &a.LimpezaID, &a.ProfissionalID, &a.ClienteID, &nota, &a.Comentario, &a.CriadoEm); err != nil {
 			return nil, err
 		}
 		a.Nota = valueobject.Nota(nota)
@@ -57,16 +57,16 @@ func (r *RepositorioAvaliacaoPG) ListarPorFaxineiro(ctx context.Context, faxinei
 	return lista, rows.Err()
 }
 
-func (r *RepositorioAvaliacaoPG) BuscarAgregadoPorFaxineiro(ctx context.Context, faxineiroID int) (*entity.AgregadoAvaliacao, error) {
-	q := `SELECT faxineiro_id, COALESCE(AVG(nota), 0)::float, COUNT(*)
-	      FROM avaliacoes WHERE faxineiro_id=$1 GROUP BY faxineiro_id`
+func (r *RepositorioAvaliacaoPG) BuscarAgregadoPorProfissional(ctx context.Context, profissionalID int) (*entity.AgregadoAvaliacao, error) {
+	q := `SELECT profissional_id, COALESCE(AVG(nota), 0)::float, COUNT(*)
+	      FROM avaliacoes WHERE profissional_id=$1 GROUP BY profissional_id`
 
-	ag := &entity.AgregadoAvaliacao{FaxineiroID: faxineiroID}
-	err := obterExecutor(ctx, r.db).QueryRowContext(ctx, q, faxineiroID).
-		Scan(&ag.FaxineiroID, &ag.MediaNota, &ag.TotalAvaliacoes)
+	ag := &entity.AgregadoAvaliacao{ProfissionalID: profissionalID}
+	err := obterExecutor(ctx, r.db).QueryRowContext(ctx, q, profissionalID).
+		Scan(&ag.ProfissionalID, &ag.MediaNota, &ag.TotalAvaliacoes)
 	if err != nil {
 		if mapped := mapearErroPG(err, nil); mapped == nil {
-			// Faxineiro sem avaliações — retorna agregado zerado
+			// Profissional sem avaliações — retorna agregado zerado
 			return ag, nil
 		}
 		return nil, err
@@ -75,12 +75,12 @@ func (r *RepositorioAvaliacaoPG) BuscarAgregadoPorFaxineiro(ctx context.Context,
 }
 
 func (r *RepositorioAvaliacaoPG) Salvar(ctx context.Context, avaliacao *entity.Avaliacao) error {
-	q := `INSERT INTO avaliacoes (limpeza_id, faxineiro_id, cliente_id, nota, comentario)
+	q := `INSERT INTO avaliacoes (limpeza_id, profissional_id, cliente_id, nota, comentario)
 	      VALUES ($1,$2,$3,$4,$5)
 	      RETURNING id, criado_em`
 
 	err := obterExecutor(ctx, r.db).QueryRowContext(ctx, q,
-		avaliacao.LimpezaID, avaliacao.FaxineiroID, avaliacao.ClienteID,
+		avaliacao.LimpezaID, avaliacao.ProfissionalID, avaliacao.ClienteID,
 		int(avaliacao.Nota), avaliacao.Comentario).
 		Scan(&avaliacao.ID, &avaliacao.CriadoEm)
 	return mapearErroPG(err, nil)
