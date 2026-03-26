@@ -15,6 +15,14 @@
 .DS_Store
 Thumbs.db
 
-# Cobertura de testes
+# Cobertura de testes (backend)
 coverage.out
 coverage.html
+
+# Frontend
+frontend/node_modules
+frontend/.svelte-kit
+frontend/build
+frontend/dist
+frontend/.env
+frontend/.env.local

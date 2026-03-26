@@ -1,0 +1,7 @@
+.svelte-kit
+build
+node_modules
+.env
+.env.local
+*.local
+dist
