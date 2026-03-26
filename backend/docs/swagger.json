@@ -1,0 +1,1929 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API REST para plataforma de serviços de limpeza.",
+        "title": "LimpaGo API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/agenda/bloqueios": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agenda"
+                ],
+                "summary": "Listar bloqueios do profissional autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaBloqueio"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agenda"
+                ],
+                "summary": "Criar bloqueio pessoal de agenda",
+                "parameters": [
+                    {
+                        "description": "Dados do bloqueio",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoBloqueio"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaBloqueio"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/agenda/bloqueios/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agenda"
+                ],
+                "summary": "Remover bloqueio pessoal de agenda",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do bloqueio",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/agenda/disponibilidades": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agenda"
+                ],
+                "summary": "Listar disponibilidades do profissional autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaDisponibilidade"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agenda"
+                ],
+                "summary": "Adicionar bloco de disponibilidade",
+                "parameters": [
+                    {
+                        "description": "Dados da disponibilidade",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoDisponibilidade"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaDisponibilidade"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/agenda/disponibilidades/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agenda"
+                ],
+                "summary": "Remover bloco de disponibilidade",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da disponibilidade",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Autentica o usuário com email e senha e retorna tokens JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "Credenciais de login",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaAutenticacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/registrar": {
+            "post": {
+                "description": "Cria uma nova conta com email, nome de usuário e senha",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Registrar novo usuário",
+                "parameters": [
+                    {
+                        "description": "Dados de registro",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoRegistroComSenha"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaAutenticacao"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/renovar": {
+            "post": {
+                "description": "Usa o token de renovação para obter um novo par de tokens JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Renovar token",
+                "parameters": [
+                    {
+                        "description": "Token de renovação",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoRenovarToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ParTokensDTO"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/avaliacoes": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "avaliacoes"
+                ],
+                "summary": "Criar avaliação de um serviço concluído",
+                "parameters": [
+                    {
+                        "description": "Dados da avaliação",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoCriarAvaliacao"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaAvaliacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/profissionais/{profissional_id}/avaliacoes": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "avaliacoes"
+                ],
+                "summary": "Listar avaliações de um profissional",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do profissional",
+                        "name": "profissional_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaAvaliacao"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/profissionais/{profissional_id}/estatisticas": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "avaliacoes"
+                ],
+                "summary": "Buscar estatísticas de avaliações de um profissional",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do profissional",
+                        "name": "profissional_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaEstatisticasProfissional"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/feed": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feed"
+                ],
+                "summary": "Buscar feed de atividades paginado",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Número da página",
+                        "name": "pagina",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Itens por página",
+                        "name": "tamanho",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPaginaFeed"
+                        }
+                    }
+                }
+            }
+        },
+        "/limpezas": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "limpezas"
+                ],
+                "summary": "Listar catálogo de limpezas",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Número da página",
+                        "name": "pagina",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Itens por página",
+                        "name": "tamanho",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaLimpeza"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "limpezas"
+                ],
+                "summary": "Criar novo serviço de limpeza",
+                "parameters": [
+                    {
+                        "description": "Dados da limpeza",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoCriarLimpeza"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaLimpeza"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/limpezas/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "limpezas"
+                ],
+                "summary": "Buscar limpeza por ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaLimpeza"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "limpezas"
+                ],
+                "summary": "Atualizar serviço de limpeza",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dados da limpeza",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoAtualizarLimpeza"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaLimpeza"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "limpezas"
+                ],
+                "summary": "Deletar serviço de limpeza",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/limpezas/{limpeza_id}/solicitacoes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solicitacoes"
+                ],
+                "summary": "Listar solicitações de uma limpeza (profissional)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "limpeza_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaSolicitacao"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/solicitacoes": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solicitacoes"
+                ],
+                "summary": "Criar solicitação de limpeza",
+                "parameters": [
+                    {
+                        "description": "Dados da solicitação",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoCriarSolicitacao"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaSolicitacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/solicitacoes/{cliente_id}/{limpeza_id}/aceitar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solicitacoes"
+                ],
+                "summary": "Aceitar solicitação de limpeza",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do cliente",
+                        "name": "cliente_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "limpeza_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaSolicitacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/solicitacoes/{cliente_id}/{limpeza_id}/rejeitar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solicitacoes"
+                ],
+                "summary": "Rejeitar solicitação de limpeza",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do cliente",
+                        "name": "cliente_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "limpeza_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaSolicitacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/solicitacoes/{limpeza_id}/cancelar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solicitacoes"
+                ],
+                "summary": "Cancelar solicitação de limpeza",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID da limpeza",
+                        "name": "limpeza_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaSolicitacao"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/usuarios/eu/limpezas": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "limpezas"
+                ],
+                "summary": "Listar limpezas do profissional autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaLimpeza"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/usuarios/eu/perfil": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Buscar perfil do usuário autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfil"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Atualizar perfil base do usuário autenticado",
+                "parameters": [
+                    {
+                        "description": "Dados do perfil",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoAtualizarPerfil"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfil"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/usuarios/eu/perfil-cliente": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Buscar perfil de cliente do usuário autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfilCliente"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Atualizar perfil de cliente do usuário autenticado",
+                "parameters": [
+                    {
+                        "description": "Dados do perfil",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoAtualizarPerfilCliente"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfilCliente"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Criar perfil de cliente para o usuário autenticado",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfilCliente"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/usuarios/eu/perfil-profissional": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Buscar perfil de profissional do usuário autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfilProfissional"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Atualizar perfil de profissional do usuário autenticado",
+                "parameters": [
+                    {
+                        "description": "Dados do perfil",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequisicaoAtualizarPerfilProfissional"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfilProfissional"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usuarios"
+                ],
+                "summary": "Criar perfil de profissional para o usuário autenticado",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaPerfilProfissional"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        },
+        "/usuarios/eu/solicitacoes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "solicitacoes"
+                ],
+                "summary": "Listar solicitações do cliente autenticado",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RespostaSolicitacao"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.RespostaErro"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.EnderecoDTO": {
+            "type": "object",
+            "properties": {
+                "bairro": {
+                    "type": "string"
+                },
+                "cep": {
+                    "type": "string"
+                },
+                "cidade": {
+                    "type": "string"
+                },
+                "complemento": {
+                    "type": "string"
+                },
+                "estado": {
+                    "type": "string"
+                },
+                "rua": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ParTokensDTO": {
+            "type": "object",
+            "properties": {
+                "expira_em": {
+                    "type": "integer"
+                },
+                "tipo_token": {
+                    "type": "string"
+                },
+                "token_acesso": {
+                    "type": "string"
+                },
+                "token_renovacao": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoAtualizarLimpeza": {
+            "type": "object",
+            "properties": {
+                "descricao": {
+                    "type": "string"
+                },
+                "duracao_estimada": {
+                    "type": "number"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "tipo_limpeza": {
+                    "type": "string"
+                },
+                "valor_hora": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.RequisicaoAtualizarPerfil": {
+            "type": "object",
+            "properties": {
+                "imagem": {
+                    "type": "string"
+                },
+                "nome_completo": {
+                    "type": "string"
+                },
+                "telefone": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoAtualizarPerfilCliente": {
+            "type": "object",
+            "properties": {
+                "banheiros": {
+                    "type": "integer"
+                },
+                "endereco": {
+                    "$ref": "#/definitions/dto.EnderecoDTO"
+                },
+                "observacoes": {
+                    "type": "string"
+                },
+                "quartos": {
+                    "type": "integer"
+                },
+                "tamanho_imovel_m2": {
+                    "type": "number"
+                },
+                "tipo_imovel": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoAtualizarPerfilProfissional": {
+            "type": "object",
+            "properties": {
+                "anos_experiencia": {
+                    "type": "integer"
+                },
+                "cidades_atendidas": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "especialidades": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dto.RequisicaoBloqueio": {
+            "type": "object",
+            "properties": {
+                "data_fim": {
+                    "type": "string"
+                },
+                "data_inicio": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoCriarAvaliacao": {
+            "type": "object",
+            "properties": {
+                "comentario": {
+                    "type": "string"
+                },
+                "limpeza_id": {
+                    "type": "integer"
+                },
+                "nota": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RequisicaoCriarLimpeza": {
+            "type": "object",
+            "properties": {
+                "descricao": {
+                    "type": "string"
+                },
+                "duracao_estimada": {
+                    "type": "number"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "tipo_limpeza": {
+                    "type": "string"
+                },
+                "valor_hora": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.RequisicaoCriarSolicitacao": {
+            "type": "object",
+            "properties": {
+                "data_agendada": {
+                    "type": "string"
+                },
+                "limpeza_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RequisicaoDisponibilidade": {
+            "type": "object",
+            "properties": {
+                "dia_semana": {
+                    "description": "0=Domingo ... 6=Sábado",
+                    "type": "integer"
+                },
+                "hora_fim": {
+                    "description": "1-24",
+                    "type": "integer"
+                },
+                "hora_inicio": {
+                    "description": "0-23",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RequisicaoLogin": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "senha": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoRegistroComSenha": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "nome_usuario": {
+                    "type": "string"
+                },
+                "senha": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequisicaoRenovarToken": {
+            "type": "object",
+            "properties": {
+                "token_renovacao": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RespostaAutenticacao": {
+            "type": "object",
+            "properties": {
+                "tokens": {
+                    "$ref": "#/definitions/dto.ParTokensDTO"
+                },
+                "usuario": {
+                    "$ref": "#/definitions/dto.RespostaUsuario"
+                }
+            }
+        },
+        "dto.RespostaAvaliacao": {
+            "type": "object",
+            "properties": {
+                "cliente_id": {
+                    "type": "integer"
+                },
+                "comentario": {
+                    "type": "string"
+                },
+                "profissional_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "limpeza_id": {
+                    "type": "integer"
+                },
+                "nota": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaBloqueio": {
+            "type": "object",
+            "properties": {
+                "data_fim": {
+                    "type": "string"
+                },
+                "data_inicio": {
+                    "type": "string"
+                },
+                "e_pessoal": {
+                    "type": "boolean"
+                },
+                "profissional_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "solicitacao_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaDisponibilidade": {
+            "type": "object",
+            "properties": {
+                "dia_semana": {
+                    "type": "integer"
+                },
+                "profissional_id": {
+                    "type": "integer"
+                },
+                "hora_fim": {
+                    "type": "integer"
+                },
+                "hora_inicio": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaErro": {
+            "type": "object",
+            "properties": {
+                "codigo": {
+                    "type": "integer"
+                },
+                "detalhes": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "mensagem": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RespostaEstatisticasProfissional": {
+            "type": "object",
+            "properties": {
+                "profissional_id": {
+                    "type": "integer"
+                },
+                "media_nota": {
+                    "type": "number"
+                },
+                "total_avaliacoes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaItemFeed": {
+            "type": "object",
+            "properties": {
+                "data_evento": {
+                    "type": "string"
+                },
+                "limpeza": {
+                    "$ref": "#/definitions/dto.RespostaLimpeza"
+                },
+                "numero_linha": {
+                    "type": "integer"
+                },
+                "tipo_evento": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RespostaLimpeza": {
+            "type": "object",
+            "properties": {
+                "descricao": {
+                    "type": "string"
+                },
+                "duracao_estimada": {
+                    "type": "number"
+                },
+                "profissional_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome": {
+                    "type": "string"
+                },
+                "preco_total": {
+                    "type": "number"
+                },
+                "tipo_limpeza": {
+                    "type": "string"
+                },
+                "valor_hora": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.RespostaPaginaFeed": {
+            "type": "object",
+            "properties": {
+                "itens": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.RespostaItemFeed"
+                    }
+                },
+                "pagina": {
+                    "type": "integer"
+                },
+                "tamanho_pagina": {
+                    "type": "integer"
+                },
+                "tem_mais": {
+                    "type": "boolean"
+                },
+                "total_itens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaPerfil": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "imagem": {
+                    "type": "string"
+                },
+                "nome_completo": {
+                    "type": "string"
+                },
+                "nome_usuario": {
+                    "type": "string"
+                },
+                "telefone": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaPerfilCliente": {
+            "type": "object",
+            "properties": {
+                "banheiros": {
+                    "type": "integer"
+                },
+                "endereco": {
+                    "$ref": "#/definitions/dto.EnderecoDTO"
+                },
+                "profissional_preferido_id": {
+                    "type": "integer"
+                },
+                "observacoes": {
+                    "type": "string"
+                },
+                "quartos": {
+                    "type": "integer"
+                },
+                "tamanho_imovel_m2": {
+                    "type": "number"
+                },
+                "tipo_imovel": {
+                    "type": "string"
+                },
+                "usuario_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.RespostaPerfilProfissional": {
+            "type": "object",
+            "properties": {
+                "anos_experiencia": {
+                    "type": "integer"
+                },
+                "cidades_atendidas": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "descricao": {
+                    "type": "string"
+                },
+                "especialidades": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "usuario_id": {
+                    "type": "integer"
+                },
+                "verificado": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.RespostaSolicitacao": {
+            "type": "object",
+            "properties": {
+                "cliente_id": {
+                    "type": "integer"
+                },
+                "data_agendada": {
+                    "type": "string"
+                },
+                "endereco": {
+                    "$ref": "#/definitions/dto.EnderecoDTO"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "limpeza_id": {
+                    "type": "integer"
+                },
+                "multa_cancelamento": {
+                    "type": "number"
+                },
+                "preco_total": {
+                    "type": "number"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RespostaUsuario": {
+            "type": "object",
+            "properties": {
+                "ativo": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "nome_usuario": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Use o formato \"Bearer {token}\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
