@@ -10,17 +10,16 @@ import (
 // HandlerAutenticacao gerencia os endpoints de autenticação.
 type HandlerAutenticacao struct {
 	servico *auth.ServicoAutenticacao
-	cfgOIDC auth.ConfiguracaoZitadel
 }
 
 // NovoHandlerAutenticacao cria um novo HandlerAutenticacao.
-func NovoHandlerAutenticacao(servico *auth.ServicoAutenticacao, cfg auth.ConfiguracaoZitadel) *HandlerAutenticacao {
-	return &HandlerAutenticacao{servico: servico, cfgOIDC: cfg}
+func NovoHandlerAutenticacao(servico *auth.ServicoAutenticacao) *HandlerAutenticacao {
+	return &HandlerAutenticacao{servico: servico}
 }
 
 // Registrar godoc
 // @Summary      Registrar novo usuário
-// @Description  Cria uma nova conta com email, nome de usuário e senha via Zitadel
+// @Description  Cria uma nova conta com email, nome de usuário e senha
 // @Tags         auth
 // @Accept       json
 // @Produce      json
@@ -51,7 +50,7 @@ func (h *HandlerAutenticacao) Registrar(w http.ResponseWriter, r *http.Request) 
 
 // Login godoc
 // @Summary      Login
-// @Description  Autentica o usuário com email e senha via Zitadel e retorna tokens JWT
+// @Description  Autentica o usuário com email e senha e retorna tokens JWT
 // @Tags         auth
 // @Accept       json
 // @Produce      json
@@ -82,7 +81,7 @@ func (h *HandlerAutenticacao) Login(w http.ResponseWriter, r *http.Request) {
 
 // RenovarToken godoc
 // @Summary      Renovar token
-// @Description  Usa o token de renovação do Zitadel para obter um novo par de tokens JWT
+// @Description  Usa o token de renovação para obter um novo par de tokens JWT
 // @Tags         auth
 // @Accept       json
 // @Produce      json
@@ -104,19 +103,4 @@ func (h *HandlerAutenticacao) RenovarToken(w http.ResponseWriter, r *http.Reques
 	}
 
 	escreverJSON(w, http.StatusOK, dto.DeParTokens(tokens))
-}
-
-// ConfiguracaoOIDC godoc
-// @Summary      Configuração OIDC
-// @Description  Retorna a URL e client_id do Zitadel para configuração do frontend
-// @Tags         auth
-// @Produce      json
-// @Success      200  {object}  dto.RespostaConfiguracaoOIDC
-// @Router       /auth/config [get]
-func (h *HandlerAutenticacao) ConfiguracaoOIDC(w http.ResponseWriter, r *http.Request) {
-	escreverJSON(w, http.StatusOK, dto.RespostaConfiguracaoOIDC{
-		URL:      h.cfgOIDC.URL,
-		ClientID: h.cfgOIDC.ClientID,
-		Emissor:  h.cfgOIDC.Emissor,
-	})
 }

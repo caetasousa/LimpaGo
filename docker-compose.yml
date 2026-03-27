@@ -45,76 +45,6 @@ services:
     ports:
       - "8080:8080"
 
-  zitadel_postgres:
-    image: postgres:16-alpine
-    container_name: limpago_zitadel_postgres
-    environment:
-      POSTGRES_USER: zitadel
-      POSTGRES_PASSWORD: zitadel_dev
-      POSTGRES_DB: zitadel
-    ports:
-      - "5435:5432"
-    volumes:
-      - zitadel_pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U zitadel -d zitadel"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  zitadel:
-    image: ghcr.io/zitadel/zitadel:latest
-    container_name: limpago_zitadel
-    depends_on:
-      zitadel_postgres:
-        condition: service_healthy
-    command: start-from-init --masterkeyFromEnv --tlsMode disabled
-    environment:
-      ZITADEL_DATABASE_POSTGRES_HOST: zitadel_postgres
-      ZITADEL_DATABASE_POSTGRES_PORT: 5432
-      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
-      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
-      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: zitadel_dev
-      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
-      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: zitadel
-      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: zitadel_dev
-      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
-      ZITADEL_MASTERKEY: ${ZITADEL_MASTERKEY:-chave-mestra-dev-32-caracteres!!}
-      ZITADEL_EXTERNALSECURE: "false"
-      ZITADEL_EXTERNALPORT: 8085
-      ZITADEL_EXTERNALDOMAIN: localhost
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: admin@limpago.local
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: "Admin123!"
-    ports:
-      - "8085:8080"
-
-  zitadel_teste:
-    image: ghcr.io/zitadel/zitadel:latest
-    container_name: limpago_zitadel_teste
-    profiles: ["test"]
-    depends_on:
-      zitadel_postgres:
-        condition: service_healthy
-    command: start-from-init --masterkeyFromEnv --tlsMode disabled
-    environment:
-      ZITADEL_DATABASE_POSTGRES_HOST: zitadel_postgres
-      ZITADEL_DATABASE_POSTGRES_PORT: 5432
-      ZITADEL_DATABASE_POSTGRES_DATABASE: zitadel
-      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: zitadel
-      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: zitadel_dev
-      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
-      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: zitadel
-      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: zitadel_dev
-      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
-      ZITADEL_MASTERKEY: ${ZITADEL_MASTERKEY:-chave-mestra-dev-32-caracteres!!}
-      ZITADEL_EXTERNALSECURE: "false"
-      ZITADEL_EXTERNALPORT: 8085
-      ZITADEL_EXTERNALDOMAIN: localhost
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: admin@limpago.local
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: "Admin123!"
-    ports:
-      - "8086:8080"
-
   postgres_teste:
     image: postgres:16-alpine
     container_name: limpago_postgres_teste
@@ -135,4 +65,3 @@ services:
 
 volumes:
   pgdata:
-  zitadel_pgdata:

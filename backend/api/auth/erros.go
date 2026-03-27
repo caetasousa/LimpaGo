@@ -19,6 +19,4 @@ var (
 	// ErrUsuarioInativo é retornado quando a conta do usuário está desativada.
 	ErrUsuarioInativo = errors.New("conta de usuário desativada")
 
-	// ErrEmailJaCadastradoNoIdP é retornado quando o email já existe no provedor de identidade.
-	ErrEmailJaCadastradoNoIdP = errors.New("email já cadastrado no provedor de identidade")
 )

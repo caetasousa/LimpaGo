@@ -29,22 +29,20 @@ func criarDependencias(t *testing.T) router.Dependencias {
 	svcAvaliacao := service.NovoServicoAvaliacao(repoAvaliacoes, repoSolicitacoes, repoLimpezas)
 	svcFeed := service.NovoServicoFeed(repoFeed)
 
-	svcTokenOIDC := auth.NovoServicoTokenOIDCMock()
-	sincronizacao := auth.NovoServicoSincronizacao(repoUsuarios, svcUsuario)
-	cfgZitadel := auth.CarregarConfiguracaoZitadel()
-	clienteZitadel := auth.NovoClienteZitadel(cfgZitadel)
-	svcAuth := auth.NovoServicoAutenticacao(clienteZitadel, sincronizacao, svcTokenOIDC)
+	repoCredenciais := auth.NovoRepositorioCredencialMock()
+	cfgJWT := auth.ConfiguracaoPadrao()
+	svcToken := auth.NovoServicoToken(cfgJWT)
+	svcAuth := auth.NovoServicoAutenticacao(repoUsuarios, repoCredenciais, svcUsuario, svcToken)
 
 	return router.Dependencias{
-		Autenticacao:     handler.NovoHandlerAutenticacao(svcAuth, cfgZitadel),
-		ServicoTokenOIDC: svcTokenOIDC,
-		Sincronizacao:    sincronizacao,
-		Usuario:          handler.NovoHandlerUsuario(svcUsuario),
-		Limpeza:          handler.NovoHandlerLimpeza(svcLimpeza),
-		Solicitacao:      handler.NovoHandlerSolicitacao(svcSolicitacao),
-		Agenda:           handler.NovoHandlerAgenda(svcAgenda),
-		Avaliacao:        handler.NovoHandlerAvaliacao(svcAvaliacao),
-		Feed:             handler.NovoHandlerFeed(svcFeed),
+		Autenticacao: handler.NovoHandlerAutenticacao(svcAuth),
+		ServicoToken: svcToken,
+		Usuario:      handler.NovoHandlerUsuario(svcUsuario),
+		Limpeza:      handler.NovoHandlerLimpeza(svcLimpeza),
+		Solicitacao:  handler.NovoHandlerSolicitacao(svcSolicitacao),
+		Agenda:       handler.NovoHandlerAgenda(svcAgenda),
+		Avaliacao:    handler.NovoHandlerAvaliacao(svcAvaliacao),
+		Feed:         handler.NovoHandlerFeed(svcFeed),
 	}
 }
 
@@ -61,7 +59,6 @@ func TestRouter_rotas_publicas_respondem(t *testing.T) {
 	}{
 		{name: "catalogo de limpezas é acessível sem autenticação", method: http.MethodGet, path: "/api/v1/limpezas", want: http.StatusOK},
 		{name: "feed é acessível sem autenticação", method: http.MethodGet, path: "/api/v1/feed", want: http.StatusOK},
-		{name: "config OIDC é acessível sem autenticação", method: http.MethodGet, path: "/api/v1/auth/config", want: http.StatusOK},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

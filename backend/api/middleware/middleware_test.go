@@ -8,23 +8,16 @@ import (
 
 	"limpaGo/api/auth"
 	"limpaGo/api/middleware"
-	"limpaGo/domain/service"
-	"limpaGo/domain/testutil"
 )
 
-func novoSincronizacaoMock(t *testing.T) *auth.ServicoSincronizacao {
+func novoSvcToken(t *testing.T) *auth.ServicoToken {
 	t.Helper()
-	repoUsuarios := testutil.NovoRepositorioUsuarioMock()
-	repoPerfis := testutil.NovoRepositorioPerfilMock()
-	svcUsuario := service.NovoServicoUsuario(repoUsuarios, repoPerfis)
-	return auth.NovoServicoSincronizacao(repoUsuarios, svcUsuario)
+	return auth.NovoServicoToken(auth.ConfiguracaoPadrao())
 }
 
-func TestAutenticacaoOIDC_requisicao_sem_token_retorna_401(t *testing.T) {
+func TestAutenticacaoJWT_requisicao_sem_token_retorna_401(t *testing.T) {
 	t.Parallel()
-	svcToken := auth.NovoServicoTokenOIDCMock()
-	sinc := novoSincronizacaoMock(t)
-	mw := middleware.AutenticacaoOIDC(svcToken, sinc)
+	mw := middleware.AutenticacaoJWT(novoSvcToken(t))
 	h := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -38,11 +31,9 @@ func TestAutenticacaoOIDC_requisicao_sem_token_retorna_401(t *testing.T) {
 	}
 }
 
-func TestAutenticacaoOIDC_token_invalido_retorna_401(t *testing.T) {
+func TestAutenticacaoJWT_token_invalido_retorna_401(t *testing.T) {
 	t.Parallel()
-	svcToken := auth.NovoServicoTokenOIDCMock()
-	sinc := novoSincronizacaoMock(t)
-	mw := middleware.AutenticacaoOIDC(svcToken, sinc)
+	mw := middleware.AutenticacaoJWT(novoSvcToken(t))
 	h := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -57,11 +48,9 @@ func TestAutenticacaoOIDC_token_invalido_retorna_401(t *testing.T) {
 	}
 }
 
-func TestAutenticacaoOIDC_header_sem_bearer_retorna_401(t *testing.T) {
+func TestAutenticacaoJWT_header_sem_bearer_retorna_401(t *testing.T) {
 	t.Parallel()
-	svcToken := auth.NovoServicoTokenOIDCMock()
-	sinc := novoSincronizacaoMock(t)
-	mw := middleware.AutenticacaoOIDC(svcToken, sinc)
+	mw := middleware.AutenticacaoJWT(novoSvcToken(t))
 	h := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))

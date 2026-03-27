@@ -3,111 +3,150 @@ package auth
 import (
 	"context"
 	"errors"
+	"unicode"
 
 	errosdominio "limpaGo/domain/errors"
 	"limpaGo/domain/entity"
+	"limpaGo/domain/repository"
+	"limpaGo/domain/service"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-// ServicoAutenticacao gerencia registro, login e renovação de tokens via Zitadel.
+// ServicoAutenticacao gerencia registro, login e renovação de tokens via bcrypt + JWT local.
 type ServicoAutenticacao struct {
-	clienteZitadel *ClienteZitadel
-	sincronizacao  *ServicoSincronizacao
-	svcToken       *ServicoTokenOIDC
+	usuarios    repository.RepositorioUsuario
+	credenciais RepositorioCredencial
+	svcUsuario  *service.ServicoUsuario
+	svcToken    *ServicoToken
 }
 
-// NovoServicoAutenticacao cria um ServicoAutenticacao que delega ao Zitadel.
+// NovoServicoAutenticacao cria um ServicoAutenticacao com autenticação local.
 func NovoServicoAutenticacao(
-	clienteZitadel *ClienteZitadel,
-	sincronizacao *ServicoSincronizacao,
-	svcToken *ServicoTokenOIDC,
+	usuarios repository.RepositorioUsuario,
+	credenciais RepositorioCredencial,
+	svcUsuario *service.ServicoUsuario,
+	svcToken *ServicoToken,
 ) *ServicoAutenticacao {
 	return &ServicoAutenticacao{
-		clienteZitadel: clienteZitadel,
-		sincronizacao:  sincronizacao,
-		svcToken:       svcToken,
+		usuarios:    usuarios,
+		credenciais: credenciais,
+		svcUsuario:  svcUsuario,
+		svcToken:    svcToken,
 	}
 }
 
-// Registrar cria um novo usuário no Zitadel e sincroniza no banco local.
-// Retorna o usuário local e o par de tokens emitido pelo Zitadel.
+// Registrar valida a senha, cria o usuário, salva o hash bcrypt e retorna tokens HMAC.
 func (s *ServicoAutenticacao) Registrar(ctx context.Context, email, nomeUsuario, senha string) (*entity.Usuario, *ParTokens, error) {
-	// 1. Registra o usuário no Zitadel (Management API)
-	_, err := s.clienteZitadel.RegistrarUsuario(ctx, email, nomeUsuario, senha)
+	if err := validarForcaSenha(senha); err != nil {
+		return nil, nil, err
+	}
+
+	usuario, err := s.svcUsuario.Registrar(ctx, email, nomeUsuario)
 	if err != nil {
-		if errors.Is(err, ErrEmailJaCadastradoNoIdP) {
+		if errors.Is(err, errosdominio.ErrEmailJaUtilizado) {
 			return nil, nil, errosdominio.ErrEmailJaUtilizado
 		}
 		return nil, nil, err
 	}
 
-	// 2. Obtém tokens via login (Resource Owner Password Grant)
-	tokens, err := s.clienteZitadel.Autenticar(ctx, email, senha)
+	hash, err := bcrypt.GenerateFromPassword([]byte(senha), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// 3. Sincroniza o usuário no banco local
-	usuario, err := s.sincronizacao.SincronizarOuBuscar(ctx, email, nomeUsuario)
+	cred := &Credencial{UsuarioID: usuario.ID, SenhaHash: string(hash)}
+	if err := s.credenciais.Salvar(ctx, cred); err != nil {
+		return nil, nil, err
+	}
+
+	tokens, err := s.gerarTokens(usuario)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return usuario, zitadelParaParTokens(tokens), nil
+	return usuario, tokens, nil
 }
 
-// Login autentica o usuário via Zitadel e sincroniza no banco local.
+// Login verifica email, compara o hash bcrypt e retorna tokens HMAC.
 func (s *ServicoAutenticacao) Login(ctx context.Context, email, senha string) (*entity.Usuario, *ParTokens, error) {
-	// 1. Autentica via Zitadel
-	tokens, err := s.clienteZitadel.Autenticar(ctx, email, senha)
-	if err != nil {
-		if errors.Is(err, ErrCredenciaisInvalidas) {
-			return nil, nil, ErrCredenciaisInvalidas
-		}
-		return nil, nil, err
-	}
-
-	// 2. Extrai email das claims do token para sincronizar
-	claims, err := s.svcToken.ValidarTokenAcesso(tokens.TokenAcesso)
-	emailParaSinc := email
-	nomeParaSinc := ""
-	if err == nil && claims != nil {
-		if claims.Email != "" {
-			emailParaSinc = claims.Email
-		}
-		nomeParaSinc = claims.NomeUsuario
-	}
-
-	// 3. Sincroniza o usuário no banco local
-	usuario, err := s.sincronizacao.SincronizarOuBuscar(ctx, emailParaSinc, nomeParaSinc)
-	if err != nil {
-		return nil, nil, err
+	usuario, err := s.usuarios.BuscarPorEmail(ctx, email)
+	if err != nil || usuario == nil {
+		return nil, nil, ErrCredenciaisInvalidas
 	}
 
 	if !usuario.Ativo {
 		return nil, nil, ErrUsuarioInativo
 	}
 
-	return usuario, zitadelParaParTokens(tokens), nil
+	cred, err := s.credenciais.BuscarPorUsuarioID(ctx, usuario.ID)
+	if err != nil {
+		return nil, nil, ErrCredenciaisInvalidas
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(cred.SenhaHash), []byte(senha)); err != nil {
+		return nil, nil, ErrCredenciaisInvalidas
+	}
+
+	tokens, err := s.gerarTokens(usuario)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return usuario, tokens, nil
 }
 
-// RenovarToken usa um refresh_token do Zitadel para obter novos tokens.
+// RenovarToken valida o token de renovação HMAC e gera um novo par de tokens.
 func (s *ServicoAutenticacao) RenovarToken(ctx context.Context, tokenRenovacao string) (*ParTokens, error) {
-	tokens, err := s.clienteZitadel.RenovarToken(ctx, tokenRenovacao)
+	claims, err := s.svcToken.ValidarTokenRenovacao(tokenRenovacao)
 	if err != nil {
-		if errors.Is(err, ErrCredenciaisInvalidas) {
-			return nil, ErrTokenRenovacaoInvalido
-		}
 		return nil, ErrTokenRenovacaoInvalido
 	}
 
-	return zitadelParaParTokens(tokens), nil
+	usuario, err := s.usuarios.BuscarPorID(ctx, claims.UsuarioID)
+	if err != nil {
+		return nil, ErrTokenRenovacaoInvalido
+	}
+
+	return s.gerarTokens(usuario)
 }
 
-func zitadelParaParTokens(t *TokensZitadel) *ParTokens {
-	return &ParTokens{
-		TokenAcesso:    t.TokenAcesso,
-		TokenRenovacao: t.TokenRenovacao,
-		TipoToken:      "Bearer",
-		ExpiraEm:       t.ExpiraEm,
+func (s *ServicoAutenticacao) gerarTokens(usuario *entity.Usuario) (*ParTokens, error) {
+	tokenAcesso, err := s.svcToken.GerarTokenAcesso(usuario)
+	if err != nil {
+		return nil, err
 	}
+
+	tokenRenovacao, err := s.svcToken.GerarTokenRenovacao(usuario)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ParTokens{
+		TokenAcesso:    tokenAcesso,
+		TokenRenovacao: tokenRenovacao,
+		TipoToken:      "Bearer",
+		ExpiraEm:       s.svcToken.TempoExpiracaoAcesso(),
+	}, nil
+}
+
+// validarForcaSenha exige mínimo 8 caracteres, ao menos uma letra maiúscula e um dígito.
+func validarForcaSenha(senha string) error {
+	if len(senha) < 8 {
+		return ErrSenhaFraca
+	}
+	temMaiuscula := false
+	temDigito := false
+	for _, r := range senha {
+		if unicode.IsUpper(r) {
+			temMaiuscula = true
+		}
+		if unicode.IsDigit(r) {
+			temDigito = true
+		}
+	}
+	if !temMaiuscula || !temDigito {
+		return ErrSenhaFraca
+	}
+	return nil
 }

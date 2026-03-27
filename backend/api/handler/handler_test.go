@@ -39,8 +39,8 @@ type ambienteTeste struct {
 	svcSolicitacao *service.ServicoSolicitacao
 	svcAvaliacao   *service.ServicoAvaliacao
 	svcFeed        *service.ServicoFeed
-	svcAuth        *auth.ServicoAutenticacao
-	sincronizacao  *auth.ServicoSincronizacao
+	svcAuth  *auth.ServicoAutenticacao
+	svcToken *auth.ServicoToken
 
 	handlerAuth        *handler.HandlerAutenticacao
 	handlerUsuario     *handler.HandlerUsuario
@@ -69,11 +69,10 @@ func novoAmbienteTeste(t *testing.T) *ambienteTeste {
 	svcAvaliacao := service.NovoServicoAvaliacao(repoAvaliacoes, repoSolicitacoes, repoLimpezas)
 	svcFeed := service.NovoServicoFeed(repoFeed)
 
-	svcTokenOIDC := auth.NovoServicoTokenOIDCMock()
-	sincronizacao := auth.NovoServicoSincronizacao(repoUsuarios, svcUsuario)
-	cfgZitadel := auth.CarregarConfiguracaoZitadel()
-	clienteZitadel := auth.NovoClienteZitadel(cfgZitadel)
-	svcAuth := auth.NovoServicoAutenticacao(clienteZitadel, sincronizacao, svcTokenOIDC)
+	repoCredenciais := auth.NovoRepositorioCredencialMock()
+	cfgJWT := auth.ConfiguracaoPadrao()
+	svcToken := auth.NovoServicoToken(cfgJWT)
+	svcAuth := auth.NovoServicoAutenticacao(repoUsuarios, repoCredenciais, svcUsuario, svcToken)
 
 	return &ambienteTeste{
 		repoUsuarios:     repoUsuarios,
@@ -90,10 +89,10 @@ func novoAmbienteTeste(t *testing.T) *ambienteTeste {
 		svcSolicitacao: svcSolicitacao,
 		svcAvaliacao:   svcAvaliacao,
 		svcFeed:        svcFeed,
-		svcAuth:        svcAuth,
-		sincronizacao:  sincronizacao,
+		svcAuth:  svcAuth,
+		svcToken: svcToken,
 
-		handlerAuth:        handler.NovoHandlerAutenticacao(svcAuth, cfgZitadel),
+		handlerAuth:        handler.NovoHandlerAutenticacao(svcAuth),
 		handlerUsuario:     handler.NovoHandlerUsuario(svcUsuario),
 		handlerLimpeza:     handler.NovoHandlerLimpeza(svcLimpeza),
 		handlerSolicitacao: handler.NovoHandlerSolicitacao(svcSolicitacao),
@@ -141,11 +140,8 @@ func reqComChiParams(req *http.Request, params map[string]string) *http.Request 
 }
 
 // --- Testes de Autenticação ---
-// Nota: os endpoints /auth/registrar, /auth/login e /auth/renovar delegam ao Zitadel via HTTP.
-// Os testes unitários verificam o comportamento do handler quando o Zitadel não está disponível
-// (retorna erro de rede). Os fluxos completos são validados nos testes de integração em infra/zitadel/.
 
-func TestRegistro_sem_zitadel_retorna_erro(t *testing.T) {
+func TestRegistro_email_valido_retorna_201(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 	body := dto.RequisicaoRegistroComSenha{
@@ -156,42 +152,12 @@ func TestRegistro_sem_zitadel_retorna_erro(t *testing.T) {
 
 	amb.handlerAuth.Registrar(rec, req)
 
-	// Sem Zitadel disponível, o handler deve retornar erro (não 2xx)
-	if rec.Code == http.StatusCreated {
-		t.Error("expected error without Zitadel; got 201")
+	if rec.Code != http.StatusCreated {
+		t.Errorf("got %d; want %d", rec.Code, http.StatusCreated)
 	}
 }
 
-func TestLogin_sem_zitadel_retorna_erro(t *testing.T) {
-	t.Parallel()
-	amb := novoAmbienteTeste(t)
-	body := dto.RequisicaoLogin{Email: "login@email.com", Senha: "Senha123forte"}
-	req := reqComToken(http.MethodPost, "/auth/login", body, "")
-	rec := httptest.NewRecorder()
-
-	amb.handlerAuth.Login(rec, req)
-
-	// Sem Zitadel disponível, o handler deve retornar erro (não 2xx)
-	if rec.Code == http.StatusOK {
-		t.Error("expected error without Zitadel; got 200")
-	}
-}
-
-func TestConfiguracaoOIDC_retorna_200(t *testing.T) {
-	t.Parallel()
-	amb := novoAmbienteTeste(t)
-
-	req := httptest.NewRequest(http.MethodGet, "/auth/config", nil)
-	rec := httptest.NewRecorder()
-
-	amb.handlerAuth.ConfiguracaoOIDC(rec, req)
-
-	if rec.Code != http.StatusOK {
-		t.Errorf("got %d; want %d", rec.Code, http.StatusOK)
-	}
-}
-
-func TestLogin_email_inexistente_retorna_erro(t *testing.T) {
+func TestLogin_email_inexistente_retorna_401(t *testing.T) {
 	t.Parallel()
 	amb := novoAmbienteTeste(t)
 
@@ -200,23 +166,6 @@ func TestLogin_email_inexistente_retorna_erro(t *testing.T) {
 	rec := httptest.NewRecorder()
 
 	amb.handlerAuth.Login(rec, req)
-
-	// Sem Zitadel disponível, espera-se qualquer erro (não 2xx)
-	if rec.Code >= 200 && rec.Code < 300 {
-		t.Errorf("expected error status; got %d", rec.Code)
-	}
-}
-
-func TestRenovarToken_token_invalido_por_falta_de_zitadel_retorna_401(t *testing.T) {
-	t.Parallel()
-	amb := novoAmbienteTeste(t)
-
-	// No modo de teste (sem Zitadel), um refresh token qualquer deve retornar 401
-	body := dto.RequisicaoRenovarToken{TokenRenovacao: "refresh-token-ficticio"}
-	req := reqComToken(http.MethodPost, "/auth/renovar", body, "")
-	rec := httptest.NewRecorder()
-
-	amb.handlerAuth.RenovarToken(rec, req)
 
 	if rec.Code != http.StatusUnauthorized {
 		t.Errorf("got %d; want %d", rec.Code, http.StatusUnauthorized)

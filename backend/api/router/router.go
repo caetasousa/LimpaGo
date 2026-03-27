@@ -26,15 +26,14 @@ import (
 
 // Dependencias agrupa todos os handlers e serviços necessários para construir o router.
 type Dependencias struct {
-	Autenticacao    *handler.HandlerAutenticacao
-	ServicoTokenOIDC *auth.ServicoTokenOIDC
-	Sincronizacao   *auth.ServicoSincronizacao
-	Usuario         *handler.HandlerUsuario
-	Limpeza         *handler.HandlerLimpeza
-	Solicitacao     *handler.HandlerSolicitacao
-	Agenda          *handler.HandlerAgenda
-	Avaliacao       *handler.HandlerAvaliacao
-	Feed            *handler.HandlerFeed
+	Autenticacao *handler.HandlerAutenticacao
+	ServicoToken *auth.ServicoToken
+	Usuario      *handler.HandlerUsuario
+	Limpeza      *handler.HandlerLimpeza
+	Solicitacao  *handler.HandlerSolicitacao
+	Agenda       *handler.HandlerAgenda
+	Avaliacao    *handler.HandlerAvaliacao
+	Feed         *handler.HandlerFeed
 }
 
 // Novo constrói e retorna o router Chi com todas as rotas registradas.
@@ -51,14 +50,13 @@ func Novo(d Dependencias) http.Handler {
 
 	// API v1
 	r.Route("/api/v1", func(r chi.Router) {
-		// Autenticação (público) — proxy para o Zitadel
+		// Autenticação (público)
 		r.Post("/auth/registrar", d.Autenticacao.Registrar)
 		r.Post("/auth/login", d.Autenticacao.Login)
 		r.Post("/auth/renovar", d.Autenticacao.RenovarToken)
-		r.Get("/auth/config", d.Autenticacao.ConfiguracaoOIDC)
 
-		// Middleware OIDC aplicado a todos os grupos protegidos
-		autenticado := middleware.AutenticacaoOIDC(d.ServicoTokenOIDC, d.Sincronizacao)
+		// Middleware JWT aplicado a todos os grupos protegidos
+		autenticado := middleware.AutenticacaoJWT(d.ServicoToken)
 
 		// Usuários (autenticado)
 		r.Group(func(r chi.Router) {
